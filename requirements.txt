@@ -1,0 +1,8 @@
+pdf2image
+PyPDF2
+reportlab
+pytesseract
+Pillow
+pandas
+numpy
+openpyxl
