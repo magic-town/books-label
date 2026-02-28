@@ -5,7 +5,7 @@
 
 ---
 
-## ⚡ Ejecución rápida
+## ⚡ Ejecución imediata
 
 1. Extraer y validar precios → guardar como `precios_cat.xlsx`
 2. Activar entorno virtual `venv_catalogo`
