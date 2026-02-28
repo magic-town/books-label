@@ -17,7 +17,7 @@ El motor OCR es **Tesseract**, compatible con este hardware.
 
 ## 1. Dependencias del sistema
 
-Desde la terminal ejecuta posicionado en el /home/user/, es decir,:
+Desde la terminal ejecuta posicionado en el `/home/user/`, es decir,:
 
 ```bash
 ┌─[user@hostname]─[~]
@@ -64,6 +64,8 @@ python3 --version       # debe mostrar 3.10 o superior
 ---
 
 ## 3. Entorno virtual Python
+
+Ahora encapsulemos nuestro laboratorio:
 
 ```bash
 cd ~/books-label
