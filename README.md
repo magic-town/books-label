@@ -15,20 +15,24 @@ Convierte catálogos sin precios en catálogos listos para cliente en minutos.
 ---
 
 ## Estructura del proyecto
+
+Usa `tree -L 2 ~/books-label`desde `/home/user/` ¿para visualizar tu estructura:
+
 ```
-books-label/
-│
-├── libros/               # Catálogos PDF crudos del proveedor
-├── precios/              # Archivos .xlsx con [ID, precio_venta]
-├── salidas/              # PDFs etiquetados (output final)
-├── scripts/              # Scripts Python de etiquetado
-├── prompts/              # Prompts listos para extraer precios con LLM
-├── diagnosticos/         # Logs y reportes de cada ejecución
-└── docs/                 # Documentación
-    ├── CHECKLIST.md      # Proceso paso a paso
-    ├── DIAGNOSTICO.md    # Cómo interpretar resultados y reportar fallas
-    ├── SETUP.md          # Configuración del entorno
-    └── git-esencial.txt  # Comandos Git para el equipo
+/home/user/books-label
+├── diagnosticos
+├── docs
+│   ├── CHECKLIST.md
+│   ├── DIAGNOSTICO.md
+│   ├── git-esencial.txt
+│   └── SETUP.md
+├── libros
+├── precios
+├── prompts
+├── README.md
+├── requirements.txt
+├── salidas
+└── scripts
 ```
 
 ## Flujo de trabajo

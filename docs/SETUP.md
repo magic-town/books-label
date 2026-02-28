@@ -17,7 +17,7 @@ El motor OCR es **Tesseract**, compatible con este hardware.
 
 ## 1. Dependencias del sistema
 
-Desde la terminal ejecuta posicionado en el `/home/user/`, es decir,:
+Desde la terminal ejecuta posicionado en el `/home/user/`, es decir:
 
 ```bash
 ┌─[user@hostname]─[~]
@@ -49,16 +49,24 @@ python3 --version       # debe mostrar 3.10 o superior
 
 ## 2. Estructura del proyecto
 
+Usa `tree -L 2 ~/books-label`desde `/home/user/` ¿para visualizar tu estructura:
+
+
 ```
-~/books-label/
-├── libros/          ← PDFs crudos del proveedor
-├── precios/         ← Archivos .xlsx con [ID, precio_venta]
-├── salidas/         ← PDFs etiquetados (output final)
-├── scripts/         ← Scripts Python
-├── prompts/         ← Prompts para extracción con LLM
-├── diagnosticos/    ← Logs de ejecución
-├── docs/            ← Documentación
-└── venv_catalogo/   ← Entorno virtual (no se sube al repo)
+/home/user/books-label
+├── diagnosticos
+├── docs
+│   ├── CHECKLIST.md
+│   ├── DIAGNOSTICO.md
+│   ├── git-esencial.txt
+│   └── SETUP.md
+├── libros
+├── precios
+├── prompts
+├── README.md
+├── requirements.txt
+├── salidas
+└── scripts
 ```
 
 ---
