@@ -59,18 +59,28 @@ PDF proveedor → Extracción LLM → Validación → Script Python → PDF etiq
 
 ## Requisitos
 
+### Dependencias del sistema
 ```bash
-# Entorno virtual
+sudo apt install -y \
+    poppler-utils \
+    tesseract-ocr \
+    tesseract-ocr-spa \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    python3-pip \
+    python3-venv
+```
+
+### Entorno virtual y librerías Python
+```bash
+cd ~/books-label
 python3 -m venv venv_catalogo
 source venv_catalogo/bin/activate
-
-# Dependencias
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Dependencias del sistema
-- `tesseract-ocr` con idioma español (`tesseract-ocr-spa`)
-- `poppler-utils` (para pdf2image)
+> Ver `docs/SETUP.md` para instrucciones detalladas y solución de problemas.
 
 ---
 

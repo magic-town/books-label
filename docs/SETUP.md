@@ -73,7 +73,7 @@ Usa `tree -L 2 ~/books-label`desde `/home/user/` ¿para visualizar tu estructura
 
 ## 3. Entorno virtual Python
 
-Ahora encapsulemos nuestro laboratorio:
+Ahora encapsulamos nuestro laboratorio:
 
 ```bash
 cd ~/books-label
