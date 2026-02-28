@@ -16,7 +16,7 @@ Convierte catálogos sin precios en catálogos listos para cliente en minutos.
 
 ## Estructura del proyecto
 
-Usa `tree -L 2 ~/books-label`desde `/home/user/` ¿para visualizar tu estructura:
+Usa `tree -L 2 ~/books-label`desde `/home/user/` para visualizar tu estructura:
 
 ```
 /home/user/books-label
@@ -84,7 +84,7 @@ source venv_catalogo/bin/activate
 python3 scripts/catalogo_pag.py
 
 # Catálogo completo
-python3 scripts/catalogo_fecha.py
+python3 scripts/catalogo_temprada.py
 ```
 
 Antes de ejecutar, verificar en el script:

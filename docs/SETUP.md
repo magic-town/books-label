@@ -85,7 +85,9 @@ pip install --upgrade pip
 El prompt debe cambiar a:
 
 ```
-(venv_catalogo) gabriel@actuary:~/books-label$
+```bash
+┌─(venv-catalgo)[user@hostname]─[~]
+└─$ 
 ```
 
 ---
@@ -131,6 +133,13 @@ print(f"   Tesseract: {pytesseract.get_tesseract_version()}")
 print(f"   Pandas:    {pd.__version__}")
 print(f"   PIL:       {PIL.__version__}")
 EOF
+```
+
+Ahora puedes hacer:
+
+```bash
+┌─(venv-catalgo)[user@hostname]─[~]
+└─$ deactivate 
 ```
 
 ---
