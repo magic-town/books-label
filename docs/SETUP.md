@@ -24,7 +24,7 @@ Desde la terminal ejecuta posicionado en el `/home/user/`, es decir,:
 └─$ 
 ```
 
-Los siguietes comandos, basta con hacer copy - paste
+Los siguietes comandos, basta con hacer copy-paste:
 
 ```bash
 sudo apt update

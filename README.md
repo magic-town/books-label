@@ -15,32 +15,28 @@ Convierte catálogos sin precios en catálogos listos para cliente en minutos.
 ---
 
 ## Estructura del proyecto
-
 ```
-taller_etiquetado/
+books-label/
 │
 ├── libros/               # Catálogos PDF crudos del proveedor
 ├── precios/              # Archivos .xlsx con [ID, precio_venta]
 ├── salidas/              # PDFs etiquetados (output final)
 ├── scripts/              # Scripts Python de etiquetado
-│   ├── catalogo_fecha.py     # Script principal (catálogo completo)
-│   └── catalogo_pag.py       # Script de prueba (1-10 páginas)
 ├── prompts/              # Prompts listos para extraer precios con LLM
-│   └── extraer_columnas_listas.txt
 ├── diagnosticos/         # Logs y reportes de cada ejecución
-└── docs/                 # Documentación y checklists
-    ├── CHECKLIST.md          # Proceso paso a paso
-    └── DIAGNOSTICO.md        # Cómo interpretar resultados y reportar fallas
+└── docs/                 # Documentación
+    ├── CHECKLIST.md      # Proceso paso a paso
+    ├── DIAGNOSTICO.md    # Cómo interpretar resultados y reportar fallas
+    ├── SETUP.md          # Configuración del entorno
+    └── git-esencial.txt  # Comandos Git para el equipo
 ```
-
----
 
 ## Flujo de trabajo
 
 ```
 PDF proveedor → Extracción LLM → Validación → Script Python → PDF etiquetado → WhatsApp
-     ↑                                                ↓
-     └──────────── Diagnóstico + iteración ───────────┘
+                                                    ↑                ↓
+                                                    └── Diagnóstico ─┘
 ```
 
 ---
