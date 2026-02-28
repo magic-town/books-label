@@ -17,6 +17,15 @@ El motor OCR es **Tesseract**, compatible con este hardware.
 
 ## 1. Dependencias del sistema
 
+Desde la terminal ejecuta posicionado en el /home/user/, es decir,:
+
+```bash
+┌─[user@hostname]─[~]
+└─$ 
+```
+
+Los siguietes comandos, basta con hacer copy - paste
+
 ```bash
 sudo apt update
 sudo apt install -y \
