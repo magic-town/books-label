@@ -70,7 +70,7 @@ Debes de tener la siguiente esctructura de árbol:
 ├── prompts
 ├── README.md
 ├── requirements.txt
-├── salidas
+├── salida
 └── scripts
 ```
 
@@ -220,7 +220,7 @@ deactivate
 df -h ~/books-label
 
 # Últimos archivos generados
-ls -lht salidas/ | head -10
+ls -lht salida/ | head -10
 
 # Limpiar caché Python
 find ~/books-label -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null

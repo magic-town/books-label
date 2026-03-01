@@ -45,7 +45,7 @@ debes de ver una estuctura similar a la siguiete 👇
 ├── prompts
 ├── README.md
 ├── requirements.txt
-├── salidas
+├── salida
 └── scripts
 ```
 
@@ -101,7 +101,7 @@ pip install -r requirements.txt
 ## Ejecución rápida
 
 ```bash
-cd ~/taller_etiquetado
+cd ~/books-label
 source venv_catalogo/bin/activate
 
 # Prueba (páginas 1-10)
@@ -114,7 +114,7 @@ python3 scripts/catalogo_temprada.py
 Antes de ejecutar, verificar en el script:
 - Nombre del PDF en `libros/`
 - Nombre del Excel en `precios/`
-- Nombre del archivo de salida en `salidas/`
+- Nombre del libro PDF etiquetado en `salida/`
 
 ---
 
@@ -152,5 +152,5 @@ Una eficiencia menor al 80% requiere diagnóstico antes de publicar.
 
 - El script **nunca será 100% estable** porque depende del formato del PDF del proveedor. Cada proveedor nuevo o temporada nueva puede requerir ajuste.
 - El log es la fuente de verdad. Si el PDF se ve bien pero el log muestra baja eficiencia, hay un problema.
-- Hacer siempre prueba de 1-10 páginas con proveedor nuevo o temporada nueva.
+- Hacer **siempre** la prueba de 10-20 páginas con proveedor nuevo o temporada nueva.
 - Los archivos en `salidas/` son el producto final. Nunca modificar manualmente.
