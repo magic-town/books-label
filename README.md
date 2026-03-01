@@ -16,7 +16,19 @@ Convierte catálogos sin precios en catálogos listos para cliente en minutos.
 
 ## Estructura del proyecto
 
-Usa `tree -L 2 ~/books-label`desde `/home/user/` para visualizar tu estructura:
+Una vez clonado el repositorio, revisemos la arquitectura de directorios, desde tu teminal ejecuta:
+
+┌─[user@hostname]─[~]
+└─$ tree -L 2 ~/books-label
+
+o copia y pega:
+
+```
+tree -L 2 ~/books-label
+```
+debes de ver una estuctura similar a la siguiete 👇
+
+
 
 ```
 /home/user/books-label
@@ -24,7 +36,7 @@ Usa `tree -L 2 ~/books-label`desde `/home/user/` para visualizar tu estructura:
 ├── docs
 │   ├── CHECKLIST.md
 │   ├── DIAGNOSTICO.md
-│   ├── git-esencial.txt
+│   ├── git-esencial.md
 │   └── SETUP.md
 ├── libros
 ├── precios

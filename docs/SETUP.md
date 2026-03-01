@@ -84,7 +84,6 @@ pip install --upgrade pip
 
 El prompt debe cambiar a:
 
-```
 ```bash
 ┌─(venv-catalgo)[user@hostname]─[~]
 └─$ 
