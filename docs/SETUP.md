@@ -49,8 +49,13 @@ python3 --version       # debe mostrar 3.10 o superior
 
 ## 2. Estructura del proyecto
 
-Usa `tree -L 2 ~/books-label`desde `/home/user/` ¿para visualizar tu estructura:
+Al haber hecho:
 
+```
+git clone https://github.com/magic-town/books-label.git
+```
+
+Debes de tener la siguiente esctructura de árbol:
 
 ```
 /home/user/books-label

@@ -18,8 +18,10 @@ Convierte catálogos sin precios en catálogos listos para cliente en minutos.
 
 Una vez clonado el repositorio, revisemos la arquitectura de directorios, desde tu teminal ejecuta:
 
+```
 ┌─[user@hostname]─[~]
 └─$ tree -L 2 ~/books-label
+```
 
 o copia y pega:
 
