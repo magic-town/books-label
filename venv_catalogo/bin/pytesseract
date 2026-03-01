@@ -1,4 +1,4 @@
-#!/home/gabriel/books-label/venv_catalogo/bin/python3
+#!/home/sonia/books-label/venv_catalogo/bin/python3
 import sys
 from pytesseract.pytesseract import main
 if __name__ == '__main__':

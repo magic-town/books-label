@@ -1,4 +1,4 @@
-#!/home/gabriel/books-label/venv_catalogo/bin/python3
+#!/home/sonia/books-label/venv_catalogo/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
