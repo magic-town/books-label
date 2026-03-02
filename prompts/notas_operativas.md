@@ -63,18 +63,41 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 ## 🔗 Historial de links publicados
 
-### Caballeros (01-mar)
+### Price Shoes
+
+**Botas 25-26(01-mar)**
+https://www.dropbox.com/scl/fi/9cvsgyargxitupg7eswck/botas_25_26_final.pdf?rlkey=dg6a4sr71wk6mc1epc9sehq8v&st=9lbtsp2p&dl=1
+https://bit.ly/PS_Botas_25-_26
+
+**Caballeros (01-mar)**
 - Dropbox: `https://www.dropbox.com/scl/fi/mmb1wrvnv8bxk8t9m5h8r/caballeros_25_26.pdf?rlkey=wjlv7oc1cdv2a0vt6u8ow0arx&st=6qjhys93&dl=1`
 - Bitly: `https://bit.ly/PS_Caballeros_25_26`
 
-### Importados
+**Importados**
 - Dropbox: `https://www.dropbox.com/scl/fi/s7qq1u0qn9vhvfgjt37y8/imp_spring_26_final.pdf?rlkey=u1l8s9jh77jw8uk8j4dhgv39r&st=q5fjrh1b&dl=1`
 - Bitly: `https://bit.ly/ps_importados`
 
-### Confort
+**Confort**
 - Dropbox: `https://www.dropbox.com/scl/fi/yw749zjadujsxu6g6z47y/confort_26_final.pdf?rlkey=ugcjoeefefc9zw49p3st=sspuri6k&dl=1`
 - Bitly: `https://bit.ly/ps_confort`
 
-### Sandalias
+**Sandalias**
 - Dropbox: `https://www.dropbox.com/scl/fi/p681fiurjxutp9bw2hfnk/sandalias_final.pdf?rlkey=jxudboz7nmi9ohif3tjnypo3d&st=8kg1i7pz&dl=1`
 - Bitly: `https://bit.ly/PS_Sandalias`
+
+
+
+--
+## Cklass
+
+**HANGBAGS**
+- Dropbox: `https://www.dropbox.com/scl/fi/9x747f0ldcvrchsekrclk/CKLASS_BOLSO_LENTES.pdf?rlkey=h0vqv9pu2fe4dx313mjrc19vg&st=gu4gba13&dl=1`
+- Bi^y: `https://bit.ly/4aXuvjv`
+
+**Fahion-Dama**
+- Dropbox: `https://www.dropbox.com/scl/fi/6jku3cpj3p3avucvvl3b5/CKLASS_FASHION_DAMA.pdf?rlkey=dfc8czvu0xobcxnztsqf2v2xg&st=6isavcka&dl=1`
+- Bitly: `https://bit.ly/3OArqyD`
+
+**Secrets**
+- Dropbox: `https://www.dropbox.com/scl/fi/vtscwyk2c3fg24ugyy9x8/CKLASS_LENCER-A_PV26.pdf?rlkey=n3bwhovzeqklrsxwh8p3phk69&st=v5ds7jc7&dl=1`
+- Bitly: `https://bit.ly/Cklass_Secret`
