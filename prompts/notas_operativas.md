@@ -66,8 +66,8 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 ### Price Shoes
 
 **Botas 25-26(01-mar)**
-https://www.dropbox.com/scl/fi/9cvsgyargxitupg7eswck/botas_25_26_final.pdf?rlkey=dg6a4sr71wk6mc1epc9sehq8v&st=9lbtsp2p&dl=1
-https://bit.ly/PS_Botas_25-_26
+- Dropbox: `https://www.dropbox.com/scl/fi/9cvsgyargxitupg7eswck/botas_25_26_final.pdf?rlkey=dg6a4sr71wk6mc1epc9sehq8v&st=9lbtsp2p&dl=1`
+- Bitly: `https://bit.ly/PS_Botas_25-_26`
 
 **Caballeros (01-mar)**
 - Dropbox: `https://www.dropbox.com/scl/fi/mmb1wrvnv8bxk8t9m5h8r/caballeros_25_26.pdf?rlkey=wjlv7oc1cdv2a0vt6u8ow0arx&st=6qjhys93&dl=1`

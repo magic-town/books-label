@@ -1,6 +1,8 @@
+<img src="../images/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+
 # Prompts — Extracción de columnas desde lista de precios
 
-Usar con Claude o Gemini. Seguir en orden si el modelo se equivoca de columna.
+Usar con NotebookLM, Claude o Gemini. Seguir en orden si el modelo se equivoca de columna.
 
 ---
 
