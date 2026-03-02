@@ -1,4 +1,4 @@
-<img src="../images/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../images/asset_repo/cover01.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 # Prompts — Extracción de columnas desde lista de precios
 
