@@ -90,7 +90,7 @@ precios         catálogo        en WA
 
 ### Ejecutar
 
-- [ ] Abrir terminal en VSC
+- [ ] Abrir terminal en VSC: `View > Terminal`
 - [ ] Activar el entorno virtual:
   ```bash
   source venv_catalogo/bin/activate
@@ -108,7 +108,7 @@ Al terminar verás el resultado en consola:
 |-----------|-----------|
 | 🟢 **VERDE** — 85% o más | Continuar a Fase 3 |
 | 🟡 **AMARILLO** — 65% a 84% | Ejecutar diagnóstico antes de continuar |
-| 🔴 **ROJO** — menos de 65% | Ejecutar diagnóstico y avisar al coach |
+| 🔴 **ROJO** — menos de 65% | Efectividad crítica — revisar diagnóstico y aplicar ajustes |
 
 ### Si el semáforo no es verde
 
@@ -118,7 +118,7 @@ Al terminar verás el resultado en consola:
   ```
 - [ ] Leer las recomendaciones que aparecen
 - [ ] Si puedes aplicarlas sola → ajustar el config y volver a ejecutar
-- [ ] Si no es claro qué hacer → captura el reporte y mándalo al coach
+- [ ] Si no es claro qué hacer → 📷​ toma captura de pantalla, consultalo con Gabriel o Claudio
 
 ### Revisar el PDF visualmente
 

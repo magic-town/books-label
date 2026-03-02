@@ -1,6 +1,6 @@
 <img src="images/asset_repo/cover.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
-# Taller de Etiquetado Automático — Boutique Zepeda
+# 🪡 Taller de Etiquetado Automático — Boutique Zepeda
 
 Pipeline de automatización para etiquetado de catálogos de ropa en PDF.
 Convierte catálogos sin precios en catálogos listos para cliente en minutos.
