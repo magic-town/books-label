@@ -1,135 +1,184 @@
-# CHECKLIST — Etiquetado de Catálogos de Ropa
+<img src="images/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
-**Uso:** Proceso estándar de etiquetado y preparación de catálogos para impresión.  
-**Última revisión:** 02-2026
+# ✨ Guía de Etiquetado — Boutique Zepeda
 
----
-
-## ⚡ Ejecución rápida
-
-1. Extraer y validar precios → guardar como `precios_cat.xlsx`
-2. Activar entorno virtual `venv_catalogo`
-3. *(Opcional)* Testear páginas 1–10 → `catalogo_pag.py`
-4. Generar catálogo final → `catalogo_fecha.py`
-5. Revisar métricas en log → `diagnosticos/`
-6. Si eficiencia < 80% → seguir `docs/DIAGNOSTICO.md` antes de publicar
+> Cada catálogo que etiquetas aquí es uno menos a mano.
+> Sigue los pasos en orden y el proceso se cuida solo.
 
 ---
 
-## FASE 1 — Preparación de insumos y precios
+## 🗺️ ¿Dónde estoy en el proceso?
 
-**Objetivo:** Obtener, validar y preparar los datos de precios antes del etiquetado.
-
-- [ ] Descargar catálogo y lista de precios del proveedor en PDF.
-- [ ] Verificar que coincidan: catálogo vs. lista de precios (mismo proveedor, misma temporada).
-- [ ] Mover ambos archivos a:
-  ```
-  ~/boutique_zepeda/<proveedor>/
-  ```
-- [ ] Extraer de la lista de precios los campos `Pag`, `ID`, `Sug_credito` usando el prompt en:
-  ```
-  ~/taller_etiquetado/prompts/extraer_columnas_listas.txt
-  ```
-- [ ] Revisión rápida de los datos extraídos: consistencia, formato, valores atípicos.
-- [ ] Abrir `~/taller_etiquetado/tabla_precios.ods` en LibreOffice Calc:
-  - Agregar hoja nueva → renombrar como `<proveedor_categoria>`
-  - Pegar tabla extraída en formato de número
-- [ ] Verificar columna de redondeo. Si no existe, agregarla:
-  ```
-  =ROUND(C2, -1)
-  ```
-- [ ] Agregar columna `precio_venta` con fórmula VLOOKUP (ver hojas anteriores del mismo archivo).
-- [ ] Agregar columna `len`:
-  ```
-  =LEN(A2)
-  ```
-- [ ] Llenar tabla completa con redondeo y precio_venta.
-
-### 🔎 Validación tipo analista
-
-- [ ] Fijar encabezados: seleccionar fila 1 → `View > Freeze Cells > Freeze First Row`
-- [ ] Insertar filtros: seleccionar fila 1 → `Data > AutoFilter` (`Ctrl+Shift+L`)
-- [ ] Filtrar columna `len` y comparar contra lista cruda del proveedor
-- [ ] Validar que no haya IDs con largo incorrecto o precios en cero
-
-### 👀 CRÍTICO — Preparar archivo final
-
-- [ ] Quitar filtros antes de copiar
-- [ ] Copiar columna `ID` → pegar normal
-- [ ] Copiar columna `precio_venta` → **pegar especial > Número** (clic derecho)
-- [ ] La hoja debe quedar con **dos tablas**:
-  - Tabla completa (todos los campos)
-  - Tabla simplificada solo con `[ID, precio_venta]`
-- [ ] Copiar tabla simplificada a archivo nuevo:
-  ```
-  ~/taller_etiquetado/precios/<nombre_archivo.xlsx>
-  ```
-  Si aparece ventana de formato Excel 1997-2000 → confirmar con Aceptar.
-
----
-
-## FASE 2 — Taller de etiquetado automático
-
-**Objetivo:** Ejecutar el proceso de etiquetado sobre el catálogo.
-
-### Opción A — Desde VSC
-
-- [ ] `File > Open Folder > taller_etiquetado`
-- [ ] Abrir el script en `scripts/`
-- [ ] Verificar y actualizar inputs/outputs:
-  - PDF del catálogo → directorio `libros/`
-  - Lista de precios → directorio `precios/`
-  - Nombre del archivo de salida → directorio `salidas/`
-- [ ] Verificar que los nombres en el script coincidan exactamente con los archivos en disco
-- [ ] Ejecutar con `Play` o `F5`
-
-### Opción B — Desde terminal
-
-```bash
-cd ~/taller_etiquetado
-source venv_catalogo/bin/activate
-python3 scripts/catalogo_fecha.py
+```
+FASE 1          FASE 2          FASE 3
+Preparar   →   Etiquetar   →   Publicar
+precios         catálogo        en WA
 ```
 
 ---
 
-## FASE 2.1 — Validación previa / Testeo
+## 📋 FASE 1 — Preparar los precios
 
-**Usar cuando:** proveedor nuevo, temporada nueva, o formato distinto al habitual.
+> Objetivo: tener el archivo Excel listo antes de tocar el script.
 
-- [ ] ¿Se puede seleccionar texto en el PDF?
-  - **NO** → apto para etiquetar completo
-  - **SÍ** → revisar posicionamiento antes de continuar
-- [ ] ¿Es difícil posicionar el precio cerca del ID?
-- [ ] Si hay dudas → testear con `catalogo_pag.py` (páginas 1–10)
-- [ ] Revisar en el script: rutas, nombres, tamaño/color/posición de etiqueta
-- [ ] Ajustar con GitHub Copilot si es necesario
-- [ ] Ejecutar prueba:
-  ```bash
-  python3 scripts/catalogo_pag.py
+### Descargar y verificar
+
+- [ ] Descargar el catálogo PDF y la lista de precios del proveedor
+- [ ] Confirmar que son del mismo proveedor y la misma temporada
+- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/`
+
+### Extraer los precios
+
+- [ ] Abrir el prompt en `prompts/extraer_columnas_listas.txt`
+- [ ] Usar el prompt con Claude o Gemini para extraer los campos `Pag`, `ID`, `Sug_credito`
+- [ ] Revisar rápidamente que los datos se vean bien — sin huecos raros ni precios en cero
+
+### Armar la tabla en LibreOffice
+
+- [ ] Abrir `~/books-label/precios/tabla_precios.ods` en LibreOffice Calc
+- [ ] Agregar hoja nueva → renombrar como `<proveedor_categoria>`
+- [ ] Pegar la tabla extraída en formato de número
+- [ ] Verificar columna de redondeo — si no existe, agregarla:
   ```
-- [ ] Revisar log en `diagnosticos/` → ver `docs/DIAGNOSTICO.md`
+  =ROUND(C2, -1)
+  ```
+- [ ] Agregar columna `precio_venta` con fórmula VLOOKUP *(ver hojas anteriores)*
+- [ ] Agregar columna `len`:
+  ```
+  =LEN(A2)
+  ```
+- [ ] Llenar la tabla completa
+
+### 🔎 Validación — no saltar este paso
+
+- [ ] Fijar encabezados: `View > Freeze Cells > Freeze First Row`
+- [ ] Activar filtros: `Data > AutoFilter` o `Ctrl+Shift+L`
+- [ ] Filtrar columna `len` → comparar largos contra la lista del proveedor
+- [ ] Confirmar que no haya IDs con largo incorrecto ni precios en cero
+
+### 👀 Preparar el archivo final — paso crítico
+
+- [ ] Quitar filtros antes de copiar
+- [ ] Copiar columna `ID` → pegar normal
+- [ ] Copiar columna `precio_venta` → **pegar especial > Número** (clic derecho)
+- [ ] La hoja debe quedar con dos tablas:
+  - Tabla completa con todos los campos
+  - Tabla simplificada solo con `ID` y `precio_venta`
+- [ ] Copiar la tabla simplificada a un archivo nuevo en:
+  ```
+  ~/books-label/precios/<nombre_archivo.xlsx>
+  ```
+  Si aparece ventana de formato Excel → confirmar con **Aceptar**
 
 ---
 
-## FASE 3 — Compartir en WhatsApp Business
+## 🏷️ FASE 2 — Etiquetar el catálogo
 
-**Objetivo:** Publicar el catálogo etiquetado para clientes.
+> Objetivo: ejecutar el script y obtener semáforo verde.
 
-- [ ] Copiar PDF final desde `salidas/` a:
+### Antes de ejecutar
+
+- [ ] Abrir VSC → `File > Open Folder > books-label`
+- [ ] Abrir el archivo de configuración en `configs/` que corresponde al proveedor
+- [ ] Verificar que los nombres coincidan exactamente con los archivos en disco:
+
+  | Campo en el config | Archivo que debe existir |
+  |--------------------|--------------------------|
+  | `pdf_input` | en `libros/` |
+  | `excel_input` | en `precios/` |
+  | `pdf_output` | nombre del archivo que se va a generar en `salidas/` |
+
+### Ejecutar
+
+- [ ] Abrir terminal en VSC
+- [ ] Activar el entorno virtual:
+  ```bash
+  source venv_catalogo/bin/activate
+  ```
+- [ ] Ejecutar el script:
+  ```bash
+  python3 scripts/catalogo_base.py --config configs/<nombre_config>.json
+  ```
+
+### Leer el semáforo
+
+Al terminar verás el resultado en consola:
+
+| Resultado | Qué hacer |
+|-----------|-----------|
+| 🟢 **VERDE** — 85% o más | Continuar a Fase 3 |
+| 🟡 **AMARILLO** — 65% a 84% | Ejecutar diagnóstico antes de continuar |
+| 🔴 **ROJO** — menos de 65% | Ejecutar diagnóstico y avisar al coach |
+
+### Si el semáforo no es verde
+
+- [ ] Ejecutar el diagnóstico:
+  ```bash
+  python3 scripts/diagnostico.py
+  ```
+- [ ] Leer las recomendaciones que aparecen
+- [ ] Si puedes aplicarlas sola → ajustar el config y volver a ejecutar
+- [ ] Si no es claro qué hacer → captura el reporte y mándalo al coach
+
+### Revisar el PDF visualmente
+
+Antes de publicar, abrir el archivo de salida en `salidas/` y confirmar:
+
+- [ ] ¿Los precios aparecen junto a cada producto?
+- [ ] ¿Están en la posición correcta, sin encimarse con otro texto?
+- [ ] ¿El formato del precio se ve bien? — ejemplo: `$250.00`
+- [ ] ¿Hay páginas completas sin ningún precio?
+
+---
+
+## 📲 FASE 3 — Publicar en WhatsApp Business
+
+> Objetivo: el catálogo en manos del cliente.
+
+### Mover el archivo
+
+- [ ] Copiar el PDF final desde `salidas/` a:
   ```
   ~/boutique_zepeda/<marca>/catalogos_etiquetados/
   ```
-- [ ] Subir a Dropbox: `Inicio > <marca> > catalogos`
-- [ ] Copiar enlace de Dropbox → pegar en `~/taller_etiquetado/test_Whatsapp.txt`
-- [ ] Editar el último caracter del enlace (cambiar `0` por `1`)
-- [ ] Comprimir enlace en [bitly.com](https://bitly.com): `Create new > pegar enlace`
-- [ ] Copiar enlace comprimido
 
-### Crear artículo en WhatsApp Business
+### Subir a Dropbox
+
+- [ ] Subir a Dropbox: `Inicio > <marca> > catalogos`
+- [ ] Copiar el enlace de Dropbox
+- [ ] Pegar el enlace en `~/books-label/test_Whatsapp.txt`
+- [ ] Cambiar el último carácter del enlace: `0` → `1`
+
+### Comprimir el enlace
+
+- [ ] Ir a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace
+- [ ] Copiar el enlace comprimido
+
+### Crear el artículo en WhatsApp Business
 
 - [ ] Tomar captura de pantalla de la portada del catálogo
 - [ ] Enviarte a la cuenta **Boutique Zepeda** la portada y el link de Bitly
 - [ ] `Herramientas > Catálogos > Nuevo artículo`
-  - Imagen: portada capturada
-  - Enlace: link de Bitly
+  - **Imagen:** portada capturada
+  - **Enlace:** link de Bitly
+
+---
+
+## 🆘 ¿Algo no salió bien?
+
+```
+¿El semáforo fue amarillo o rojo?
+        ↓
+Ejecuta diagnostico.py
+        ↓
+¿Las recomendaciones son claras?
+   Sí → aplica y vuelve a ejecutar
+   No → manda el reporte al coach
+```
+
+> 💡 Nunca publiques con semáforo rojo.
+> El coach está para acompañar, no para juzgar. Cualquier duda es válida.
+
+---
+
+*Última revisión: 03-2026 · books-label*

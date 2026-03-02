@@ -43,9 +43,9 @@ Toma el catálogo PDF de un proveedor, cruza los IDs de producto contra una list
 ## Flujo de trabajo
 
 ```
-PDF proveedor → Preparar Excel → Configurar JSON → Ejecutar script → Revisar semáforo → Publicar
-                                                                            ↓
-                                                              Si amarillo o rojo → diagnostico.py
+Descarga → Precios Excel → Validar Config → Ejecutar Script → Publicar
+                                  ↑                  ↓
+                                  └──── 🟡 🔴 ───────┘
 ```
 
 ---
