@@ -2,9 +2,9 @@
     "_comentario": "Configuración para Jeans PV26 — Boutique Zepeda",
     "_uso": "python3 scripts/catalogo_base.py --config configs/config_jeans_PV26.json",
 
-    "pdf_input":   "libros/jeans_PV26.pdf",
+    "pdf_input":   "libros/jeans_PV26_pag.pdf",
     "excel_input": "precios/lista_jeans.xlsx",
-    "pdf_output":  "salidas/jeans_PV26.pdf",
+    "pdf_output":  "salidas/jeans_pag.pdf",
 
     "dpi": 200,
     "psm": 6,
