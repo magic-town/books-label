@@ -64,18 +64,21 @@ def parsear_log(log_path: str) -> dict:
     datos["config"] = m.group(1).strip() if m else "no registrada"
 
     # Parámetros OCR registrados al inicio
-    m = re.search(r"DPI=(\d+).*PSM=(\d+).*Fuzzy=(ON|OFF)\s*\((\d+)%\).*IDs:\s*(\d+)–(\d+)", contenido)
+    m = re.search(r"DPI=(\d+).*PSM=(\d+).*Fuzzy=(ON|OFF)\s*\((\d+)%\).*IDs:\s*(\d+)–(\d+).*Grayscale=(True|False).*Invertir=(True|False)", contenido)
     if m:
-        datos["dpi"]        = int(m.group(1))
-        datos["psm"]        = int(m.group(2))
-        datos["fuzzy_on"]   = m.group(3) == "ON"
-        datos["fuzzy_umbral"] = int(m.group(4))
-        datos["id_min"]     = int(m.group(5))
-        datos["id_max"]     = int(m.group(6))
+        datos["dpi"]           = int(m.group(1))
+        datos["psm"]           = int(m.group(2))
+        datos["fuzzy_on"]      = m.group(3) == "ON"
+        datos["fuzzy_umbral"]  = int(m.group(4))
+        datos["id_min"]        = int(m.group(5))
+        datos["id_max"]        = int(m.group(6))
+        datos["ocr_grayscale"] = m.group(7) == "True"
+        datos["ocr_invertir"]  = m.group(8) == "True"
     else:
         datos["dpi"] = datos["psm"] = datos["fuzzy_umbral"] = None
         datos["fuzzy_on"] = None
         datos["id_min"] = datos["id_max"] = None
+        datos["ocr_grayscale"] = datos["ocr_invertir"] = None
 
     # Errores por página
     errores = re.findall(r"Error en página (\d+): (.+)", contenido)
@@ -202,6 +205,10 @@ def imprimir_reporte(log_path: str, datos: dict, recomendaciones: list):
         print(f"  {'PSM':<30} {datos['psm']}")
         print(f"  {'Fuzzy matching':<30} {fuzzy_str}")
         print(f"  {'Rango IDs':<30} {id_str}")
+        gs  = datos.get('ocr_grayscale')
+        inv = datos.get('ocr_invertir')
+        print(f"  {'Grayscale':<30} {gs if gs is not None else '—'}")
+        print(f"  {'Invertir (texto blanco)':<30} {inv if inv is not None else '—'}")
     else:
         print("  No disponibles en este log.")
     print("-" * 62)

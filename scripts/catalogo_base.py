@@ -103,6 +103,8 @@ class EtiquetadorCatalogo:
         self.psm            = config.get("psm", 6)
         self.id_len_min     = config.get("id_longitud_min", 4)
         self.id_len_max     = config.get("id_longitud_max", 8)
+        self.ocr_grayscale  = config.get("ocr_grayscale", True)
+        self.ocr_invertir   = config.get("ocr_invertir", False)
 
         # Parámetros fuzzy matching
         self.fuzzy_activo   = config.get("fuzzy_activo", True)
@@ -233,7 +235,7 @@ class EtiquetadorCatalogo:
 
     def marcar(self):
         self.logger.info(f"🚀 Iniciando: {os.path.basename(self.pdf_path)}")
-        self.logger.info(f"   DPI={self.dpi} | PSM={self.psm} | Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | IDs: {self.id_len_min}–{self.id_len_max} dígitos")
+        self.logger.info(f"   DPI={self.dpi} | PSM={self.psm} | Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | IDs: {self.id_len_min}–{self.id_len_max} dígitos | Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir}")
 
         try:
             reader_pdf = PdfReader(self.pdf_path)
@@ -259,9 +261,9 @@ class EtiquetadorCatalogo:
                     first_page=i + 1,
                     last_page=i + 1,
                     dpi=self.dpi,
-                    grayscale=True
+                    grayscale=self.ocr_grayscale
                 )
-                img = self._mejorar_imagen(images[0])
+                img = self._mejorar_imagen(images[0].convert("L"))
 
                 data = pytesseract.image_to_data(
                     img,
