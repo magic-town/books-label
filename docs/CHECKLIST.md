@@ -66,7 +66,7 @@ precios         catálogo        en WA
   - Tabla simplificada solo con `ID` y `precio_venta`
 - [ ] Copiar la tabla simplificada a un archivo nuevo en:
   ```
-  ~/books-label/precios/<nombre_archivo.xlsx>
+  ~/books-label/precios/<lista_categoria.xlsx>
   ```
   Si aparece ventana de formato Excel → confirmar con **Aceptar**
 
