@@ -79,9 +79,7 @@ precios         catálogo        en WA
 ### Antes de ejecutar
 
 - [ ] Abrir VSC → `File > Open Folder > books-label`
-- [ ] Abrir el archivo de configuración en `configs/` que corresponde al proveedor o temporada.
-
-      A fecha 03/marz/2026: El config que editaremos es `config_new.json`
+- [ ] Abrir el archivo de configuración en `configs/` que corresponde al proveedor o temporada. A fecha 03/marz/2026 el config que editaremos es `config_new.json`
 - [ ] Verificar que los nombres coincidan exactamente con los archivos en disco:
 
   | Campo en el config | Archivo que debe existir |
