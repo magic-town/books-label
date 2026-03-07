@@ -64,7 +64,9 @@ precios         catálogo        en WA
 - [ ] La hoja debe quedar con dos tablas:
   - Tabla completa con todos los campos
   - Tabla simplificada solo con `ID` y `precio_venta`
-- [ ] Copiar la tabla simplificada a un archivo nuevo en:
+- [ ] Copiar la tabla simplificada a un archivo nuevo en
+- [ ] file > new spreedsheet > paste
+- [ ] File > save as:
   ```
   ~/books-label/precios/<lista_catalogo.xlsx>
   ```

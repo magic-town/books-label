@@ -2,9 +2,9 @@
     "_comentario": "Configuración base extraída de script_2mm_up.py — Boutique Zepeda",
     "_uso": "python3 scripts/catalogo_base.py --config configs/config_base.json",
 
-    "pdf_input":   "libros/jeans_PV26.pdf",
-    "excel_input": "precios/lista_jeans.xlsx",
-    "pdf_output":  "salidas/jeans_26_final.pdf",
+    "pdf_input":   "libros/urbano_26.pdf",
+    "excel_input": "precios/lista_urbano.xlsx",
+    "pdf_output":  "salidas/urbano_26_final.pdf",
 
     "dpi": 200,
     "psm": 6,
