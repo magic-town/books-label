@@ -1,4 +1,4 @@
-# Notas operativas — Boutique Zepeda
+# 📝 Notas operativas — Boutique Zepeda
 
 Referencia rápida para el día a día. Sin formalidades.
 
@@ -79,7 +79,7 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 ## 🔗 Historial de links publicados
 
-### Price Shoes
+### 🔵 Price Shoes
 
 **Botas 25-26(01-mar)**
 - Dropbox: `https://www.dropbox.com/scl/fi/9cvsgyargxitupg7eswck/botas_25_26_final.pdf?rlkey=dg6a4sr71wk6mc1epc9sehq8v&st=9lbtsp2p&dl=1`
@@ -111,7 +111,7 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 
 --
-## Cklass
+## 🔴 Cklass
 
 **HANGBAGS**
 - Dropbox: `https://www.dropbox.com/scl/fi/9x747f0ldcvrchsekrclk/CKLASS_BOLSO_LENTES.pdf?rlkey=h0vqv9pu2fe4dx313mjrc19vg&st=gu4gba13&dl=1`
