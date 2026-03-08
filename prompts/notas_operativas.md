@@ -3,15 +3,31 @@
 Referencia rápida para el día a día. Sin formalidades.
 
 ---
+## Guía ⚡ rápida de ejecución diaria para Git
+
+**Al iniciar tu jornada, sincroniza los cambios remotos** que se realizaron desde otro equipo:
+```bash
+git pull https://magic-town@github.com/magic-town/books-label.git main
+```
+
+Cuando realices cambios significativos —como modificar una configuración, agregar una dependencia o crear un directorio— o al finalizar tu día, antes de cerrar tus aplicaciones, sube tus cambios a Git:
+
+### Git add — registra tus cambios en el área de preparación:
+```bash
+git add .
+```
+
+Crea un commit para documentar qué cambiaste y dejar tus cambios listos para subir:
+```bash
+git commit -m "test de config para catálogo <X>"
+```
 
 ## 📌 Git push
 
-En este equipo el push siempre va con la URL completa:
-
+En este equipo, el push siempre se hace con la URL completa:
 ```bash
 git push https://magic-town@github.com/magic-town/books-label.git main
 ```
-
 ---
 
 ## 🏷️ Mover la etiqueta de precio
@@ -92,6 +108,8 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 **Urbano**
 - Dropbox: https://www.dropbox.com/scl/fi/ec77vg2xgzh3ytii8id4l/urbano_26_final.pdf?rlkey=npw7guudx5xt2manymdjshazo&st=psdmrgpt&dl=1
 - Bitly: https://bit.ly/PS_Urbano
+
+
 --
 ## Cklass
 
