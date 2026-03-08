@@ -148,13 +148,14 @@ Antes de publicar, abrir el archivo de salida en `salidas/` y confirmar:
 
 - [ ] Subir a Dropbox: `Inicio > <marca> > catalogos`
 - [ ] Copiar el enlace de Dropbox
-- [ ] Pegar el enlace en `~/books-label/test_Whatsapp.txt`
+- [ ] Pegar el enlace en `~/books-label/prompts/notas_operativas.md`
 - [ ] Cambiar el último carácter del enlace: `0` → `1`
 
 ### Comprimir el enlace
 
 - [ ] Ir a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace
 - [ ] Copiar el enlace comprimido
+- [ ] Pegar el enlace en `~/books-label/prompts/notas_operativas.md`
 
 ### Crear el artículo en WhatsApp Business
 

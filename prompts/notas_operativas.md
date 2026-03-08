@@ -88,6 +88,10 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 **Jeans**
 - Dropbox: `https://www.dropbox.com/scl/fi/i4wyg6quq34iumnvpyw7k/jeans_final.pdf?rlkey=8q4c78q2gf5gc3aihkpilaqit&st=ce3cjkfj&dl=1`
 - Bitly: `https://bit.ly/PS_Jeans`
+
+**Urbano**
+- Dropbox: https://www.dropbox.com/scl/fi/ec77vg2xgzh3ytii8id4l/urbano_26_final.pdf?rlkey=npw7guudx5xt2manymdjshazo&st=psdmrgpt&dl=1
+- Bitly: https://bit.ly/PS_Urbano
 --
 ## Cklass
 
