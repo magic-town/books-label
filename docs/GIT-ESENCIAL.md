@@ -52,7 +52,7 @@ git push https://magic-town@github.com/magic-town/books-label.git main
 
 > La otra máquina recibe el script la próxima vez que haga pull.
 
-### Uso diario
+### ⭐ Uso diario
 
 ```bash
 cd ~/books-label && bash sync.sh
