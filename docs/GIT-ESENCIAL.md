@@ -38,7 +38,8 @@ fi
 git add -A
 git diff --cached --quiet && echo "✅ Sin cambios locales." && exit 0
 
-git commit -m "sync $(date '+%Y-%m-%d %H:%M')"
+MSG=$(git diff --cached --name-only | head -5 | tr '\n' ', ' | sed 's/,$//')
+git commit -m "sync $(date '+%Y-%m-%d %H:%M') | $MSG"
 git push
 echo "✅ Cambios subidos."
 EOF
@@ -57,7 +58,12 @@ git push https://magic-town@github.com/magic-town/books-label.git main
 cd ~/books-label && bash sync.sh
 ```
 
-Ejecutar **al iniciar** y **al terminar** cada sesión de trabajo. El script siempre hace pull primero, así que es seguro usarlo en cualquier momento.
+Ejecutar **al iniciar** y **al terminar** cada sesión de trabajo.
+El commit generado muestra fecha, hora y archivos modificados. Por ejemplo:
+
+```
+sync 2026-03-09 14:32 | docs/CHECKLIST.md, scripts/etiquetas.py
+```
 
 ---
 
