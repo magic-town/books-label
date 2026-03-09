@@ -54,8 +54,7 @@ git push https://magic-town@github.com/magic-town/books-label.git main
 ### Uso diario
 
 ```bash
-cd ~/books-label
-./sync.sh
+cd ~/books-label && bash sync.sh
 ```
 
 Ejecutar **al iniciar** y **al terminar** cada sesión de trabajo. El script siempre hace pull primero, así que es seguro usarlo en cualquier momento.
