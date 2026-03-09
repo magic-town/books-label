@@ -16,6 +16,52 @@ git config --global user.email "brillantehogar2024@gmail.com"
 
 ---
 
+## 0. SYNC — Flujo diario simplificado (recomendado)
+
+Un solo comando reemplaza el pull de inicio y el push de cierre.
+
+### Instalación (una sola vez, desde el repo)
+
+```bash
+cd ~/books-label
+
+cat > sync.sh << 'EOF'
+#!/bin/bash
+echo "⬇️  Bajando cambios..."
+git pull
+
+if [ $? -ne 0 ]; then
+  echo "⚠️  Conflicto al bajar. Resuélvelo antes de continuar."
+  exit 1
+fi
+
+git add -A
+git diff --cached --quiet && echo "✅ Sin cambios locales." && exit 0
+
+git commit -m "sync $(date '+%Y-%m-%d %H:%M')"
+git push
+echo "✅ Cambios subidos."
+EOF
+
+chmod +x sync.sh
+git add sync.sh
+git commit -m "agrega script de sincronización"
+git push https://magic-town@github.com/magic-town/books-label.git main
+```
+
+> La otra máquina recibe el script la próxima vez que haga pull.
+
+### Uso diario
+
+```bash
+cd ~/books-label
+./sync.sh
+```
+
+Ejecutar **al iniciar** y **al terminar** cada sesión de trabajo. El script siempre hace pull primero, así que es seguro usarlo en cualquier momento.
+
+---
+
 ## 1. PULL — Antes de trabajar, siempre
 
 Descarga los cambios más recientes del repo.
@@ -109,7 +155,9 @@ git restore nombre_del_archivo.py
 
 ---
 
-## Flujo diario completo
+## Flujo diario completo (manual)
+
+Si prefieres no usar `sync.sh`, el flujo manual es:
 
 ```bash
 # 1. Antes de empezar
