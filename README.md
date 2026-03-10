@@ -1,4 +1,4 @@
-<img src="images/asset_repo/cover.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="imagenes/asset_repo/cover.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 # 🪡 Taller de Etiquetado Automático — Boutique Zepeda
 
@@ -24,11 +24,11 @@ Toma el catálogo PDF de un proveedor, cruza los IDs de producto contra una list
 │   ├── DIAGNOSTICO.md         # Cómo interpretar logs y resolver problemas
 │   ├── GIT-ESENCIAL.md        # Comandos git para el día a día
 │   └── SETUP.md               # Instalación y configuración del entorno
-├── images/
+├── imagenes/
 │   ├── asset_repo/            # Imágenes para documentación y README
-│   └── assets/                # Assets operativos (logo para insertar en catálogos)
+│   └── logos/                 # Logos operativos para insertar en catálogos
 ├── libros/                    # PDFs de catálogos del proveedor (input)
-├── precios/                   # Archivos Excel con IDs y precios validados
+├── precios/                   # Archivos Excel (.xlsx) con IDs y precios validados
 ├── prompts/                   # Prompts para extracción de datos con LLM
 ├── salidas/                   # PDFs etiquetados listos para publicar (output)
 ├── scripts/
@@ -123,6 +123,8 @@ Cada proveedor o temporada tiene su propio archivo JSON en `configs/`. El script
     "psm": 6,
     "contraste": 2.5,
     "nitidez": 2.0,
+    "ocr_grayscale": true,
+    "ocr_invertir": false,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -136,7 +138,7 @@ Cada proveedor o temporada tiene su propio archivo JSON en `configs/`. El script
     "etiqueta_offset_y_pt": 5.67,
 
     "logo_activo": false,
-    "logo_path": "images/assets/logo_boutique.png",
+    "logo_path": "imagenes/logos/logo_bz.png",
     "logo_x_pt": 20.0,
     "logo_y_pt": 750.0,
     "logo_ancho_pt": 80.0,
@@ -152,10 +154,18 @@ Cada proveedor o temporada tiene su propio archivo JSON en `configs/`. El script
 | `dpi` | Resolución del OCR | Si el OCR no detecta bien los IDs |
 | `psm` | Modo de lectura de Tesseract | Si el layout del catálogo es inusual |
 | `contraste` / `nitidez` | Preprocesado de imagen | Si el PDF es de baja calidad |
+| `ocr_grayscale` | Convierte la imagen a escala de grises antes del OCR | Desactivar solo si el OCR performa mejor en color |
+| `ocr_invertir` | Invierte los colores de la imagen antes del OCR | Activar si el catálogo tiene texto blanco sobre fondo oscuro |
 | `id_longitud_min/max` | Filtro de longitud de IDs | Si el proveedor usa IDs más largos o cortos |
 | `fuzzy_umbral` | Tolerancia a errores de OCR | Bajar si hay muchos IDs sin reconocer |
 | `etiqueta_offset_x/y_pt` | Posición del precio respecto al ID | Si los precios aparecen desplazados |
 | `logo_activo` | Activa o desactiva el logo en portada | Al activar por primera vez |
+| `logo_path` | Ruta al archivo de logo | Debe apuntar a un archivo en `imagenes/logos/` |
+| `logo_transparencia` | Opacidad del logo (1.0 = opaco, 0.0 = invisible) | Al insertar logo por primera vez — probar con 0.85 |
+
+> **Logos disponibles:** `imagenes/logos/logo_bz.png` y `imagenes/logos/logo_ocean.png`
+
+> **Archivos de precios:** solo se aceptan archivos `.xlsx`. Si recibes un archivo `.ods` o `.xls`, conviértelo antes de ejecutar el script.
 
 ---
 
@@ -222,3 +232,4 @@ Una efectividad menor al 65% requiere diagnóstico obligatorio antes de cualquie
 - Siempre probar con las primeras 10 páginas antes de procesar el catálogo completo cuando el proveedor es nuevo.
 - Los archivos en `salidas/` son el producto final. Nunca modificar manualmente.
 - El log es la fuente de verdad. Si el PDF se ve bien pero la efectividad es baja, hay un problema real.
+- Los archivos de precios deben estar en formato `.xlsx`. Si recibes un archivo `.ods` o `.xls`, conviértelo antes de ejecutar el script.

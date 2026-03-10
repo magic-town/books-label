@@ -92,8 +92,8 @@ class EtiquetadorCatalogo:
         self.logger     = logging.getLogger(__name__)
 
         # Rutas desde config
-        self.pdf_path   = os.path.join(base_dir, config["pdf_input"])
-        self.excel_path = os.path.join(base_dir, config["excel_input"])
+        self.pdf_path    = os.path.join(base_dir, config["pdf_input"])
+        self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
         # Parámetros OCR
@@ -104,6 +104,7 @@ class EtiquetadorCatalogo:
         self.id_len_min     = config.get("id_longitud_min", 4)
         self.id_len_max     = config.get("id_longitud_max", 8)
         self.ocr_grayscale  = config.get("ocr_grayscale", True)
+        # CORREGIDO: ocr_invertir ahora se aplica en _mejorar_imagen
         self.ocr_invertir   = config.get("ocr_invertir", False)
 
         # Parámetros fuzzy matching
@@ -111,19 +112,21 @@ class EtiquetadorCatalogo:
         self.fuzzy_umbral   = config.get("fuzzy_umbral", 85)
 
         # Parámetros etiqueta
-        self.etiqueta_font_size  = config.get("etiqueta_font_size", 11)
-        self.etiqueta_color      = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
-        self.etiqueta_offset_x   = config.get("etiqueta_offset_x_pt", 4.0)
-        self.etiqueta_offset_y   = config.get("etiqueta_offset_y_pt", 5.67)
+        self.etiqueta_font_size = config.get("etiqueta_font_size", 11)
+        self.etiqueta_color     = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
+        self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
+        self.etiqueta_offset_y  = config.get("etiqueta_offset_y_pt", 5.67)
 
         # Parámetros logo
         self.logo_activo        = config.get("logo_activo", False)
         self.logo_path          = os.path.join(base_dir, config.get("logo_path", "")) if config.get("logo_path") else None
         self.logo_x             = config.get("logo_x_pt", 20.0)
-        self.logo_y             = config.get("logo_y_pt", 20.0)
+        # CORREGIDO: default alineado con README (750.0 posiciona en parte alta de página)
+        self.logo_y             = config.get("logo_y_pt", 750.0)
         self.logo_ancho         = config.get("logo_ancho_pt", 80.0)
         self.logo_alto          = config.get("logo_alto_pt", 40.0)
-        self.logo_transparencia = config.get("logo_transparencia", 1.0)  # 1.0 = opaco, 0.0 = invisible
+        # CORREGIDO: se usará para aplicar alpha real sobre la imagen
+        self.logo_transparencia = config.get("logo_transparencia", 1.0)
 
         self._cargar_precios()
         self._verificar_tesseract()
@@ -154,9 +157,9 @@ class EtiquetadorCatalogo:
         df[col_precio] = df[col_precio].astype(str).str.replace(r"[^\d.]", "", regex=True)
         df[col_precio] = pd.to_numeric(df[col_precio], errors="coerce").fillna(0.0)
 
-        self.precios_dict  = pd.Series(df[col_precio].values, index=df[col_id]).to_dict()
+        self.precios_dict   = pd.Series(df[col_precio].values, index=df[col_id]).to_dict()
         self.total_en_excel = len(self.precios_dict)
-        self.ids_excel_keys = list(self.precios_dict.keys())  # Para fuzzy matching
+        self.ids_excel_keys = list(self.precios_dict.keys())
 
         self.logger.info(f"✅ {self.total_en_excel} registros cargados desde Excel")
 
@@ -176,6 +179,11 @@ class EtiquetadorCatalogo:
         img = ImageEnhance.Contrast(img).enhance(self.contraste)
         img = ImageEnhance.Sharpness(img).enhance(self.nitidez)
         img = img.filter(ImageFilter.MedianFilter(size=3))
+        # CORREGIDO: ocr_invertir ahora se aplica realmente
+        # Útil para catálogos con texto blanco sobre fondo oscuro
+        if self.ocr_invertir:
+            img = img.convert("L")
+            img = Image.eval(img, lambda px: 255 - px)
         return img
 
     # ── Fuzzy matching ────────────────────────────────────────────────────────
@@ -187,11 +195,9 @@ class EtiquetadorCatalogo:
         - Si falla y fuzzy está activo, busca la coincidencia más cercana.
         Retorna (precio, es_fuzzy) o (None, False) si no encuentra.
         """
-        # Matching exacto
         if id_detectado in self.precios_dict:
             return self.precios_dict[id_detectado], False
 
-        # Fuzzy matching
         if self.fuzzy_activo:
             resultado = process.extractOne(
                 id_detectado,
@@ -210,23 +216,33 @@ class EtiquetadorCatalogo:
     def _capa_logo(self, w_pdf: float, h_pdf: float) -> BytesIO:
         """
         Genera una capa PDF con el logo para fusionar en la portada.
+        CORREGIDO: la transparencia se aplica directamente sobre el canal alpha
+        de la imagen antes de pasarla a ReportLab, ya que setFillAlpha no afecta
+        a imágenes rasterizadas dibujadas con drawImage.
         """
+        # Abrir logo y aplicar transparencia real vía canal alpha
+        logo_img_pil = Image.open(self.logo_path).convert("RGBA")
+
+        if self.logo_transparencia < 1.0:
+            r, g, b, a = logo_img_pil.split()
+            a = a.point(lambda px: int(px * self.logo_transparencia))
+            logo_img_pil = Image.merge("RGBA", (r, g, b, a))
+
+        # Convertir a buffer para ReportLab
+        logo_buffer = BytesIO()
+        logo_img_pil.save(logo_buffer, format="PNG")
+        logo_buffer.seek(0)
+
         packet = BytesIO()
         can = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
-        can.saveState()
-        can.setFillAlpha(self.logo_transparencia)
-
-        logo_img = ImageReader(self.logo_path)
         can.drawImage(
-            logo_img,
+            ImageReader(logo_buffer),
             self.logo_x,
             self.logo_y,
             width=self.logo_ancho,
             height=self.logo_alto,
             mask="auto"
         )
-
-        can.restoreState()
         can.save()
         packet.seek(0)
         return packet
@@ -255,6 +271,11 @@ class EtiquetadorCatalogo:
         for i in range(total_paginas):
             print(f"⚡ Procesando página {i+1}/{total_paginas}...", end="\r", flush=True)
 
+            # CORREGIDO: inicializar en None para que el bloque finally
+            # pueda liberar memoria sin depender de locals()
+            images = None
+            img    = None
+
             try:
                 images = convert_from_path(
                     self.pdf_path,
@@ -272,11 +293,11 @@ class EtiquetadorCatalogo:
                     output_type=pytesseract.Output.DICT
                 )
 
-                p_orig           = reader_pdf.pages[i]
-                w_pdf, h_pdf     = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
-                w_img, h_img     = img.size
-                scale_x          = w_pdf / w_img
-                scale_y          = h_pdf / h_img
+                p_orig       = reader_pdf.pages[i]
+                w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
+                w_img, h_img = img.size
+                scale_x      = w_pdf / w_img
+                scale_y      = h_pdf / h_img
 
                 packet = BytesIO()
                 can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
@@ -308,7 +329,6 @@ class EtiquetadorCatalogo:
                 can.save()
                 packet.seek(0)
 
-                # Fusionar etiquetas
                 if packet.getbuffer().nbytes > 0:
                     p_orig.merge_page(PdfReader(packet).pages[0])
 
@@ -326,12 +346,11 @@ class EtiquetadorCatalogo:
                 self.logger.error(f"\n❌ Error en página {i+1}: {e}")
                 writer.add_page(reader_pdf.pages[i])
 
-            # Liberar memoria
-            if "images" in locals():
+            finally:
+                # CORREGIDO: liberación de memoria sin depender de locals()
                 del images
-            if "img" in locals():
                 del img
-            gc.collect()
+                gc.collect()
 
         print(" " * 80, end="\r")
 
@@ -347,8 +366,8 @@ class EtiquetadorCatalogo:
             raise
 
         # ── Reporte final con semáforo ────────────────────────────────────────
-        ids_unicos     = len(ids_detectados)
-        tasa           = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        ids_unicos = len(ids_detectados)
+        tasa       = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
 
         if tasa >= 85:
             semaforo = "🟢 VERDE"
@@ -379,10 +398,9 @@ class EtiquetadorCatalogo:
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    args    = parse_args()
-    BASE    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    args = parse_args()
+    BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    # Cargar configuración
     config_path = os.path.join(BASE, args.config)
     if not os.path.exists(config_path):
         print(f"❌ Archivo de configuración no encontrado: {config_path}")
