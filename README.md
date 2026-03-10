@@ -125,6 +125,7 @@ Cada proveedor o temporada tiene su propio archivo JSON en `configs/`. El script
     "nitidez": 2.0,
     "ocr_grayscale": true,
     "ocr_invertir": false,
+    "ocr_doble_pasada": false,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -155,7 +156,8 @@ Cada proveedor o temporada tiene su propio archivo JSON en `configs/`. El script
 | `psm` | Modo de lectura de Tesseract | Si el layout del catálogo es inusual |
 | `contraste` / `nitidez` | Preprocesado de imagen | Si el PDF es de baja calidad |
 | `ocr_grayscale` | Convierte la imagen a escala de grises antes del OCR | Desactivar solo si el OCR performa mejor en color |
-| `ocr_invertir` | Invierte los colores de la imagen antes del OCR | Activar si el catálogo tiene texto blanco sobre fondo oscuro |
+| `ocr_invertir` | Invierte los colores de la imagen antes del OCR | Activar si el catálogo tiene texto blanco sobre fondo oscuro en todas las páginas |
+| `ocr_doble_pasada` | Ejecuta OCR dos veces: una normal y una invertida, luego fusiona los resultados | Activar en catálogos con IDs en fondo oscuro y fondo claro en la misma página. Duplica el tiempo de proceso. |
 | `id_longitud_min/max` | Filtro de longitud de IDs | Si el proveedor usa IDs más largos o cortos |
 | `fuzzy_umbral` | Tolerancia a errores de OCR | Bajar si hay muchos IDs sin reconocer |
 | `etiqueta_offset_x/y_pt` | Posición del precio respecto al ID | Si los precios aparecen desplazados |

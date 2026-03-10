@@ -1,5 +1,5 @@
 {
-    "_comentario": "Configuración base extraída de script_2mm_up.py — Boutique Zepeda",
+    "_comentario": "Configuración base extraída de config_base.json — Boutique Zepeda",
     "_uso": "python3 scripts/catalogo_base.py --config configs/config_basicos_PV26.json",
 
     "pdf_input":   "libros/basicos_ropa26.pdf",
@@ -22,8 +22,8 @@
 
     "etiqueta_font_size": 11,
     "etiqueta_color_rgb": [0.0, 0.0, 1.0],
-    "etiqueta_offset_x_pt": -1.67,
-    "etiqueta_offset_y_pt": 11.34,
+    "etiqueta_offset_x_pt": 35.5,
+    "etiqueta_offset_y_pt": 0.0,
 
     "logo_activo": false,
     "logo_path": "images/assets/logo_boutique.png",

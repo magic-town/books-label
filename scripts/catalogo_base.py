@@ -104,8 +104,11 @@ class EtiquetadorCatalogo:
         self.id_len_min     = config.get("id_longitud_min", 4)
         self.id_len_max     = config.get("id_longitud_max", 8)
         self.ocr_grayscale  = config.get("ocr_grayscale", True)
-        # CORREGIDO: ocr_invertir ahora se aplica en _mejorar_imagen
         self.ocr_invertir   = config.get("ocr_invertir", False)
+
+        # Doble pasada OCR — resuelve catálogos con fondo mixto
+        # (IDs negros sobre blanco + IDs blancos sobre fondo oscuro)
+        self.ocr_doble_pasada = config.get("ocr_doble_pasada", False)
 
         # Parámetros fuzzy matching
         self.fuzzy_activo   = config.get("fuzzy_activo", True)
@@ -121,11 +124,9 @@ class EtiquetadorCatalogo:
         self.logo_activo        = config.get("logo_activo", False)
         self.logo_path          = os.path.join(base_dir, config.get("logo_path", "")) if config.get("logo_path") else None
         self.logo_x             = config.get("logo_x_pt", 20.0)
-        # CORREGIDO: default alineado con README (750.0 posiciona en parte alta de página)
         self.logo_y             = config.get("logo_y_pt", 750.0)
         self.logo_ancho         = config.get("logo_ancho_pt", 80.0)
         self.logo_alto          = config.get("logo_alto_pt", 40.0)
-        # CORREGIDO: se usará para aplicar alpha real sobre la imagen
         self.logo_transparencia = config.get("logo_transparencia", 1.0)
 
         self._cargar_precios()
@@ -175,16 +176,77 @@ class EtiquetadorCatalogo:
 
     # ── Preprocesado de imagen ────────────────────────────────────────────────
 
-    def _mejorar_imagen(self, img: Image.Image) -> Image.Image:
+    def _mejorar_imagen(self, img: Image.Image, invertir: bool = False) -> Image.Image:
+        """
+        Aplica mejoras de contraste, nitidez y filtro de mediana.
+        El parámetro `invertir` permite forzar inversión independientemente
+        de ocr_invertir — usado por la doble pasada para la segunda lectura.
+        """
         img = ImageEnhance.Contrast(img).enhance(self.contraste)
         img = ImageEnhance.Sharpness(img).enhance(self.nitidez)
         img = img.filter(ImageFilter.MedianFilter(size=3))
-        # CORREGIDO: ocr_invertir ahora se aplica realmente
-        # Útil para catálogos con texto blanco sobre fondo oscuro
-        if self.ocr_invertir:
+        if invertir or self.ocr_invertir:
             img = img.convert("L")
             img = Image.eval(img, lambda px: 255 - px)
         return img
+
+    # ── OCR sobre una imagen preparada ───────────────────────────────────────
+
+    def _ocr_tokens(self, img: Image.Image) -> dict:
+        """
+        Ejecuta Tesseract y retorna el dict de image_to_data.
+        """
+        return pytesseract.image_to_data(
+            img,
+            lang="spa",
+            config=f"--oem 3 --psm {self.psm}",
+            output_type=pytesseract.Output.DICT
+        )
+
+    # ── Fusión de resultados de doble pasada ─────────────────────────────────
+
+    def _fusionar_tokens(self, data_normal: dict, data_invertido: dict) -> dict:
+        """
+        Combina los tokens de dos pasadas OCR.
+        Estrategia: toma todos los tokens de la pasada normal y agrega
+        los tokens de la pasada invertida que no tengan un token existente
+        en una posición cercana (tolerancia: 20px). Esto evita duplicados
+        cuando ambas pasadas leen el mismo ID correctamente.
+        """
+        TOLERANCIA_PX = 20
+
+        # Construir lista base desde pasada normal
+        n = len(data_normal["text"])
+        tokens = {
+            "text": list(data_normal["text"]),
+            "conf": list(data_normal["conf"]),
+            "left": list(data_normal["left"]),
+            "top":  list(data_normal["top"]),
+        }
+
+        # Agregar tokens de pasada invertida si no hay solapamiento
+        for j in range(len(data_invertido["text"])):
+            t = data_invertido["text"][j]
+            if not t.strip():
+                continue
+            x2 = data_invertido["left"][j]
+            y2 = data_invertido["top"][j]
+
+            # Buscar si ya existe un token cercano en la pasada normal
+            duplicado = False
+            for k in range(len(tokens["text"])):
+                if abs(tokens["left"][k] - x2) < TOLERANCIA_PX and \
+                   abs(tokens["top"][k]  - y2) < TOLERANCIA_PX:
+                    duplicado = True
+                    break
+
+            if not duplicado:
+                tokens["text"].append(t)
+                tokens["conf"].append(data_invertido["conf"][j])
+                tokens["left"].append(x2)
+                tokens["top"].append(y2)
+
+        return tokens
 
     # ── Fuzzy matching ────────────────────────────────────────────────────────
 
@@ -216,11 +278,9 @@ class EtiquetadorCatalogo:
     def _capa_logo(self, w_pdf: float, h_pdf: float) -> BytesIO:
         """
         Genera una capa PDF con el logo para fusionar en la portada.
-        CORREGIDO: la transparencia se aplica directamente sobre el canal alpha
-        de la imagen antes de pasarla a ReportLab, ya que setFillAlpha no afecta
-        a imágenes rasterizadas dibujadas con drawImage.
+        La transparencia se aplica sobre el canal alpha de la imagen PIL
+        antes de pasarla a ReportLab.
         """
-        # Abrir logo y aplicar transparencia real vía canal alpha
         logo_img_pil = Image.open(self.logo_path).convert("RGBA")
 
         if self.logo_transparencia < 1.0:
@@ -228,7 +288,6 @@ class EtiquetadorCatalogo:
             a = a.point(lambda px: int(px * self.logo_transparencia))
             logo_img_pil = Image.merge("RGBA", (r, g, b, a))
 
-        # Convertir a buffer para ReportLab
         logo_buffer = BytesIO()
         logo_img_pil.save(logo_buffer, format="PNG")
         logo_buffer.seek(0)
@@ -250,8 +309,15 @@ class EtiquetadorCatalogo:
     # ── Proceso principal ─────────────────────────────────────────────────────
 
     def marcar(self):
+        modo = "DOBLE PASADA" if self.ocr_doble_pasada else "PASADA ÚNICA"
         self.logger.info(f"🚀 Iniciando: {os.path.basename(self.pdf_path)}")
-        self.logger.info(f"   DPI={self.dpi} | PSM={self.psm} | Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | IDs: {self.id_len_min}–{self.id_len_max} dígitos | Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir}")
+        self.logger.info(
+            f"   DPI={self.dpi} | PSM={self.psm} | "
+            f"Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | "
+            f"IDs: {self.id_len_min}–{self.id_len_max} dígitos | "
+            f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
+            f"Modo OCR={modo}"
+        )
 
         try:
             reader_pdf = PdfReader(self.pdf_path)
@@ -267,14 +333,14 @@ class EtiquetadorCatalogo:
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
+        # Contadores exclusivos de doble pasada
+        ids_solo_invertido = 0
 
         for i in range(total_paginas):
             print(f"⚡ Procesando página {i+1}/{total_paginas}...", end="\r", flush=True)
 
-            # CORREGIDO: inicializar en None para que el bloque finally
-            # pueda liberar memoria sin depender de locals()
             images = None
-            img    = None
+            img_base = None
 
             try:
                 images = convert_from_path(
@@ -284,18 +350,24 @@ class EtiquetadorCatalogo:
                     dpi=self.dpi,
                     grayscale=self.ocr_grayscale
                 )
-                img = self._mejorar_imagen(images[0].convert("L"))
 
-                data = pytesseract.image_to_data(
-                    img,
-                    lang="spa",
-                    config=f"--oem 3 --psm {self.psm}",
-                    output_type=pytesseract.Output.DICT
-                )
+                img_base = images[0].convert("L")
+
+                # ── Pasada normal ──────────────────────────────────────────
+                img_normal = self._mejorar_imagen(img_base.copy(), invertir=False)
+                data_normal = self._ocr_tokens(img_normal)
+
+                # ── Pasada invertida (solo si ocr_doble_pasada está activo) ─
+                if self.ocr_doble_pasada:
+                    img_inv = self._mejorar_imagen(img_base.copy(), invertir=True)
+                    data_inv = self._ocr_tokens(img_inv)
+                    data = self._fusionar_tokens(data_normal, data_inv)
+                else:
+                    data = data_normal
 
                 p_orig       = reader_pdf.pages[i]
                 w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
-                w_img, h_img = img.size
+                w_img, h_img = img_normal.size
                 scale_x      = w_pdf / w_img
                 scale_y      = h_pdf / h_img
 
@@ -303,6 +375,9 @@ class EtiquetadorCatalogo:
                 can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
                 can.setFont("Helvetica-Bold", self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
+
+                # IDs detectados en esta página antes de procesar
+                ids_pagina_antes = len(ids_detectados)
 
                 for j in range(len(data["text"])):
                     texto = data["text"][j]
@@ -332,7 +407,7 @@ class EtiquetadorCatalogo:
                 if packet.getbuffer().nbytes > 0:
                     p_orig.merge_page(PdfReader(packet).pages[0])
 
-                # Insertar logo en portada
+                # Logo en portada
                 if i == 0 and self.logo_activo and self.logo_path and os.path.exists(self.logo_path):
                     capa_logo = self._capa_logo(w_pdf, h_pdf)
                     p_orig.merge_page(PdfReader(capa_logo).pages[0])
@@ -347,9 +422,8 @@ class EtiquetadorCatalogo:
                 writer.add_page(reader_pdf.pages[i])
 
             finally:
-                # CORREGIDO: liberación de memoria sin depender de locals()
                 del images
-                del img
+                del img_base
                 gc.collect()
 
         print(" " * 80, end="\r")
@@ -386,6 +460,8 @@ class EtiquetadorCatalogo:
         self.logger.info(f"🔢 IDs únicos marcados : {ids_unicos}")
         self.logger.info(f"🏷️  Etiquetas insertadas: {total_etiquetado}")
         self.logger.info(f"🔍 Fuzzy matches        : {fuzzy_matches}")
+        if self.ocr_doble_pasada:
+            self.logger.info(f"🔄 Modo OCR             : DOBLE PASADA (fondo mixto)")
         self.logger.info(f"📊 Efectividad          : {tasa:.1f}%")
         self.logger.info(f"   {semaforo}")
         self.logger.info(f"   → {accion}")
