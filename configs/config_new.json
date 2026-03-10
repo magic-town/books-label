@@ -2,9 +2,9 @@
     "_comentario": "Configuración base extraída de script_2mm_up.py — Boutique Zepeda",
     "_uso": "python3 scripts/catalogo_base.py --config configs/config_base.json",
 
-    "pdf_input":   "libros/urbano_26.pdf",
-    "excel_input": "precios/lista_urbano.xlsx",
-    "pdf_output":  "salidas/urbano_26_final.pdf",
+    "pdf_input":   "libros/basicos_ropa26.pdf",
+    "excel_input": "precios/lista_basicos.xlsx",
+    "pdf_output":  "salidas/basicos_26_final.pdf",
 
     "dpi": 200,
     "psm": 6,
@@ -22,8 +22,8 @@
 
     "etiqueta_font_size": 11,
     "etiqueta_color_rgb": [0.0, 0.0, 1.0],
-    "etiqueta_offset_x_pt": 4.0,
-    "etiqueta_offset_y_pt": 5.67,
+    "etiqueta_offset_x_pt": -1.67,
+    "etiqueta_offset_y_pt": 11.34,
 
     "logo_activo": false,
     "logo_path": "images/assets/logo_boutique.png",
