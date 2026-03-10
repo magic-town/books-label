@@ -1,6 +1,6 @@
 {
     "_comentario": "Configuración base extraída de script_2mm_up.py — Boutique Zepeda",
-    "_uso": "python3 scripts/catalogo_base.py --config configs/config_base.json",
+    "_uso": "python3 scripts/catalogo_base.py --config configs/config_basicos_PV26.json",
 
     "pdf_input":   "libros/basicos_ropa26.pdf",
     "excel_input": "precios/lista_basicos.xlsx",

@@ -1,4 +1,4 @@
-<img src="../images/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
 
@@ -78,26 +78,38 @@ precios         catálogo        en WA
 
 > Objetivo: ejecutar el script y obtener semáforo verde.
 
-### Antes de ejecutar
+### Preparar el config
 
-- [ ] Abrir VSC → `File > Open Folder > books-label`
-- [ ] Abrir el archivo de configuración en `configs/` que corresponde al proveedor o temporada. A fecha 03/marz/2026 el config que editaremos es `config_new.json`
-- [ ] Verificar que los nombres coincidan exactamente con los archivos en disco:
+- [ ] Hacer una copia de `configs/config_base.json`
+- [ ] Renombrarla como `config_<proveedor>_<temporada>.json` — ejemplo: `config_jeans_PV26.json`
+- [ ] Abrirla en VSC y actualizar los tres campos de archivos:
 
-  | Campo en el config | Archivo que debe existir |
-  |--------------------|--------------------------|
-  | `pdf_input` | en `libros/` |
-  | `excel_input` | en `precios/` |
-  | `pdf_output` | nombre del archivo que se va a generar en `salidas/` |
+  | Campo | Qué escribir |
+  |-------|--------------|
+  | `pdf_input` | `"libros/<nombre_del_pdf>.pdf"` |
+  | `excel_input` | `"precios/<nombre_del_excel>.xlsx"` |
+  | `pdf_output` | `"salidas/<nombre_que_quieras>.pdf"` |
 
-### Ejecutar
+- [ ] Guardar el archivo (`Ctrl+S`)
+
+### Entender y ajustar parámetros — usar el configurador
 
 - [ ] Abrir terminal en VSC: `View > Terminal`
 - [ ] Activar el entorno virtual:
   ```bash
   source venv_catalogo/bin/activate
   ```
-- [ ] Ejecutar el script:
+- [ ] Abrir el configurador visual:
+  ```bash
+  python3 abrir_configurador.py
+  ```
+- [ ] Mover los sliders para entender qué hace cada parámetro
+- [ ] Anotar los valores que quieres probar
+- [ ] Escribir esos valores en tu config en VSC y guardar
+
+### Ejecutar
+
+- [ ] En la terminal de VSC, ejecutar el script:
   ```bash
   python3 scripts/catalogo_base.py --config configs/<nombre_config>.json
   ```
@@ -108,28 +120,43 @@ Al terminar verás el resultado en consola:
 
 | Resultado | Qué hacer |
 |-----------|-----------|
-| 🟢 **VERDE** — 85% o más | Continuar a Fase 3 |
-| 🟡 **AMARILLO** — 65% a 84% | Ejecutar diagnóstico antes de continuar |
-| 🔴 **ROJO** — menos de 65% | Efectividad crítica — revisar diagnóstico y aplicar ajustes |
-
-### Si el semáforo no es verde
-
-- [ ] Ejecutar el diagnóstico:
-  ```bash
-  python3 scripts/diagnostico.py
-  ```
-- [ ] Leer las recomendaciones que aparecen
-- [ ] Si puedes aplicarlas sola → ajustar el config y volver a ejecutar
-- [ ] Si no es claro qué hacer → 📷​ toma captura de pantalla, consultalo con Gabriel o Claudio
+| 🟢 **VERDE** — 85% o más | Abrir el PDF en `salidas/` y revisar visualmente, luego ir a Fase 3 |
+| 🟡 **AMARILLO** — 65% a 84% | Revisar el PDF y decidir si ajustar antes de continuar |
+| 🔴 **ROJO** — menos de 65% | No publicar — ver sección siguiente |
 
 ### Revisar el PDF visualmente
 
-Antes de publicar, abrir el archivo de salida en `salidas/` y confirmar:
+Antes de publicar, abrir el archivo en `salidas/` y confirmar:
 
 - [ ] ¿Los precios aparecen junto a cada producto?
 - [ ] ¿Están en la posición correcta, sin encimarse con otro texto?
 - [ ] ¿El formato del precio se ve bien? — ejemplo: `$250.00`
 - [ ] ¿Hay páginas completas sin ningún precio?
+
+### Si el semáforo no es verde
+
+Tienes tres caminos — elige según lo que observas en el PDF y en consola:
+
+**Camino A — Ajustar parámetros tú misma**
+- [ ] Abre el configurador (`python3 abrir_configurador.py`) y mueve los sliders
+- [ ] Edita el config en VSC con los nuevos valores
+- [ ] Vuelve a ejecutar el script y compara el semáforo
+
+**Camino B — Diagnóstico automático + consulta a Claude**
+- [ ] Ejecutar el diagnóstico:
+  ```bash
+  python3 scripts/diagnostico.py
+  ```
+- [ ] Copiar todo el output de la terminal
+- [ ] Abrirlo en Claude y preguntar: *"Este es el diagnóstico de mi script de etiquetado, ¿qué parámetros ajusto?"*
+
+**Camino C — Consulta directa a Claude**
+- [ ] Tomar captura de pantalla del PDF con el problema
+- [ ] Tomar captura de pantalla del output de consola
+- [ ] Abrir Claude y describir lo que ves: *"El precio aparece encimado / no aparece / está muy lejos del ID"*
+
+> 💡 Los tres caminos funcionan. El criterio para elegir: si sabes dónde está el problema, usa A. Si no tienes idea, usa B o C.
+> Nunca publiques con semáforo rojo.
 
 ---
 
@@ -172,14 +199,14 @@ Antes de publicar, abrir el archivo de salida en `salidas/` y confirmar:
 ```
 ¿El semáforo fue amarillo o rojo?
         ↓
-Ejecuta diagnostico.py
-        ↓
-¿Las recomendaciones son claras?
-   Sí → aplica y vuelve a ejecutar
-   No → manda el reporte al coach
+Observa el PDF — ¿ves el problema?
+   ↙              ↘
+  Sí               No
+  ↓                ↓
+Ajusta params   Ejecuta diagnostico.py
+en configurador  y pégalo a Claude
 ```
 
-> 💡 Nunca publiques con semáforo rojo.
 > El coach está para acompañar, no para juzgar. Cualquier duda es válida.
 
 ---

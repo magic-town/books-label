@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Boutique Zepeda — Configurador</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --arena:      #F2EBE0;
+  --arena-dark: #E8DDD0;
+  --tinta:      #1C1814;
+  --terracota:  #A8522E;
+  --terracota-h:#C46A42;
+  --sage:       #7A8C78;
+  --gris:       #6E655C;
+  --gris-cl:    #A89E94;
+  --borde:      #D6CCBF;
+  --blanco:     #FDFAF6;
+  --sombra:     rgba(28,24,20,0.07);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--arena);
+  color: var(--tinta);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+header {
+  position: relative;
+  z-index: 10;
+  background: var(--tinta);
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--terracota);
+}
+
+.brand { display: flex; flex-direction: column; gap: 1px; }
+.brand-eye { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--terracota-h); }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--arena); font-weight: 400; }
+.header-badge { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gris-cl); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 0.9rem; border-radius: 2px; }
+
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 1180px; margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.intro {
+  grid-column: 1 / -1;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--terracota);
+  padding: 1rem 1.5rem;
+  border-radius: 0 3px 3px 0;
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 13px; color: var(--gris);
+  box-shadow: 0 2px 8px var(--sombra);
+}
+
+.intro strong { color: var(--tinta); font-weight: 500; }
+.intro code { background: var(--arena-dark); padding: 0 4px; border-radius: 2px; font-size: 12px; font-family: 'Courier New', monospace; }
+
+.sec {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px var(--sombra);
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.sec:nth-child(1){animation-delay:.0s}
+.sec:nth-child(2){animation-delay:.06s}
+.sec:nth-child(3){animation-delay:.12s}
+.sec:nth-child(4){animation-delay:.18s}
+
+.sec-head {
+  background: var(--arena-dark);
+  border-bottom: 1px solid var(--borde);
+  padding: 0.85rem 1.4rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+
+.sec-icon { width:26px;height:26px;background:var(--tinta);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0; }
+.sec-title { font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:400;color:var(--tinta); }
+.sec-body { padding:1.4rem;display:flex;flex-direction:column;gap:1.1rem; }
+
+.sl { display:flex;flex-direction:column;gap:0.3rem; }
+.sl-label { display:flex;justify-content:space-between;align-items:baseline; }
+.sl-name { font-size:10.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:var(--gris); }
+.sl-val { font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--terracota);font-style:italic; }
+.sl-hint { font-size:11px;color:var(--gris-cl);margin-top:0.15rem; }
+
+input[type=range] {
+  -webkit-appearance:none;width:100%;height:2px;
+  background:var(--borde);border-radius:2px;outline:none;cursor:pointer;margin:0.3rem 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;width:18px;height:18px;
+  background:var(--blanco);border:2px solid var(--terracota);border-radius:50%;
+  cursor:pointer;transition:transform .15s,border-color .15s;
+  box-shadow:0 1px 4px rgba(168,82,46,.25);
+}
+input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3);border-color:var(--terracota-h); }
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.tog { display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;background:var(--arena);border:1px solid var(--borde);border-radius:3px;gap:1rem; }
+.tog-info { display:flex;flex-direction:column;gap:1px; }
+.tog-name { font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--tinta); }
+.tog-desc { font-size:11px;color:var(--gris-cl); }
+
+.sw { position:relative;width:42px;height:23px;flex-shrink:0; }
+.sw input { opacity:0;width:0;height:0; }
+.sw-track { position:absolute;inset:0;background:var(--borde);border-radius:23px;cursor:pointer;transition:background .25s; }
+.sw-track::before { content:'';position:absolute;width:17px;height:17px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.15); }
+.sw input:checked + .sw-track { background:var(--terracota); }
+.sw input:checked + .sw-track::before { transform:translateX(19px); }
+
+.right { position:sticky;top:1.5rem;display:flex;flex-direction:column;gap:1.5rem; }
+
+.pv-card,.json-card { background:var(--blanco);border:1px solid var(--borde);border-radius:4px;overflow:hidden;box-shadow:0 2px 12px var(--sombra); }
+.pv-head,.json-head { background:var(--tinta);color:var(--arena);padding:0.75rem 1.2rem; }
+.pv-head { font-family:'Playfair Display',serif;font-size:0.85rem;font-style:italic; }
+.json-head { display:flex;align-items:center;justify-content:space-between; }
+.json-title { font-family:'Playfair Display',serif;font-size:0.85rem;font-style:italic; }
+
+.pv-body { padding:1.2rem;display:flex;flex-direction:column;gap:1rem; }
+
+.sim { background:var(--arena);border:1px solid var(--borde);border-radius:3px;height:170px;position:relative;overflow:hidden; }
+.sim-page { position:absolute;inset:10px;background:white;border:1px solid #ddd;border-radius:2px; }
+.sim-id { position:absolute;font-size:13px;font-weight:500;color:var(--tinta);user-select:none; }
+.sim-price { position:absolute;font-weight:600;user-select:none;transition:left .12s,top .12s,font-size .12s;white-space:nowrap; }
+.sim-vline,.sim-hline { position:absolute;background:rgba(168,82,46,.2);pointer-events:none;transition:left .12s,top .12s; }
+.sim-vline { width:1px;top:0;bottom:0; }
+.sim-hline { height:1px;left:0;right:0; }
+
+.mm-row { display:grid;grid-template-columns:1fr 1fr;gap:0.5rem; }
+.mm-badge { background:var(--arena);border:1px solid var(--borde);border-radius:2px;padding:0.5rem 0.75rem;text-align:center; }
+.mm-label { font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gris-cl); }
+.mm-val { font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--terracota);font-style:italic; }
+.mm-sub { font-size:10px;color:var(--gris-cl); }
+
+.btn-copy { font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--arena);padding:0.3rem 0.75rem;border-radius:2px;cursor:pointer;font-family:'Jost',sans-serif;transition:background .2s; }
+.btn-copy:hover { background:rgba(255,255,255,.15); }
+.btn-copy.ok { border-color:var(--sage);color:#9BBFAA; }
+
+.json-pre { background:#16120F;padding:1rem 1.1rem;overflow:auto;max-height:260px;font-family:'Courier New',monospace;font-size:11px;line-height:1.75;color:var(--arena);white-space:pre-wrap; }
+.jk{color:#C97A58}.jv{color:#A8C4A0}.jb{color:#E8D08A}.jn{color:#88B4CC}
+
+.instruccion { background:var(--tinta);color:var(--arena);border-radius:4px;padding:1.1rem 1.3rem;font-size:12px;line-height:1.8;border-left:3px solid var(--terracota); }
+.paso { display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.5rem; }
+.paso:last-child { margin-bottom:0; }
+.num { background:var(--terracota);color:white;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px; }
+.instruccion code { background:rgba(255,255,255,.08);padding:0 5px;border-radius:2px;font-size:11px;font-family:'Courier New',monospace;color:#C97A58; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-eye">Boutique Zepeda · books-label</span>
+    <span class="brand-name">Configurador de Catálogos</span>
+  </div>
+  <span class="header-badge">Calculadora visual de parámetros</span>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <span>🧮</span>
+    <span><strong>Esta herramienta es solo para entender y probar parámetros.</strong>
+    Mueve los controles, observa el efecto en el preview, luego escribe los valores en tu archivo <code>configs/config_*.json</code> en VSC y ejecuta el script desde la terminal.</span>
+  </div>
+
+  <!-- ══ IZQUIERDA ══ -->
+  <div class="left">
+
+    <div class="sec">
+      <div class="sec-head"><div class="sec-icon">🔍</div><span class="sec-title">Lectura de IDs — OCR</span></div>
+      <div class="sec-body">
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Resolución (DPI)</span><span class="sl-val" id="v_dpi">200</span></div>
+            <input type="range" id="dpi" min="100" max="400" step="25" value="200" oninput="upd()"/>
+            <span class="sl-hint">Sube si el OCR no detecta los IDs. Normal: 200.</span>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Modo lectura (PSM)</span><span class="sl-val" id="v_psm">6</span></div>
+            <input type="range" id="psm" min="3" max="13" step="1" value="6" oninput="upd()"/>
+            <span class="sl-hint">6 = bloques de texto. Prueba 4 u 11 si el layout es raro.</span>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Contraste</span><span class="sl-val" id="v_contraste">2.5</span></div>
+            <input type="range" id="contraste" min="1.0" max="5.0" step="0.1" value="2.5" oninput="upd()"/>
+            <span class="sl-hint">Más contraste = IDs más nítidos para el OCR.</span>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Nitidez</span><span class="sl-val" id="v_nitidez">2.0</span></div>
+            <input type="range" id="nitidez" min="1.0" max="5.0" step="0.1" value="2.0" oninput="upd()"/>
+            <span class="sl-hint">Refuerza bordes de letras y números.</span>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">ID mínimo (dígitos)</span><span class="sl-val" id="v_id_min">4</span></div>
+            <input type="range" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
+            <span class="sl-hint">IDs más cortos que este valor se ignoran.</span>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">ID máximo (dígitos)</span><span class="sl-val" id="v_id_max">8</span></div>
+            <input type="range" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
+            <span class="sl-hint">IDs más largos que este valor se ignoran.</span>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="tog">
+            <div class="tog-info"><span class="tog-name">Escala de grises</span><span class="tog-desc">Activo para la mayoría</span></div>
+            <label class="sw"><input type="checkbox" id="ocr_grayscale" checked oninput="upd()"/><span class="sw-track"></span></label>
+          </div>
+          <div class="tog">
+            <div class="tog-info"><span class="tog-name">Invertir colores</span><span class="tog-desc">Solo si texto blanco sobre fondo oscuro</span></div>
+            <label class="sw"><input type="checkbox" id="ocr_invertir" oninput="upd()"/><span class="sw-track"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><div class="sec-icon">🎯</div><span class="sec-title">Corrección automática de IDs</span></div>
+      <div class="sec-body">
+        <div class="tog">
+          <div class="tog-info"><span class="tog-name">Corrección activa</span><span class="tog-desc">Recupera IDs que el OCR leyó con errores leves</span></div>
+          <label class="sw"><input type="checkbox" id="fuzzy_activo" oninput="upd()"/><span class="sw-track"></span></label>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Tolerancia</span><span class="sl-val" id="v_fuzzy">80%</span></div>
+          <input type="range" id="fuzzy_umbral" min="60" max="99" step="1" value="80" oninput="upd()"/>
+          <span class="sl-hint">80–85% es seguro. Más bajo recupera más pero puede confundir IDs parecidos.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><div class="sec-icon">🏷️</div><span class="sec-title">Posición y estilo del precio</span></div>
+      <div class="sec-body">
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">◀ Izquierda · Derecha ▶</span><span class="sl-val" id="v_ox">4.0 pt</span></div>
+            <input type="range" id="etiqueta_offset_x_pt" min="-30" max="30" step="0.5" value="4.0" oninput="upd()"/>
+            <span class="sl-hint">Negativo = mueve a la izquierda del ID.</span>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">▼ Abajo · Arriba ▲</span><span class="sl-val" id="v_oy">5.67 pt</span></div>
+            <input type="range" id="etiqueta_offset_y_pt" min="-30" max="30" step="0.5" value="5.67" oninput="upd()"/>
+            <span class="sl-hint">Negativo = mueve por debajo del ID.</span>
+          </div>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Tamaño del precio</span><span class="sl-val" id="v_fs">11 pt</span></div>
+          <input type="range" id="etiqueta_font_size" min="7" max="18" step="1" value="11" oninput="upd()"/>
+          <span class="sl-hint">El tamaño que tendrá el número del precio en el PDF.</span>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Color — Rojo</span><span class="sl-val" id="v_cr">0.00</span></div>
+          <input type="range" id="cr" min="0" max="1" step="0.01" value="0" oninput="upd()"/>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Color — Verde</span><span class="sl-val" id="v_cg">0.00</span></div>
+          <input type="range" id="cg" min="0" max="1" step="0.01" value="0" oninput="upd()"/>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Color — Azul</span><span class="sl-val" id="v_cb">1.00</span></div>
+          <input type="range" id="cb" min="0" max="1" step="0.01" value="1" oninput="upd()"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><div class="sec-icon">🖼️</div><span class="sec-title">Logo en portada</span></div>
+      <div class="sec-body">
+        <div class="tog">
+          <div class="tog-info"><span class="tog-name">Insertar logo</span><span class="tog-desc">Se coloca en la primera página del catálogo</span></div>
+          <label class="sw"><input type="checkbox" id="logo_activo" oninput="upd()"/><span class="sw-track"></span></label>
+        </div>
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Posición horizontal</span><span class="sl-val" id="v_lx">20 pt</span></div>
+            <input type="range" id="logo_x_pt" min="0" max="500" step="5" value="20" oninput="upd()"/>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Posición vertical</span><span class="sl-val" id="v_ly">750 pt</span></div>
+            <input type="range" id="logo_y_pt" min="0" max="800" step="5" value="750" oninput="upd()"/>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Ancho</span><span class="sl-val" id="v_lw">80 pt</span></div>
+            <input type="range" id="logo_ancho_pt" min="20" max="300" step="5" value="80" oninput="upd()"/>
+          </div>
+          <div class="sl">
+            <div class="sl-label"><span class="sl-name">Alto</span><span class="sl-val" id="v_lh">40 pt</span></div>
+            <input type="range" id="logo_alto_pt" min="10" max="150" step="5" value="40" oninput="upd()"/>
+          </div>
+        </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Transparencia (1 = opaco)</span><span class="sl-val" id="v_lt">0.85</span></div>
+          <input type="range" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ DERECHA ══ -->
+  <div class="right">
+
+    <div class="pv-card">
+      <div class="pv-head">Vista previa — posición del precio</div>
+      <div class="pv-body">
+        <div class="sim" id="sim">
+          <div class="sim-page" id="simPage">
+            <span class="sim-id" id="simID">1234</span>
+            <span class="sim-price" id="simPrice">$150.00</span>
+            <div class="sim-vline" id="simV"></div>
+            <div class="sim-hline" id="simH"></div>
+          </div>
+        </div>
+        <div class="mm-row">
+          <div class="mm-badge">
+            <div class="mm-label">Offset X</div>
+            <div class="mm-val" id="mmXval">4.0</div>
+            <div class="mm-sub" id="mmXmm">1.4 mm →</div>
+          </div>
+          <div class="mm-badge">
+            <div class="mm-label">Offset Y</div>
+            <div class="mm-val" id="mmYval">5.67</div>
+            <div class="mm-sub" id="mmYmm">2.0 mm ↑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="json-card">
+      <div class="json-head">
+        <span class="json-title">Valores actuales — para tu config</span>
+        <button class="btn-copy" id="btnCopy" onclick="copiar()">Copiar JSON</button>
+      </div>
+      <div class="json-pre" id="jsonPre"></div>
+    </div>
+
+    <div class="instruccion">
+      <div class="paso"><div class="num">1</div><span>Mueve los controles hasta que el preview se vea como quieres.</span></div>
+      <div class="paso"><div class="num">2</div><span>Anota los valores o usa <strong>Copiar JSON</strong> como referencia.</span></div>
+      <div class="paso"><div class="num">3</div><span>Abre tu <code>configs/config_*.json</code> en VSC y escribe los valores.</span></div>
+      <div class="paso"><div class="num">4</div><span>Ejecuta el script en terminal y lee el semáforo.</span></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fv = id => parseFloat($(id).value);
+const bv = id => $(id).checked;
+
+function upd() {
+  // Displays
+  $('v_dpi').textContent      = $(   'dpi').value;
+  $('v_psm').textContent      = $(   'psm').value;
+  $('v_contraste').textContent = parseFloat($('contraste').value).toFixed(1);
+  $('v_nitidez').textContent   = parseFloat($('nitidez').value).toFixed(1);
+  $('v_id_min').textContent    = $('id_longitud_min').value;
+  $('v_id_max').textContent    = $('id_longitud_max').value;
+  $('v_fuzzy').textContent     = $('fuzzy_umbral').value + '%';
+  $('v_ox').textContent        = parseFloat($('etiqueta_offset_x_pt').value).toFixed(2) + ' pt';
+  $('v_oy').textContent        = parseFloat($('etiqueta_offset_y_pt').value).toFixed(2) + ' pt';
+  $('v_fs').textContent        = $('etiqueta_font_size').value + ' pt';
+  $('v_cr').textContent        = parseFloat($('cr').value).toFixed(2);
+  $('v_cg').textContent        = parseFloat($('cg').value).toFixed(2);
+  $('v_cb').textContent        = parseFloat($('cb').value).toFixed(2);
+  $('v_lx').textContent        = $('logo_x_pt').value + ' pt';
+  $('v_ly').textContent        = $('logo_y_pt').value + ' pt';
+  $('v_lw').textContent        = $('logo_ancho_pt').value + ' pt';
+  $('v_lh').textContent        = $('logo_alto_pt').value + ' pt';
+  $('v_lt').textContent        = parseFloat($('logo_transparencia').value).toFixed(2);
+
+  updPreview();
+  updJSON();
+}
+
+function updPreview() {
+  const page  = $('simPage');
+  const pw    = page.offsetWidth  || 300;
+  const ph    = page.offsetHeight || 140;
+  const cx    = pw * 0.42;
+  const cy    = ph * 0.52;
+  const sc    = pw / 420;
+
+  const ox = fv('etiqueta_offset_x_pt') * sc;
+  const oy = fv('etiqueta_offset_y_pt') * sc;
+  const fs = fv('etiqueta_font_size') * sc * 1.4;
+
+  $('simID').style.cssText    = `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%)`;
+  $('simPrice').style.cssText = `left:${cx+ox}px;top:${cy-oy}px;transform:translateY(-50%);font-size:${fs}px`;
+
+  const r = Math.round(fv('cr')*255);
+  const g = Math.round(fv('cg')*255);
+  const b = Math.round(fv('cb')*255);
+  $('simPrice').style.color = `rgb(${r},${g},${b})`;
+
+  $('simV').style.left = (cx + ox) + 'px';
+  $('simH').style.top  = (cy - oy) + 'px';
+
+  const PT  = 0.3528;
+  const xmm = (fv('etiqueta_offset_x_pt') * PT).toFixed(1);
+  const ymm = (fv('etiqueta_offset_y_pt') * PT).toFixed(1);
+  $('mmXval').textContent = fv('etiqueta_offset_x_pt').toFixed(2);
+  $('mmYval').textContent = fv('etiqueta_offset_y_pt').toFixed(2);
+  $('mmXmm').textContent  = `${xmm} mm ${parseFloat(xmm)>=0?'→':'←'}`;
+  $('mmYmm').textContent  = `${ymm} mm ${parseFloat(ymm)>=0?'↑':'↓'}`;
+}
+
+function buildCfg() {
+  return {
+    "_comentario": "Boutique Zepeda — Taller de Etiquetado",
+    "_uso": "python3 scripts/catalogo_base.py --config configs/config_NOMBRE.json",
+    "pdf_input":             "libros/NOMBRE.pdf",
+    "excel_input":           "precios/lista_NOMBRE.xlsx",
+    "pdf_output":            "salidas/NOMBRE_final.pdf",
+    "dpi":                   parseInt(fv('dpi')),
+    "psm":                   parseInt(fv('psm')),
+    "contraste":             +fv('contraste').toFixed(1),
+    "nitidez":               +fv('nitidez').toFixed(1),
+    "ocr_grayscale":         bv('ocr_grayscale'),
+    "ocr_invertir":          bv('ocr_invertir'),
+    "id_longitud_min":       parseInt(fv('id_longitud_min')),
+    "id_longitud_max":       parseInt(fv('id_longitud_max')),
+    "fuzzy_activo":          bv('fuzzy_activo'),
+    "fuzzy_umbral":          parseInt(fv('fuzzy_umbral')),
+    "etiqueta_font_size":    parseInt(fv('etiqueta_font_size')),
+    "etiqueta_color_rgb":    [+fv('cr').toFixed(3), +fv('cg').toFixed(3), +fv('cb').toFixed(3)],
+    "etiqueta_offset_x_pt":  +fv('etiqueta_offset_x_pt').toFixed(2),
+    "etiqueta_offset_y_pt":  +fv('etiqueta_offset_y_pt').toFixed(2),
+    "logo_activo":           bv('logo_activo'),
+    "logo_path":             "imagenes/logos/logo_bz.png",
+    "logo_x_pt":             +fv('logo_x_pt'),
+    "logo_y_pt":             +fv('logo_y_pt'),
+    "logo_ancho_pt":         +fv('logo_ancho_pt'),
+    "logo_alto_pt":          +fv('logo_alto_pt'),
+    "logo_transparencia":    +fv('logo_transparencia').toFixed(2),
+  };
+}
+
+function updJSON() {
+  const raw  = JSON.stringify(buildCfg(), null, 4);
+  const html = raw.split('\n').map(l =>
+    l.replace(/"([^"]+)":/g,   '<span class="jk">"$1"</span>:')
+     .replace(/:\s*(true|false)/g, ': <span class="jb">$1</span>')
+     .replace(/:\s*"([^"]*)"/g,    ': <span class="jv">"$1"</span>')
+     .replace(/:\s*(-?[\d.]+)/g,   ': <span class="jn">$1</span>')
+  ).join('\n');
+  $('jsonPre').innerHTML = html;
+}
+
+function copiar() {
+  navigator.clipboard.writeText(JSON.stringify(buildCfg(), null, 4)).then(() => {
+    const btn = $('btnCopy');
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar JSON'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+window.addEventListener('load', () => { upd(); window.addEventListener('resize', updPreview); });
+</script>
+</body>
+</html>
