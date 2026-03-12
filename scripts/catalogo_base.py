@@ -176,18 +176,28 @@ class EtiquetadorCatalogo:
 
     # ── Preprocesado de imagen ────────────────────────────────────────────────
 
-    def _mejorar_imagen(self, img: Image.Image, invertir: bool = False) -> Image.Image:
+    def _mejorar_imagen(self, img: Image.Image) -> Image.Image:
         """
-        Aplica mejoras de contraste, nitidez y filtro de mediana.
-        El parámetro `invertir` permite forzar inversión independientemente
-        de ocr_invertir — usado por la doble pasada para la segunda lectura.
+        Preprocesado estándar — pasada normal.
+        Contraste + nitidez + mediana. Inversión si ocr_invertir está activo.
         """
         img = ImageEnhance.Contrast(img).enhance(self.contraste)
         img = ImageEnhance.Sharpness(img).enhance(self.nitidez)
         img = img.filter(ImageFilter.MedianFilter(size=3))
-        if invertir or self.ocr_invertir:
-            img = img.convert("L")
+        if self.ocr_invertir:
             img = Image.eval(img, lambda px: 255 - px)
+        return img
+
+    def _mejorar_imagen_invertida(self, img: Image.Image) -> Image.Image:
+        """
+        Preprocesado optimizado — segunda pasada (doble pasada).
+        Diseñado para IDs en fondo oscuro con texto claro.
+        Solo contraste + inversión directa: la mediana y la nitidez
+        destruyen los bordes del texto blanco sobre gris antes de invertir.
+        Preprocesado fijo — no usa parámetros del config.
+        """
+        img = ImageEnhance.Contrast(img).enhance(2.5)
+        img = Image.eval(img, lambda px: 255 - px)
         return img
 
     # ── OCR sobre una imagen preparada ───────────────────────────────────────
@@ -252,14 +262,27 @@ class EtiquetadorCatalogo:
 
     def _buscar_id(self, id_detectado: str):
         """
-        Busca el ID en el diccionario de precios.
-        - Primero intenta matching exacto (rápido).
-        - Si falla y fuzzy está activo, busca la coincidencia más cercana.
-        Retorna (precio, es_fuzzy) o (None, False) si no encuentra.
-        """
-        if id_detectado in self.precios_dict:
-            return self.precios_dict[id_detectado], False
+        Busca el ID con tres estrategias en orden:
+          1. Exacto
+          2. Recorte por la derecha (token con texto adyacente fusionado)
+          3. Fuzzy (solo si fuzzy_activo)
 
+        Retorna (precio, tipo_match) donde tipo_match es:
+          'exacto' | 'recorte' | 'fuzzy' | None
+        """
+        # 1. Exacto
+        if id_detectado in self.precios_dict:
+            return self.precios_dict[id_detectado], "exacto"
+
+        # 2. Recorte por la derecha
+        if len(id_detectado) > self.id_len_max:
+            for n in range(self.id_len_max, self.id_len_min - 1, -1):
+                sufijo = id_detectado[-n:]
+                if sufijo in self.precios_dict:
+                    self.logger.debug(f"   ✂️  Recorte: '{id_detectado}' → '{sufijo}'")
+                    return self.precios_dict[sufijo], "recorte"
+
+        # 3. Fuzzy
         if self.fuzzy_activo:
             resultado = process.extractOne(
                 id_detectado,
@@ -269,9 +292,9 @@ class EtiquetadorCatalogo:
             )
             if resultado:
                 id_match, score, _ = resultado
-                return self.precios_dict[id_match], True
+                return self.precios_dict[id_match], "fuzzy"
 
-        return None, False
+        return None, None
 
     # ── Insertar logo en portada ──────────────────────────────────────────────
 
@@ -333,11 +356,14 @@ class EtiquetadorCatalogo:
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
-        # Contadores exclusivos de doble pasada
-        ids_solo_invertido = 0
+        recorte_matches  = 0  # IDs recuperados por recorte por la derecha
 
+        ancho_barra = 28
         for i in range(total_paginas):
-            print(f"⚡ Procesando página {i+1}/{total_paginas}...", end="\r", flush=True)
+            pct     = (i + 1) / total_paginas
+            bloques = int(pct * ancho_barra)
+            barra_p = "█" * bloques + "░" * (ancho_barra - bloques)
+            print(f"  [{barra_p}] pág {i+1}/{total_paginas}", end="\r", flush=True)
 
             images = None
             img_base = None
@@ -354,14 +380,14 @@ class EtiquetadorCatalogo:
                 img_base = images[0].convert("L")
 
                 # ── Pasada normal ──────────────────────────────────────────
-                img_normal = self._mejorar_imagen(img_base.copy(), invertir=False)
+                img_normal  = self._mejorar_imagen(img_base.copy())
                 data_normal = self._ocr_tokens(img_normal)
 
-                # ── Pasada invertida (solo si ocr_doble_pasada está activo) ─
+                # ── Pasada invertida (preprocesado suave para fondo oscuro) ──
                 if self.ocr_doble_pasada:
-                    img_inv = self._mejorar_imagen(img_base.copy(), invertir=True)
+                    img_inv  = self._mejorar_imagen_invertida(img_base.copy())
                     data_inv = self._ocr_tokens(img_inv)
-                    data = self._fusionar_tokens(data_normal, data_inv)
+                    data     = self._fusionar_tokens(data_normal, data_inv)
                 else:
                     data = data_normal
 
@@ -386,10 +412,15 @@ class EtiquetadorCatalogo:
 
                     id_detectado = re.sub(r"\D", "", texto)
 
-                    if not (self.id_len_min <= len(id_detectado) <= self.id_len_max):
+                    # Permitir hasta el doble del máximo para que tokens con
+                    # texto adyacente fusionado lleguen a _buscar_id y sean
+                    # recuperados por recorte por la derecha.
+                    if len(id_detectado) < self.id_len_min:
+                        continue
+                    if len(id_detectado) > self.id_len_max * 2:
                         continue
 
-                    precio, es_fuzzy = self._buscar_id(id_detectado)
+                    precio, tipo_match = self._buscar_id(id_detectado)
 
                     if precio and precio > 0:
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
@@ -398,8 +429,10 @@ class EtiquetadorCatalogo:
                         can.drawString(x_pdf, y_pdf, f"${precio:,.2f}")
                         total_etiquetado += 1
                         ids_detectados.add(id_detectado)
-                        if es_fuzzy:
+                        if tipo_match == "fuzzy":
                             fuzzy_matches += 1
+                        elif tipo_match == "recorte":
+                            recorte_matches += 1
 
                 can.save()
                 packet.seek(0)
@@ -426,7 +459,7 @@ class EtiquetadorCatalogo:
                 del img_base
                 gc.collect()
 
-        print(" " * 80, end="\r")
+        print(" " * 60, end="\r")
 
         # Guardar PDF
         self.logger.info("💾 Guardando PDF final...")
@@ -439,34 +472,59 @@ class EtiquetadorCatalogo:
             self.logger.error(f"❌ Error al guardar PDF: {e}")
             raise
 
-        # ── Reporte final con semáforo ────────────────────────────────────────
-        ids_unicos = len(ids_detectados)
-        tasa       = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        # ── Reporte final ─────────────────────────────────────────────────────
+        ids_unicos   = len(ids_detectados)
+        ids_falta    = max(0, self.total_en_excel - ids_unicos)
+        tasa         = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        bloques      = int(tasa / 5)           # 20 bloques = 100 %
+        barra        = "█" * bloques + "░" * (20 - bloques)
+        semaforo_key = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
 
         if tasa >= 85:
-            semaforo = "🟢 VERDE"
-            accion   = "Resultado óptimo. Puedes publicar en WhatsApp Business."
+            semaforo = "🟢  VERDE"
+            accion   = "Listo para publicar en WhatsApp Business."
         elif tasa >= 65:
-            semaforo = "🟡 AMARILLO"
-            accion   = "Resultado aceptable pero revisar. Ejecuta diagnostico.py antes de publicar."
+            semaforo = "🟡  AMARILLO"
+            accion   = "Revisar antes de publicar.  →  python3 scripts/diagnostico.py"
         else:
-            semaforo = "🔴 ROJO"
-            accion   = "Efectividad baja. No publicar. Ejecuta diagnostico.py y contacta al coach."
+            semaforo = "🔴  ROJO"
+            accion   = "No publicar.  →  python3 scripts/diagnostico.py"
 
-        self.logger.info("=" * 60)
-        self.logger.info("✅ PROCESO TERMINADO")
-        self.logger.info(f"📄 Páginas procesadas  : {total_paginas}")
-        self.logger.info(f"📋 Registros en Excel  : {self.total_en_excel}")
-        self.logger.info(f"🔢 IDs únicos marcados : {ids_unicos}")
-        self.logger.info(f"🏷️  Etiquetas insertadas: {total_etiquetado}")
-        self.logger.info(f"🔍 Fuzzy matches        : {fuzzy_matches}")
+        SEP  = "─" * 54
+        SEP2 = "═" * 54
+
+        self.logger.info("")
+        self.logger.info(SEP2)
+        self.logger.info("  ✅  PROCESO TERMINADO")
+        self.logger.info(SEP2)
+        self.logger.info(f"  📄  Páginas          {total_paginas}")
+        self.logger.info(f"  📋  En Excel         {self.total_en_excel}")
+        self.logger.info(f"  🔢  IDs marcados     {ids_unicos} / {self.total_en_excel}  (faltan {ids_falta})")
+        self.logger.info(f"  🏷️   Etiquetas        {total_etiquetado}")
+        if recorte_matches:
+            self.logger.info(f"  ✂️   Recortes auto    {recorte_matches}")
+        if fuzzy_matches:
+            self.logger.info(f"  🔍  Fuzzy            {fuzzy_matches}")
         if self.ocr_doble_pasada:
-            self.logger.info(f"🔄 Modo OCR             : DOBLE PASADA (fondo mixto)")
-        self.logger.info(f"📊 Efectividad          : {tasa:.1f}%")
-        self.logger.info(f"   {semaforo}")
-        self.logger.info(f"   → {accion}")
-        self.logger.info(f"📂 Archivo generado     : {self.output_path}")
-        self.logger.info("=" * 60)
+            self.logger.info(f"  🔄  Modo OCR         DOBLE PASADA")
+        self.logger.info(SEP)
+        self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
+        self.logger.info(f"      {semaforo}")
+        self.logger.info(f"      {accion}")
+        self.logger.info(SEP)
+        self.logger.info(f"  📂  {os.path.basename(self.output_path)}")
+        self.logger.info(SEP2)
+        self.logger.info("")
+        # Métricas parseables por diagnostico.py — no modificar formato
+        self.logger.info(f"[STAT] paginas={total_paginas}")
+        self.logger.info(f"[STAT] total_excel={self.total_en_excel}")
+        self.logger.info(f"[STAT] ids_unicos={ids_unicos}")
+        self.logger.info(f"[STAT] etiquetas={total_etiquetado}")
+        self.logger.info(f"[STAT] fuzzy_matches={fuzzy_matches}")
+        self.logger.info(f"[STAT] recorte_matches={recorte_matches}")
+        self.logger.info(f"[STAT] doble_pasada={self.ocr_doble_pasada}")
+        self.logger.info(f"[STAT] tasa={tasa:.2f}")
+        self.logger.info(f"[STAT] semaforo={semaforo_key}")
 
 
 # ─────────────────────────────────────────────

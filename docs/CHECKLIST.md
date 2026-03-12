@@ -207,7 +207,7 @@ Ajusta params   Ejecuta diagnostico.py
 en configurador  y pégalo a Claude
 ```
 
-> El coach está para acompañar, no para juzgar. Cualquier duda es válida.
+> El colaborador está para acompañar, no para juzgar. Cualquier duda es válida.
 
 ---
 

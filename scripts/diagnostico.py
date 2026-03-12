@@ -1,232 +1,456 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-diagnostico.py — Lector de logs para Boutique Zepeda
-Analiza el último log generado en diagnosticos/ y produce un reporte accionable.
+diagnostico.py — Análisis de logs del Etiquetador
+Boutique Zepeda · books-label
+
+Lee el log más reciente en diagnosticos/ y genera un reporte
+con causas detectadas y pasos a seguir en orden de prioridad.
+
+  ─ Sonia: ejecuta este script después de cada corrida con
+    semáforo amarillo o rojo. Lee los pasos en orden y prueba
+    cada uno antes de avanzar al siguiente.
+    Solo comparte el output con tu colaborador (Gabriel) cuando el diagnóstico
+    lo indique explícitamente (aparecerá destacado al final).
 
 Uso:
     python3 scripts/diagnostico.py
+    python3 scripts/diagnostico.py --log diagnosticos/mi_log.log
 """
 
-import os
-import re
-import sys
-import glob
-from datetime import datetime
+import os, re, sys, argparse, glob
+
+# ── Colores ANSI ─────────────────────────────────────────────
+R  = "\033[91m";  Y  = "\033[93m";  G  = "\033[92m"
+B  = "\033[94m";  DM = "\033[2m";   BD = "\033[1m";  RS = "\033[0m"
+
+NIVEL_COLOR = {"CRITICO": R, "ADVERTENCIA": Y, "INFO": B, "OK": G}
+NIVEL_ICONO = {"CRITICO": "🔴", "ADVERTENCIA": "🟡", "INFO": "🔵", "OK": "🟢"}
 
 
 # ─────────────────────────────────────────────
-#  Localizar el log más reciente
+#  Argumentos
 # ─────────────────────────────────────────────
 
-def encontrar_ultimo_log(base_dir: str) -> str:
-    patron = os.path.join(base_dir, "diagnosticos", "*.log")
-    logs   = sorted(glob.glob(patron), key=os.path.getmtime, reverse=True)
+def parse_args():
+    p = argparse.ArgumentParser(description="Diagnóstico de logs — Boutique Zepeda")
+    p.add_argument("--log", default=None,
+                   help="Log a analizar. Si se omite, usa el más reciente.")
+    return p.parse_args()
 
+
+# ─────────────────────────────────────────────
+#  Localizar log
+# ─────────────────────────────────────────────
+
+def encontrar_log(base_dir, log_path=None):
+    if log_path:
+        if not os.path.exists(log_path):
+            print(f"\n{R}❌  Log no encontrado:{RS} {log_path}")
+            sys.exit(1)
+        return log_path
+    logs = sorted(glob.glob(os.path.join(base_dir, "diagnosticos", "*.log")))
     if not logs:
-        print("❌ No se encontró ningún log en diagnosticos/")
-        print("   Asegúrate de haber ejecutado catalogo_base.py al menos una vez.")
+        print(f"\n{R}❌  No hay logs en diagnosticos/{RS}")
+        print(f"    Ejecuta primero el script con tu config.\n")
         sys.exit(1)
-
-    return logs[0]
-
-
-# ─────────────────────────────────────────────
-#  Parsear el log
-# ─────────────────────────────────────────────
-
-def parsear_log(log_path: str) -> dict:
-    with open(log_path, "r", encoding="utf-8") as f:
-        contenido = f.read()
-
-    datos = {}
-
-    # Métricas principales
-    for patron, clave in [
-        (r"Páginas procesadas\s*:\s*(\d+)",      "paginas"),
-        (r"Registros en Excel\s*:\s*(\d+)",      "total_excel"),
-        (r"IDs únicos marcados\s*:\s*(\d+)",     "ids_unicos"),
-        (r"Etiquetas insertadas\s*:\s*(\d+)",    "etiquetas"),
-        (r"Fuzzy matches\s*:\s*(\d+)",           "fuzzy"),
-        (r"Efectividad\s*:\s*([\d.]+)%",         "efectividad"),
-    ]:
-        m = re.search(patron, contenido)
-        datos[clave] = float(m.group(1)) if m else None
-
-    # Semáforo
-    if "🟢 VERDE"    in contenido: datos["semaforo"] = "verde"
-    elif "🟡 AMARILLO" in contenido: datos["semaforo"] = "amarillo"
-    elif "🔴 ROJO"    in contenido: datos["semaforo"] = "rojo"
-    else:                            datos["semaforo"] = "desconocido"
-
-    # Config usada
-    m = re.search(r"Config cargada:\s*(.+)", contenido)
-    datos["config"] = m.group(1).strip() if m else "no registrada"
-
-    # Parámetros OCR registrados al inicio
-    m = re.search(r"DPI=(\d+).*PSM=(\d+).*Fuzzy=(ON|OFF)\s*\((\d+)%\).*IDs:\s*(\d+)–(\d+).*Grayscale=(True|False).*Invertir=(True|False)", contenido)
-    if m:
-        datos["dpi"]           = int(m.group(1))
-        datos["psm"]           = int(m.group(2))
-        datos["fuzzy_on"]      = m.group(3) == "ON"
-        datos["fuzzy_umbral"]  = int(m.group(4))
-        datos["id_min"]        = int(m.group(5))
-        datos["id_max"]        = int(m.group(6))
-        datos["ocr_grayscale"] = m.group(7) == "True"
-        datos["ocr_invertir"]  = m.group(8) == "True"
-    else:
-        datos["dpi"] = datos["psm"] = datos["fuzzy_umbral"] = None
-        datos["fuzzy_on"] = None
-        datos["id_min"] = datos["id_max"] = None
-        datos["ocr_grayscale"] = datos["ocr_invertir"] = None
-
-    # Errores por página
-    errores = re.findall(r"Error en página (\d+): (.+)", contenido)
-    datos["errores"] = errores
-
-    return datos
+    return logs[-1]
 
 
 # ─────────────────────────────────────────────
-#  Generar recomendaciones
+#  Parser de log
 # ─────────────────────────────────────────────
 
-def generar_recomendaciones(datos: dict) -> list:
-    recs = []
-    ef   = datos.get("efectividad")
+def parsear_log(ruta):
+    d = {
+        "ruta": ruta, "config": None,
+        "dpi": None, "psm": None,
+        "fuzzy_activo": None, "fuzzy_umbral": None,
+        "id_min": None, "id_max": None,
+        "ocr_invertir": False, "doble_pasada": False,
+        "paginas": None, "total_excel": None,
+        "ids_unicos": None, "etiquetas": None,
+        "fuzzy_matches": 0, "recorte_matches": 0,
+        "tasa": None, "semaforo": None,
+        "errores_pagina": [],
+        "tesseract_ok": True, "excel_ok": True, "pdf_ok": True,
+        "proceso_completo": False,
+    }
 
-    if ef is None:
-        recs.append("⚠️  No se pudo leer la efectividad. El log puede estar incompleto.")
-        return recs
+    with open(ruta, encoding="utf-8") as f:
+        lineas = f.readlines()
 
-    # Fuzzy matches altos respecto al total → OCR con errores frecuentes
-    fuzzy    = datos.get("fuzzy") or 0
-    etiquetas = datos.get("etiquetas") or 0
-    if etiquetas > 0 and (fuzzy / etiquetas) > 0.3:
-        recs.append(
-            f"🔍 El {fuzzy/etiquetas*100:.0f}% de las etiquetas son fuzzy matches. "
-            "El OCR tiene dificultades con este catálogo. "
-            "Prueba subir el DPI a 250 o ajustar contraste/nitidez en el config."
-        )
+    for linea in lineas:
+        l = linea.strip()
 
-    # Efectividad baja con fuzzy activo → bajar umbral o revisar IDs
-    if ef < 85 and datos.get("fuzzy_on"):
-        if (datos.get("fuzzy_umbral") or 85) >= 85:
-            recs.append(
-                f"📉 Efectividad {ef:.1f}% con fuzzy activo al {datos.get('fuzzy_umbral')}%. "
-                "Prueba bajar fuzzy_umbral a 80 en el config. "
-                "Si baja más de 5 puntos al hacerlo, el problema es otro."
-            )
+        # Métricas exactas — líneas [STAT] emitidas por catalogo_base.py
+        m = re.search(r"\[STAT\] (\w+)=(.+)", l)
+        if m:
+            k, v = m.group(1), m.group(2).strip()
+            if   k == "paginas":          d["paginas"]          = int(v)
+            elif k == "total_excel":      d["total_excel"]      = int(v)
+            elif k == "ids_unicos":       d["ids_unicos"]       = int(v)
+            elif k == "etiquetas":        d["etiquetas"]        = int(v)
+            elif k == "fuzzy_matches":    d["fuzzy_matches"]    = int(v)
+            elif k == "recorte_matches":  d["recorte_matches"]  = int(v)
+            elif k == "doble_pasada":     d["doble_pasada"]     = v == "True"
+            elif k == "tasa":             d["tasa"]             = float(v)
+            elif k == "semaforo":         d["semaforo"]         = v
+            d["proceso_completo"] = True
+            continue
 
-    # Efectividad baja con fuzzy inactivo
-    if ef < 85 and not datos.get("fuzzy_on"):
-        recs.append(
-            f"📉 Efectividad {ef:.1f}% con fuzzy desactivado. "
-            "Activa fuzzy_activo: true en el config como primer paso."
-        )
+        # Parámetros de ejecución
+        m = re.search(r"Config cargada: (.+)", l)
+        if m: d["config"] = m.group(1).strip()
 
-    # Rango de IDs — puede estar descartando IDs válidos
-    if datos.get("id_max") and datos["id_max"] <= 8:
-        recs.append(
-            f"📏 El filtro de longitud de IDs está en {datos['id_min']}–{datos['id_max']} dígitos. "
-            "Si el proveedor usa IDs de 9 o 10 caracteres los está descartando. "
-            "Revisa la columna 'len' en el Excel para confirmar."
-        )
+        m = re.search(r"DPI=(\d+)", l)
+        if m: d["dpi"] = int(m.group(1))
 
-    # PSM 6 — no siempre es el mejor
-    if datos.get("psm") == 6 and ef < 75:
-        recs.append(
-            "🔧 El modo PSM 6 asume texto en bloque uniforme. "
-            "Si el catálogo tiene columnas o layout irregular, prueba PSM 4 o PSM 11 en el config."
-        )
+        m = re.search(r"PSM=(\d+)", l)
+        if m: d["psm"] = int(m.group(1))
 
-    # Errores por página
-    if datos.get("errores"):
-        n = len(datos["errores"])
-        recs.append(
-            f"❌ Se registraron {n} error(es) en páginas específicas. "
-            "Ver detalle de errores abajo. Si son páginas con imágenes complejas es normal en baja proporción."
-        )
+        m = re.search(r"Fuzzy=(ON|OFF)", l)
+        if m: d["fuzzy_activo"] = m.group(1) == "ON"
 
-    # Sin recomendaciones
-    if not recs:
-        if ef >= 85:
-            recs.append("✅ Sin observaciones. La ejecución fue limpia.")
-        else:
-            recs.append(
-                "⚠️  Efectividad baja sin causa clara en el log. "
-                "Comparte este reporte con el coach para revisión."
-            )
+        m = re.search(r"Fuzzy=(?:ON|OFF) \((\d+)%\)", l)
+        if m: d["fuzzy_umbral"] = int(m.group(1))
 
-    return recs
+        m = re.search(r"IDs: (\d+).(\d+)", l)
+        if m: d["id_min"], d["id_max"] = int(m.group(1)), int(m.group(2))
+
+        m = re.search(r"Invertir=(True|False)", l)
+        if m: d["ocr_invertir"] = m.group(1) == "True"
+
+        m = re.search(r"Error en p.gina (\d+):", l)
+        if m: d["errores_pagina"].append(int(m.group(1)))
+
+        if "Tesseract no encontrado" in l: d["tesseract_ok"] = False
+        if "Excel no encontrado"     in l: d["excel_ok"]     = False
+        if "Error al leer Excel"     in l: d["excel_ok"]     = False
+        if "PDF no encontrado"       in l: d["pdf_ok"]       = False
+        if "Error al abrir PDF"      in l: d["pdf_ok"]       = False
+
+    return d
+
+
+# ─────────────────────────────────────────────
+#  Motor de diagnóstico
+# ─────────────────────────────────────────────
+
+def diagnosticar(d):
+    """
+    Genera hallazgos en orden estricto de prioridad y escalada:
+
+      Nivel 1 — infraestructura rota         → bloquea todo, no hay más que hacer
+      Nivel 2 — proceso no terminó           → revisar log, posible escalar
+      Nivel 3 — errores en páginas puntuales → informativo
+      Nivel 4 — semáforo verde               → ok + notas informativas
+      Nivel 5 — tasa baja                    → pasos en orden de impacto:
+                                               1 longitud IDs
+                                               2 DPI
+                                               3 PSM
+                                               4 fuzzy umbral
+                                               5 doble pasada (último recurso)
+    """
+    hallazgos = []
+
+    def add(nivel, titulo, detalle, config_key=None, escalar=False):
+        hallazgos.append(dict(nivel=nivel, titulo=titulo, detalle=detalle,
+                               config_key=config_key, escalar=escalar))
+
+    tasa      = d["tasa"]
+    ids_u     = d["ids_unicos"] or 0
+    total     = d["total_excel"] or 0
+    ids_falta = max(0, total - ids_u)
+
+    # ══════════════════════════════════════════
+    # NIVEL 1 — infraestructura
+    # ══════════════════════════════════════════
+
+    if not d["tesseract_ok"]:
+        add("CRITICO", "Tesseract no está instalado",
+            "Ejecuta en la terminal y vuelve a correr el script:\n"
+            "\n"
+            "  sudo apt install tesseract-ocr tesseract-ocr-spa")
+        return hallazgos
+
+    if not d["excel_ok"]:
+        add("CRITICO", "No se encontró el archivo Excel de precios",
+            "Verifica que el campo excel_input en tu config apunte\n"
+            "al archivo correcto dentro de la carpeta precios/\n"
+            "El archivo debe ser .xlsx  (no .ods ni .xls)",
+            config_key="excel_input")
+        return hallazgos
+
+    if not d["pdf_ok"]:
+        add("CRITICO", "No se encontró el PDF del catálogo",
+            "Verifica que el campo pdf_input en tu config apunte\n"
+            "al archivo correcto dentro de la carpeta libros/",
+            config_key="pdf_input")
+        return hallazgos
+
+    # ══════════════════════════════════════════
+    # NIVEL 2 — proceso no terminó
+    # ══════════════════════════════════════════
+
+    if not d["proceso_completo"]:
+        add("CRITICO", "El proceso se interrumpió antes de terminar",
+            "El script no generó el PDF final.\n"
+            "Revisa el log en diagnosticos/ — busca la línea con el error.\n"
+            "Si no puedes identificarlo, comparte el output con el colaborador.",
+            escalar=True)
+        return hallazgos
+
+    if tasa is None:
+        return hallazgos
+
+    # ══════════════════════════════════════════
+    # NIVEL 3 — errores en páginas puntuales
+    # ══════════════════════════════════════════
+
+    if d["errores_pagina"]:
+        pp = ", ".join(str(p) for p in d["errores_pagina"][:6])
+        sufijo = "..." if len(d["errores_pagina"]) > 6 else ""
+        add("ADVERTENCIA",
+            f"Errores en {len(d['errores_pagina'])} páginas  ({pp}{sufijo})",
+            "Esas páginas se incluyeron en el PDF sin etiquetas.\n"
+            "Si la tasa está en verde, no es urgente.\n"
+            "Si son muchas páginas o son páginas clave, comparte el log.")
+
+    # ══════════════════════════════════════════
+    # NIVEL 4 — semáforo verde
+    # ══════════════════════════════════════════
+
+    if tasa >= 85:
+        add("OK", f"Efectividad {tasa:.1f}% — listo para publicar",
+            "Abre el PDF en salidas/ y revisa visualmente que los precios\n"
+            "aparezcan junto a los productos correctos.\n"
+            "Si todo se ve bien, continúa con la Fase 3 del checklist.")
+
+        if d["recorte_matches"] > 0:
+            add("INFO", f"Recorte automático recuperó {d['recorte_matches']} IDs",
+                "El OCR leyó texto extra pegado a algunos IDs y el script\n"
+                "los recuperó automáticamente. No requiere ninguna acción.")
+
+        if ids_u > 0 and d["fuzzy_matches"] / ids_u > 0.25:
+            add("INFO",
+                f"Fuzzy recuperó {d['fuzzy_matches']} IDs  "
+                f"({d['fuzzy_matches']/ids_u*100:.0f}% del total)",
+                "Alta dependencia de fuzzy. Está bien por ahora, pero si\n"
+                "en corridas futuras la tasa baja, sube el DPI a 250.")
+        return hallazgos
+
+    # ══════════════════════════════════════════
+    # NIVEL 5 — tasa baja: pasos en orden
+    # ══════════════════════════════════════════
+
+    # Diagnóstico base — ¿el OCR no detecta, o detecta pero no matchea?
+    ocr_no_detecta = ids_u < total * 0.4 and d["fuzzy_matches"] < 5
+    fuzzy_alto     = (d["fuzzy_activo"] and ids_u > 0
+                      and d["fuzzy_matches"] > ids_u * 0.3)
+
+    # ─── Paso 1 — longitud de IDs ───────────────────────────────────
+    # El error más común y el más rápido de verificar
+    if d["id_min"] and d["id_max"]:
+        add("ADVERTENCIA" if ocr_no_detecta else "INFO",
+            f"Paso 1  —  Verifica el rango de IDs del proveedor",
+            f"Tu config acepta IDs de {d['id_min']} a {d['id_max']} dígitos.\n"
+            f"Confirma que ese rango cubre todos los IDs del Excel:\n"
+            "\n"
+            "  python3 -c \"\n"
+            "  import pandas as pd\n"
+            "  df = pd.read_excel('precios/tu_lista.xlsx')\n"
+            "  df['n'] = df['ID'].astype(str).str.len()\n"
+            "  print(df.groupby('n')['ID'].count())\n"
+            "  \"\n"
+            "\n"
+            f"Si hay IDs más largos que {d['id_max']}, actualiza\n"
+            "id_longitud_max y vuelve a ejecutar.",
+            config_key="id_longitud_max  /  id_longitud_min")
+
+    # ─── Paso 2 — DPI ───────────────────────────────────────────────
+    if ocr_no_detecta:
+        dpi_actual = d["dpi"] or 200
+        dpi_sug    = 250 if dpi_actual < 250 else 300
+        add("ADVERTENCIA",
+            f"Paso 2  —  Sube el DPI  ({dpi_actual} → {dpi_sug})",
+            f"Con efectividad {tasa:.0f}% y pocos IDs detectados,\n"
+            f"el OCR no está leyendo bien las imágenes a DPI {dpi_actual}.\n"
+            "\n"
+            f"En tu config cambia:   \"dpi\": {dpi_sug}\n"
+            "Vuelve a ejecutar y compara la efectividad.",
+            config_key="dpi")
+
+    # ─── Paso 3 — PSM ───────────────────────────────────────────────
+    if ocr_no_detecta and d["psm"] == 6:
+        add("INFO",
+            "Paso 3  —  Prueba un PSM diferente",
+            "PSM 6 funciona bien con texto en bloques uniformes.\n"
+            "Si el catálogo tiene fotos de página completa o IDs dispersos:\n"
+            "\n"
+            "  \"psm\": 11   ← texto disperso  (prueba primero)\n"
+            "  \"psm\": 4    ← columnas de texto\n"
+            "\n"
+            "Vuelve a ejecutar con cada opción y compara.",
+            config_key="psm")
+
+    # ─── Paso 4 — fuzzy umbral ──────────────────────────────────────
+    if fuzzy_alto:
+        add("ADVERTENCIA",
+            f"Paso 4  —  Revisa los precios marcados con fuzzy  "
+            f"({d['fuzzy_matches']} IDs, umbral {d['fuzzy_umbral']}%)",
+            "Con tasa baja y muchos fuzzy hay riesgo de que algunos\n"
+            "precios no correspondan al producto correcto.\n"
+            "\n"
+            "Antes de publicar: abre el PDF y revisa visualmente\n"
+            "que los precios coincidan con los productos.\n"
+            "\n"
+            "Si encuentras errores, sube el umbral o desactiva fuzzy:\n"
+            f"  \"fuzzy_umbral\": 90\n"
+            "  \"fuzzy_activo\": false",
+            config_key="fuzzy_umbral  /  fuzzy_activo")
+
+    # ─── Paso 5 — doble pasada (último recurso) ─────────────────────
+    if not d["doble_pasada"] and ocr_no_detecta:
+        add("INFO",
+            "Paso 5  —  ¿Hay IDs en recuadros oscuros?",
+            "Si en el PDF hay números con texto claro sobre fondo gris\n"
+            "o negro (no solo negro sobre blanco), activa la doble pasada:\n"
+            "\n"
+            "  \"ocr_doble_pasada\": true\n"
+            "\n"
+            "Cómo verificar: abre el PDF original y busca si los IDs\n"
+            "aparecen dentro de recuadros de color.\n"
+            "Si no los hay, este paso no aplica.\n"
+            "Duplica el tiempo de proceso.",
+            config_key="ocr_doble_pasada")
+
+    elif d["doble_pasada"] and tasa < 65:
+        add("INFO",
+            "Paso 5  —  Doble pasada activa pero la tasa sigue baja",
+            "Ya tienes la doble pasada activa. Si persiste el problema:\n"
+            "\n"
+            "  · ¿El Excel y el catálogo son del mismo proveedor\n"
+            "    y la misma temporada?\n"
+            "  · ¿El PDF tiene buena calidad de imagen?\n"
+            "\n"
+            "Si revisaste todo lo anterior, comparte el output con el colaborador del proyecto.",
+            escalar=True)
+
+    # ─── Amarillo — revisión visual ─────────────────────────────────
+    if 65 <= tasa < 85:
+        add("ADVERTENCIA",
+            f"Efectividad {tasa:.1f}%  —  faltan {ids_falta} IDs",
+            "Abre el PDF y responde estas preguntas:\n"
+            "\n"
+            "  ¿Hay páginas completas sin ningún precio?\n"
+            "  → Prueba el Paso 2 (DPI)\n"
+            "\n"
+            "  ¿Los precios aparecen pero en posición incorrecta?\n"
+            "  → Ajusta los offsets en el configurador visual\n"
+            "\n"
+            "  ¿Los precios se ven bien en casi todas las páginas?\n"
+            "  → Puede ser aceptable según el proveedor",
+            config_key="dpi  /  etiqueta_offset_x_pt  /  etiqueta_offset_y_pt")
+
+    return hallazgos
 
 
 # ─────────────────────────────────────────────
 #  Imprimir reporte
 # ─────────────────────────────────────────────
 
-def imprimir_reporte(log_path: str, datos: dict, recomendaciones: list):
-    timestamp_log = datetime.fromtimestamp(os.path.getmtime(log_path)).strftime("%d/%m/%Y %H:%M")
-    nombre_log    = os.path.basename(log_path)
+def imprimir_reporte(d, hallazgos):
+    SEP  = "─" * 56
+    SEP2 = "═" * 56
 
-    semaforos = {
-        "verde":       "🟢 VERDE",
-        "amarillo":    "🟡 AMARILLO",
-        "rojo":        "🔴 ROJO",
-        "desconocido": "⚪ DESCONOCIDO"
-    }
+    # ── Encabezado ────────────────────────────────────────────
+    print(f"\n{BD}{SEP2}{RS}")
+    print(f"{BD}  DIAGNÓSTICO  ·  Boutique Zepeda  ·  books-label{RS}")
+    print(f"{BD}{SEP2}{RS}")
+    print(f"\n{DM}  Log    : {os.path.basename(d['ruta'])}{RS}")
+    if d["config"]:
+        print(f"{DM}  Config : {d['config']}{RS}")
 
-    print()
-    print("=" * 62)
-    print("  DIAGNÓSTICO — Boutique Zepeda · Taller de Etiquetado")
-    print("=" * 62)
-    print(f"  Log analizado : {nombre_log}")
-    print(f"  Ejecutado el  : {timestamp_log}")
-    print(f"  Config usada  : {datos.get('config', 'no registrada')}")
-    print("-" * 62)
+    # ── Resumen ───────────────────────────────────────────────
+    print(f"\n{BD}  Resumen{RS}")
+    print(f"  {SEP}")
 
-    # Métricas
-    print("  MÉTRICAS")
-    print(f"  {'Páginas procesadas':<30} {int(datos['paginas']) if datos['paginas'] else '—'}")
-    print(f"  {'Registros en Excel':<30} {int(datos['total_excel']) if datos['total_excel'] else '—'}")
-    print(f"  {'IDs únicos marcados':<30} {int(datos['ids_unicos']) if datos['ids_unicos'] else '—'}")
-    print(f"  {'Etiquetas insertadas':<30} {int(datos['etiquetas']) if datos['etiquetas'] else '—'}")
-    print(f"  {'Fuzzy matches':<30} {int(datos['fuzzy']) if datos['fuzzy'] else '—'}")
-    print(f"  {'Efectividad':<30} {datos['efectividad']:.1f}%" if datos['efectividad'] else f"  {'Efectividad':<30} —")
-    print(f"  {'Resultado':<30} {semaforos.get(datos['semaforo'], '⚪')}")
-    print("-" * 62)
+    if d["proceso_completo"] and d["tasa"] is not None:
+        tasa    = d["tasa"]
+        total   = d["total_excel"] or 0
+        ids_u   = d["ids_unicos"]  or 0
+        falta   = max(0, total - ids_u)
+        bloques = int(tasa / 5)
+        barra   = "█" * bloques + "░" * (20 - bloques)
+        ct = G if tasa >= 85 else (Y if tasa >= 65 else R)
+        sem = {"VERDE":    f"{G}🟢  VERDE — listo para publicar{RS}",
+               "AMARILLO": f"{Y}🟡  AMARILLO — revisar antes de publicar{RS}",
+               "ROJO":     f"{R}🔴  ROJO — no publicar{RS}"}.get(d["semaforo"], "—")
 
-    # Parámetros usados
-    print("  PARÁMETROS OCR USADOS")
-    if datos.get("dpi"):
-        fuzzy_str = f"{'ON' if datos['fuzzy_on'] else 'OFF'} ({datos['fuzzy_umbral']}%)"
-        id_str    = f"{datos['id_min']}–{datos['id_max']} dígitos"
-        print(f"  {'DPI':<30} {datos['dpi']}")
-        print(f"  {'PSM':<30} {datos['psm']}")
-        print(f"  {'Fuzzy matching':<30} {fuzzy_str}")
-        print(f"  {'Rango IDs':<30} {id_str}")
-        gs  = datos.get('ocr_grayscale')
-        inv = datos.get('ocr_invertir')
-        print(f"  {'Grayscale':<30} {gs if gs is not None else '—'}")
-        print(f"  {'Invertir (texto blanco)':<30} {inv if inv is not None else '—'}")
+        def fila(lbl, val, c=""):
+            print(f"  {DM}{lbl:<22}{RS}{c}{val}{RS}")
+
+        fila("Páginas",              d["paginas"] or "—")
+        fila("En Excel",             total)
+        fila("IDs marcados",
+             f"{ids_u} / {total}   (faltan {falta})",
+             Y if falta > 0 else G)
+        fila("Etiquetas",            d["etiquetas"] or "—")
+        if d["recorte_matches"]:
+            fila("Recortes auto",    d["recorte_matches"])
+        if d["fuzzy_matches"]:
+            fila("Fuzzy matches",    d["fuzzy_matches"])
+        fila("Doble pasada",         "Sí" if d["doble_pasada"] else "No")
+        print()
+        print(f"  {DM}Efectividad{RS}   {ct}[{barra}] {tasa:.1f}%{RS}")
+        print(f"  {DM}Resultado  {RS}   {sem}")
     else:
-        print("  No disponibles en este log.")
-    print("-" * 62)
+        print(f"  {R}Proceso incompleto — no hay métricas disponibles.{RS}")
 
-    # Recomendaciones
-    print("  RECOMENDACIONES")
-    for r in recomendaciones:
-        print(f"  {r}")
-    print("-" * 62)
+    # ── Parámetros ────────────────────────────────────────────
+    print(f"\n{BD}  Parámetros usados{RS}")
+    print(f"  {SEP}")
+    for lbl, val in [
+        ("DPI",            d["dpi"]),
+        ("PSM",            d["psm"]),
+        ("IDs",            f"{d['id_min']}–{d['id_max']} dígitos" if d["id_min"] else "—"),
+        ("Fuzzy",          f"{'ON' if d['fuzzy_activo'] else 'OFF'}  umbral {d['fuzzy_umbral']}%"
+                           if d["fuzzy_activo"] is not None else "—"),
+        ("OCR invertido",  "Sí" if d["ocr_invertir"] else "No"),
+        ("Doble pasada",   "Sí" if d["doble_pasada"] else "No"),
+    ]:
+        print(f"  {DM}{lbl:<18}{RS}{val}")
 
-    # Errores por página
-    if datos.get("errores"):
-        print("  ERRORES POR PÁGINA")
-        for pagina, mensaje in datos["errores"]:
-            print(f"  Página {pagina}: {mensaje}")
-        print("-" * 62)
+    # ── Hallazgos ─────────────────────────────────────────────
+    hay_escalar = any(h["escalar"] for h in hallazgos)
 
-    print()
+    print(f"\n{BD}  Pasos a seguir{RS}")
+    print(f"  {SEP}")
+
+    if not hallazgos:
+        print(f"\n  {G}Sin problemas detectados.{RS}")
+    else:
+        for h in hallazgos:
+            color = NIVEL_COLOR.get(h["nivel"], "")
+            icono = NIVEL_ICONO.get(h["nivel"], "·")
+            print()
+            print(f"  {icono}  {color}{BD}{h['titulo']}{RS}")
+            for linea in h["detalle"].split("\n"):
+                print(f"       {DM}{linea}{RS}")
+            if h["config_key"]:
+                print(f"       {BD}Config:{RS} {h['config_key']}")
+
+    # ── Pie ───────────────────────────────────────────────────
+    print(f"\n  {SEP}")
+    if hay_escalar:
+        print(f"\n  {R}{BD}⚠️   Comparte este output con tu colaborador{RS}")
+        print(f"  {DM}Copia todo el texto de esta pantalla y pégalo en el chat.{RS}")
+    else:
+        print(f"  {DM}Prueba los pasos en orden — empieza por el Paso 1.{RS}")
+        print(f"  {DM}Si la tasa sube a verde, no necesitas compartir esto.{RS}")
+
+    print(f"\n{BD}{SEP2}{RS}\n")
 
 
 # ─────────────────────────────────────────────
@@ -234,8 +458,10 @@ def imprimir_reporte(log_path: str, datos: dict, recomendaciones: list):
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    BASE    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    log_path = encontrar_ultimo_log(BASE)
-    datos    = parsear_log(log_path)
-    recs     = generar_recomendaciones(datos)
-    imprimir_reporte(log_path, datos, recs)
+    args     = parse_args()
+    BASE     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ruta_log = encontrar_log(BASE, args.log)
+    print(f"\n{DM}Analizando: {os.path.basename(ruta_log)}{RS}")
+    datos     = parsear_log(ruta_log)
+    hallazgos = diagnosticar(datos)
+    imprimir_reporte(datos, hallazgos)
