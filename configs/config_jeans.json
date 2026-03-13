@@ -6,6 +6,11 @@
     "excel_input": "precios/lista_jeans.xlsx",
     "pdf_output":  "salidas/jeans_final.pdf",
 
+    "etiqueta_font_size": 13,
+    "etiqueta_color_rgb": [1.0, 0.0, 0.0],
+    "etiqueta_offset_x_pt": 4.0,
+    "etiqueta_offset_y_pt": 62.36,
+
     "dpi": 200,
     "psm": 6,
     "contraste": 2.5,
@@ -19,11 +24,6 @@
 
     "fuzzy_activo": false,
     "fuzzy_umbral": 80,
-
-    "etiqueta_font_size": 13,
-    "etiqueta_color_rgb": [1.0, 0.0, 0.0],
-    "etiqueta_offset_x_pt": 4.0,
-    "etiqueta_offset_y_pt": 62.36,
 
     "logo_activo": false,
     "logo_path": "images/assets/logo_boutique.png",

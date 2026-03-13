@@ -6,6 +6,11 @@
     "excel_input": "precios/lista_basicos.xlsx",
     "pdf_output":  "salidas/basicos_26_final.pdf",
 
+    "etiqueta_font_size": 11,
+    "etiqueta_color_rgb": [0.35, 0.25, 1.0],
+    "etiqueta_offset_x_pt": -112.0,
+    "etiqueta_offset_y_pt": -4.0,
+
     "dpi": 200,
     "psm": 6,
     "contraste": 2.5,
@@ -20,11 +25,6 @@
 
     "fuzzy_activo": false,
     "fuzzy_umbral": 80,
-
-    "etiqueta_font_size": 11,
-    "etiqueta_color_rgb": [0.0, 0.0, 1.0],
-    "etiqueta_offset_x_pt": 35.5,
-    "etiqueta_offset_y_pt": 0.0,
 
     "logo_activo": false,
     "logo_path": "images/assets/logo_boutique.png",
