@@ -18,6 +18,7 @@
 
     "ocr_grayscale": true,
     "ocr_invertir": false,
+    "ocr_doble_pasada": false,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
