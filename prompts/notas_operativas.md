@@ -112,7 +112,9 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 **Basicos**
 - Dropbox: https://www.dropbox.com/scl/fi/vhzsuja9dns1lj45ey4ah/basicos_26_final.pdf?rlkey=17qgtf3gvz1ddnbwezglspsy2&st=e0gxqr6b&dl=1
-- Bitly: https://bit.ly/4rxNeIF 
+- Bitly: https://bit.ly/4rxNeIF
+
+
 
 --
 ## 🔴 Cklass

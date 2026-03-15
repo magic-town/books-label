@@ -56,7 +56,7 @@ precios         catálogo        en WA
 - [ ] Filtrar columna `len` → comparar largos contra la lista del proveedor
 - [ ] Confirmar que no haya IDs con largo incorrecto ni precios en cero
 
-### 👀 Preparar el archivo final — paso crítico
+### ⚠️ Preparar el archivo final — paso crítico
 
 - [ ] Quitar filtros antes de copiar
 - [ ] Copiar columna `ID` → pegar normal
@@ -173,7 +173,7 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 
 ### Subir a Dropbox
 
-- [ ] Subir a Dropbox: `Inicio > <marca> > catalogos`
+- [ ] Subir a 🗳️​ Dropbox: `Inicio > <marca> > catalogos`
 - [ ] Copiar el enlace de Dropbox
 - [ ] Pegar el enlace en **VSC**: `~/books-label/prompts/notas_operativas.md`
 - [ ] Cambiar el último carácter del enlace: `0` → `1`
@@ -191,9 +191,12 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 
 ### Crear el artículo en WhatsApp Business
 
-- [ ] Con tu herramienta **Flameshot** hacer 10 recortes del catalogo recién etiquetado incluyendo la página de portada del catalogo, guardar una por una en `~/boutique_zepeda/<marca>/carrusel` con nombres descriptivos. Ejemplo: `jeans_1.png, jeans_2.png, ..., jeans_10.png` 
+- [ ] Con tu herramienta 🔥 **Flameshot** hacer 10 recortes del catalogo recién etiquetado incluyendo la página de portada del catálogo, guardar una por una en `~/boutique_zepeda/<marca>/carrusel` con nombres descriptivos. Ejemplo: `jeans_1.png, jeans_2.png, ..., jeans_10.png` 
 
-- [ ] Enviarte a la cuenta **Boutique Zepeda** la portada y el link de Bitly
+- [ ] Desde **WhatsApp Bussines Desktop** abrir calatalogo:
+
+<img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+
 - [ ] `Herramientas > Catálogos > Nuevo artículo`
   - **Imagen:** portada capturada
   - **Enlace:** link de Bitly
