@@ -175,18 +175,24 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 
 - [ ] Subir a Dropbox: `Inicio > <marca> > catalogos`
 - [ ] Copiar el enlace de Dropbox
-- [ ] Pegar el enlace en `~/books-label/prompts/notas_operativas.md`
+- [ ] Pegar el enlace en **VSC**: `~/books-label/prompts/notas_operativas.md`
 - [ ] Cambiar el último carácter del enlace: `0` → `1`
+
+<img src="../imagenes/asset_repo/link.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
 ### Comprimir el enlace
 
-- [ ] Ir a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace
-- [ ] Copiar el enlace comprimido
-- [ ] Pegar el enlace en `~/books-label/prompts/notas_operativas.md`
+- [ ] Ir a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace de **VSC** `../notas_operativas` que anteriormente se genero en Dropbox.
+
+<img src="../imagenes/asset_repo/bitly.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+
+- [ ] Copiar el enlace comprimido que genera bitly
+- [ ] Pegar el enlace en el mismo bloque de **VSC**: `~/books-label/prompts/notas_operativas.md`
 
 ### Crear el artículo en WhatsApp Business
 
-- [ ] Tomar captura de pantalla de la portada del catálogo
+- [ ] Con tu herramienta **Flameshot** hacer 10 recortes del catalogo recién etiquetado incluyendo la página de portada del catalogo, guardar una por una en `~/boutique_zepeda/<marca>/carrusel` con nombres descriptivos. Ejemplo: `jeans_1.png, jeans_2.png, ..., jeans_10.png` 
+
 - [ ] Enviarte a la cuenta **Boutique Zepeda** la portada y el link de Bitly
 - [ ] `Herramientas > Catálogos > Nuevo artículo`
   - **Imagen:** portada capturada

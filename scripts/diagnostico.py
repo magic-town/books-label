@@ -49,12 +49,12 @@ def encontrar_log(base_dir, log_path=None):
             print(f"\n{R}❌  Log no encontrado:{RS} {log_path}")
             sys.exit(1)
         return log_path
-    logs = sorted(glob.glob(os.path.join(base_dir, "diagnosticos", "*.log")))
+    logs = glob.glob(os.path.join(base_dir, "diagnosticos", "*.log"))
     if not logs:
         print(f"\n{R}❌  No hay logs en diagnosticos/{RS}")
         print(f"    Ejecuta primero el script con tu config.\n")
         sys.exit(1)
-    return logs[-1]
+    return max(logs, key=os.path.getmtime)
 
 
 # ─────────────────────────────────────────────
@@ -100,7 +100,7 @@ def parsear_log(ruta):
             continue
 
         # Parámetros de ejecución
-        m = re.search(r"Config cargada: (.+)", l)
+        m = re.search(r"Config cargada[:\s]+(.+)", l)
         if m: d["config"] = m.group(1).strip()
 
         m = re.search(r"DPI=(\d+)", l)
@@ -245,7 +245,10 @@ def diagnosticar(d):
     # ══════════════════════════════════════════
 
     # Diagnóstico base — ¿el OCR no detecta, o detecta pero no matchea?
-    ocr_no_detecta = ids_u < total * 0.4 and d["fuzzy_matches"] < 5
+    # Umbral: cualquier tasa < 85% indica que el OCR está dejando IDs sin leer.
+    # El 40% anterior era demasiado estricto y silenciaba los pasos en la
+    # zona amarilla (65–84%), que es el caso más frecuente.
+    ocr_no_detecta = tasa < 85 and d["fuzzy_matches"] < ids_u * 0.5
     fuzzy_alto     = (d["fuzzy_activo"] and ids_u > 0
                       and d["fuzzy_matches"] > ids_u * 0.3)
 
