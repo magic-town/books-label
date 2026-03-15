@@ -7,9 +7,9 @@
     "pdf_output":  "salidas/jeans_final.pdf",
 
     "etiqueta_font_size": 13,
-    "etiqueta_color_rgb": [1.0, 0.0, 0.0],
-    "etiqueta_offset_x_pt": 4.0,
-    "etiqueta_offset_y_pt": 62.36,
+    "etiqueta_color_rgb": [0.89, 0.20, 0.23],
+    "etiqueta_offset_x_pt": 91.50,
+    "etiqueta_offset_y_pt": 58,
 
     "dpi": 200,
     "psm": 6,
