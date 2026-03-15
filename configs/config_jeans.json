@@ -8,8 +8,8 @@
 
     "etiqueta_font_size": 13,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
-    "etiqueta_offset_x_pt": 91.50,
-    "etiqueta_offset_y_pt": 58,
+    "etiqueta_offset_x_pt": 0.0,
+    "etiqueta_offset_y_pt": 0.0,
 
     "dpi": 200,
     "psm": 6,
