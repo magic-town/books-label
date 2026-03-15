@@ -1,4 +1,4 @@
-<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
 
@@ -193,9 +193,16 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 
 - [ ] Con tu herramienta 🔥 **Flameshot** hacer 10 recortes del catalogo recién etiquetado incluyendo la página de portada del catálogo, guardar una por una en `~/boutique_zepeda/<marca>/carrusel` con nombres descriptivos. Ejemplo: `jeans_1.png, jeans_2.png, ..., jeans_10.png` 
 
-- [ ] Desde **WhatsApp Bussines Desktop** abrir calatalogo:
+- [ ] Desde **WhatsApp Bussines Desktop** abrir `Herramietas` > `Catálogo` > `Añadir un artículo nuevo`:
 
 <img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+
+- [ ] En `Añadir imagenes` copiamos las 10 imagenes que guardamos anteriormente en: `~/boutique_zepeda/<marca>/etiquetado`, llenamos los campos: Nombre, y en Descripción pega este bloque 👇:
+
+```markdown
+Da clic en el enlace 👇 para descargar el catálogo, espera o confirma la descarga. ✅️ Revisa tu carpeta de descargas.
+```
+
 
 - [ ] `Herramientas > Catálogos > Nuevo artículo`
   - **Imagen:** portada capturada
