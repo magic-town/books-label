@@ -1,4 +1,4 @@
-<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
 
@@ -178,13 +178,13 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 - [ ] Pegar el enlace en **VSC**: `~/books-label/prompts/notas_operativas.md`
 - [ ] Cambiar el último carácter del enlace: `0` → `1`
 
-<img src="../imagenes/asset_repo/link.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+<img src="../imagenes/asset_repo/link.png" alt="Boutique Zepeda — Taller de Etiquetado" width="95%"/>
 
 ### Comprimir el enlace
 
 - [ ] Ir a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace de **VSC** `../notas_operativas` que anteriormente se genero en Dropbox.
 
-<img src="../imagenes/asset_repo/bitly.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+<img src="../imagenes/asset_repo/bitly.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 - [ ] Copiar el enlace comprimido que genera bitly
 - [ ] Pegar el enlace en el mismo bloque de **VSC**: `~/books-label/prompts/notas_operativas.md`
@@ -195,7 +195,7 @@ Tienes tres caminos — elige según lo que observas en el PDF y en consola:
 
 - [ ] Desde **WhatsApp Bussines Desktop** abrir `Herramietas` > `Catálogo` > `Añadir un artículo nuevo`:
 
-<img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+<img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 - [ ] En `Añadir imagenes` copiamos las 10 imagenes que guardamos anteriormente en: `~/boutique_zepeda/<marca>/etiquetado`, llenamos los campos: Nombre, y en Descripción pega este bloque 👇:
 
