@@ -204,9 +204,7 @@ Da clic en el enlace 👇 para descargar el catálogo, espera o confirma la desc
 ```
 
 
-- [ ] `Herramientas > Catálogos > Nuevo artículo`
-  - **Imagen:** portada capturada
-  - **Enlace:** link de Bitly
+- [ ] En el campo **Enlace**: link de Bitly > Guardamos y así queda publicado nuestro producto final.
 
 ---
 
