@@ -24,12 +24,12 @@ precios         catálogo        en WA
 ### Descargar y verificar
 
 - [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
-- [ ] Hacer una validación visual de que  el catálogo y la lista coincidan en Pag, ID. Seg_cred.
+- [ ] Hacer una validación visual de que  el catálogo y la lista coincidan en Pag, ID. Sug_cred.
 - [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos` y `~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
 
 ### Extraer los precios con LLM (solución temporal, estamos revisando si un script.py es más preciso)
 
-- [ ] Elige un LLM - NotebookLM, Claude, puedes hacerlo simultaneamente y agrega tu lista cruda
+- [ ] Elige un LLM: NotebookLM, Claude, o cargarlos en ambos simultaneamente > 📎 Agrega tu lista cruda.
 - [ ] Abrir los prompts de extraccion en 👉 [magic-town/books-label](../prompts/extraer_columnas_listas.md)
 - [ ] Pegar el prompt en la caja de texto del LLM.
 - [ ] Hacer una validación visual **Lista cruda del proveedor** Vs **Lista extraida por el LLM**.
