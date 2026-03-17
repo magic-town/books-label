@@ -65,6 +65,38 @@ El commit generado muestra fecha, hora y archivos modificados. Por ejemplo:
 sync 2026-03-09 14:32 | docs/CHECKLIST.md, scripts/etiquetas.py
 ```
 
+Inmediatamente después ejecuta:
+
+```bash
+git status
+```
+
+Lo que debes ver si todo está en orden:
+
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+```
+
+Si ves ese mensaje, estás sincronizada. Puedes trabajar.
+
+---
+
+### ⚠️ Plan de contingencia — se te olvidó hacer sync al inicio o al final
+
+Si ya hiciste cambios en `books-label` y no ejecutaste `sync.sh` al principio, no pasa nada. Haz esto primero antes de seguir:
+
+```bash
+cd ~/books-label
+git add -A
+git commit -m "wip: guardando cambios antes de sincronizar"
+bash sync.sh
+```
+
+Eso guarda todo lo que tienes, baja los cambios del repo y sube los tuyos. Después sigue trabajando normal.
+
 ---
 
 ## 1. PULL — Antes de trabajar, siempre
