@@ -9,29 +9,29 @@
     "paginas_prueba": 10,
 
     "etiqueta_font": "Times-BoldItalic",
-    "etiqueta_font_size": 14,
-    "etiqueta_color_rgb": [0.89, 0.20, 0.23],
-    "etiqueta_offset_x_pt": 0.0,
-    "etiqueta_offset_y_pt": 4.0,
+    "etiqueta_font_size": 12,
+    "etiqueta_color_rgb": [0.89, 0.2, 0.23],
+    "etiqueta_offset_x_pt": 26,
+    "etiqueta_offset_y_pt": -6.5,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
-    "logo_x_pt": 18.0,
-    "logo_y_pt": -5.5,
-    "logo_ancho_pt": 80.0,
-    "logo_alto_pt": 80.0,
+    "logo_x_pt": 486,
+    "logo_y_pt": 603,
+    "logo_ancho_pt": 95,
+    "logo_alto_pt": 95,
     "logo_transparencia": 0.85,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "dpi": 250,
+    "dpi": 200,
     "psm": 6,
 
     "ocr_doble_pasada": false,
 
     "contraste": 2.5,
-    "nitidez": 2.0,
+    "nitidez": 2,
     "ocr_grayscale": true,
     "ocr_invertir": false,
 

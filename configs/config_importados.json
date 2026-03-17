@@ -1,0 +1,40 @@
+{
+    "_comentario": "Configuración para Catalogo — Boutique Zepeda",
+    "_uso": "python3 scripts/catalogo_base.py --config configs/<config_catalogo.json>",
+
+    "pdf_input":   "libros/importados_26.pdf",
+    "excel_input": "precios/lista_importados.xlsx",
+    "pdf_output":  "salidas/importados_precios.pdf",
+
+    "paginas_prueba": false,
+
+    "etiqueta_font": "Helvetica-BoldOblique",
+    "etiqueta_font_size": 13,
+    "etiqueta_color_rgb": [0.89, 0.2, 0.23],
+    "etiqueta_offset_x_pt": -2,
+    "etiqueta_offset_y_pt": 6.5,
+
+    "logo_activo": true,
+    "logo_path": "imagenes/logos/logo_bz.png",
+    "logo_x_pt": 351,
+    "logo_y_pt": 677,
+    "logo_ancho_pt": 80,
+    "logo_alto_pt": 80,
+    "logo_transparencia": 0.85,
+
+    "id_longitud_min": 4,
+    "id_longitud_max": 8,
+
+    "dpi": 200,
+    "psm": 6,
+
+    "ocr_doble_pasada": true,
+
+    "contraste": 2.5,
+    "nitidez": 2,
+    "ocr_grayscale": true,
+    "ocr_invertir": false,
+
+    "fuzzy_activo": false,
+    "fuzzy_umbral": 80
+}
