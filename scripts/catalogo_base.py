@@ -375,6 +375,8 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
+        if self.paginas_prueba and self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            total_paginas = min(total_paginas, int(self.paginas_prueba))
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0

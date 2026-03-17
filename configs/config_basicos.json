@@ -8,7 +8,7 @@
 
     "paginas_prueba": 10,
 
-    "etiqueta_font": "Times-Bold-Italic",
+    "etiqueta_font": "Times-BoldItalic",
     "etiqueta_font_size": 14,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
     "etiqueta_offset_x_pt": 0.0,
