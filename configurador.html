@@ -1084,58 +1084,109 @@ makeDrag($('simLogo'), (dx,dy) => {
 });
 
 // ── JSON ─────────────────────────────────────────────────────────────────────
-function buildCfg() {
-  return {
-    "_comentario":"Configuración para Catalogo — Boutique Zepeda",
-    "_uso":"python3 scripts/catalogo_base.py --config configs/<catalogo_26.json>",
-    "pdf_input":sv('pdf_input'),"excel_input":sv('excel_input'),"pdf_output":sv('pdf_output'),
-    "paginas_prueba":bv('prueba_activa')?parseInt(fv('paginas_prueba')):false,
-    "etiqueta_font":sv('etiqueta_font'),
-    "etiqueta_font_size":parseInt(fv('etiqueta_font_size')),
-    "etiqueta_color_rgb":[+fv('cr').toFixed(3),+fv('cg').toFixed(3),+fv('cb').toFixed(3)],
-    "etiqueta_offset_x_pt":+fv('etiqueta_offset_x_pt').toFixed(2),
-    "etiqueta_offset_y_pt":+fv('etiqueta_offset_y_pt').toFixed(2),
-    "dpi":parseInt(fv('dpi')),"psm":parseInt(fv('psm')),
-    "contraste":+fv('contraste').toFixed(1),"nitidez":+fv('nitidez').toFixed(1),
-    "ocr_grayscale":bv('ocr_grayscale'),"ocr_invertir":bv('ocr_invertir'),
-    "ocr_doble_pasada":bv('ocr_doble_pasada'),
-    "id_longitud_min":parseInt(fv('id_longitud_min')),"id_longitud_max":parseInt(fv('id_longitud_max')),
-    "fuzzy_activo":bv('fuzzy_activo'),"fuzzy_umbral":parseInt(fv('fuzzy_umbral')),
-    "logo_activo":bv('logo_activo'),"logo_path":sv('logo_path'),
-    "logo_x_pt":+fv('logo_x_pt'),"logo_y_pt":+fv('logo_y_pt'),
-    "logo_ancho_pt":+fv('logo_ancho_pt'),"logo_alto_pt":+fv('logo_alto_pt'),
-    "logo_transparencia":+fv('logo_transparencia').toFixed(2)
-  };
+function v(val) { return JSON.stringify(val); }
+
+function buildCfgStr() {
+  const pdf_in   = sv('pdf_input');
+  const xls_in   = sv('excel_input');
+  const pdf_out  = sv('pdf_output');
+  const prueba   = bv('prueba_activa') ? parseInt(fv('paginas_prueba')) : false;
+  const font     = sv('etiqueta_font');
+  const fs       = parseInt(fv('etiqueta_font_size'));
+  const cr       = +fv('cr').toFixed(3), cg = +fv('cg').toFixed(3), cb = +fv('cb').toFixed(3);
+  const ox       = +fv('etiqueta_offset_x_pt').toFixed(2);
+  const oy       = +fv('etiqueta_offset_y_pt').toFixed(2);
+  const logo_a   = bv('logo_activo');
+  const logo_p   = sv('logo_path');
+  const lx       = +fv('logo_x_pt');
+  const ly       = +fv('logo_y_pt');
+  const lw       = +fv('logo_ancho_pt');
+  const lh       = +fv('logo_alto_pt');
+  const lt       = +fv('logo_transparencia').toFixed(2);
+  const id_min   = parseInt(fv('id_longitud_min'));
+  const id_max   = parseInt(fv('id_longitud_max'));
+  const dpi      = parseInt(fv('dpi'));
+  const psm      = parseInt(fv('psm'));
+  const doble    = bv('ocr_doble_pasada');
+  const contra   = +fv('contraste').toFixed(1);
+  const nitid    = +fv('nitidez').toFixed(1);
+  const gray     = bv('ocr_grayscale');
+  const invert   = bv('ocr_invertir');
+  const fuz_a    = bv('fuzzy_activo');
+  const fuz_u    = parseInt(fv('fuzzy_umbral'));
+
+  return `{
+    "_comentario": "Configuración para Catalogo — Boutique Zepeda",
+    "_uso": "python3 scripts/catalogo_base.py --config configs/<config_catalogo.json>",
+
+    "pdf_input":   ${v(pdf_in)},
+    "excel_input": ${v(xls_in)},
+    "pdf_output":  ${v(pdf_out)},
+
+    "paginas_prueba": ${v(prueba)},
+
+    "etiqueta_font": ${v(font)},
+    "etiqueta_font_size": ${fs},
+    "etiqueta_color_rgb": [${cr}, ${cg}, ${cb}],
+    "etiqueta_offset_x_pt": ${ox},
+    "etiqueta_offset_y_pt": ${oy},
+
+    "logo_activo": ${logo_a},
+    "logo_path": ${v(logo_p)},
+    "logo_x_pt": ${lx},
+    "logo_y_pt": ${ly},
+    "logo_ancho_pt": ${lw},
+    "logo_alto_pt": ${lh},
+    "logo_transparencia": ${lt},
+
+    "id_longitud_min": ${id_min},
+    "id_longitud_max": ${id_max},
+
+    "dpi": ${dpi},
+    "psm": ${psm},
+
+    "ocr_doble_pasada": ${doble},
+
+    "contraste": ${contra},
+    "nitidez": ${nitid},
+    "ocr_grayscale": ${gray},
+    "ocr_invertir": ${invert},
+
+    "fuzzy_activo": ${fuz_a},
+    "fuzzy_umbral": ${fuz_u}
+}`;
 }
+
 function updJSON() {
-  const raw=JSON.stringify(buildCfg(),null,4);
-  const html=raw.split('\n').map(l=>
-    l.replace(/"([^"]+)":/g,'<span class="jk">"$1"</span>:')
-     .replace(/:\s*(true|false)/g,': <span class="jb">$1</span>')
-     .replace(/:\s*"([^"]*)"/g,': <span class="jv">"$1"</span>')
-     .replace(/:\s*(-?[\d.]+)/g,': <span class="jn">$1</span>')
+  const raw = buildCfgStr();
+  const html = raw.split('\n').map(l =>
+    l.replace(/"([^"]+)":/g, '<span class="jk">"$1"</span>:')
+     .replace(/:\s*(true|false)/g, ': <span class="jb">$1</span>')
+     .replace(/:\s*"([^"]*)"/g, ': <span class="jv">"$1"</span>')
+     .replace(/:\s*(-?[\d.]+)/g, ': <span class="jn">$1</span>')
+     .replace(/\[([^\]]+)\]/g, m => '<span class="jn">'+m+'</span>')
   ).join('\n');
-  $('jsonPre').innerHTML=html;
+  $('jsonPre').innerHTML = html;
 }
 
 function resetear() {
-  $('pdf_input').value=DEFAULTS.pdf_input;$('excel_input').value=DEFAULTS.excel_input;$('pdf_output').value=DEFAULTS.pdf_output;
+  $('pdf_input').value=DEFAULTS.pdf_input; $('excel_input').value=DEFAULTS.excel_input; $('pdf_output').value=DEFAULTS.pdf_output;
   $('etiqueta_font').value=DEFAULTS.etiqueta_font;
   $('logo_path').value=DEFAULTS.logo_path;
   ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','fuzzy_umbral',
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
-  ].forEach(id=>$(id).value=DEFAULTS[id]);
-  $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale;$('ocr_invertir').checked=DEFAULTS.ocr_invertir;
-  $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada;$('fuzzy_activo').checked=DEFAULTS.fuzzy_activo;
-  $('logo_activo').checked=DEFAULTS.logo_activo;$('prueba_activa').checked=DEFAULTS.prueba_activa;
+  ].forEach(id => $(id).value = DEFAULTS[id]);
+  $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale; $('ocr_invertir').checked=DEFAULTS.ocr_invertir;
+  $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada; $('fuzzy_activo').checked=DEFAULTS.fuzzy_activo;
+  $('logo_activo').checked=DEFAULTS.logo_activo; $('prueba_activa').checked=DEFAULTS.prueba_activa;
   upd();
 }
 
 function copiar() {
-  navigator.clipboard.writeText(JSON.stringify(buildCfg(),null,4)).then(()=>{
-    const btn=$('btnCopy');btn.textContent='✓ Copiado';btn.classList.add('ok');
-    setTimeout(()=>{btn.textContent='Copiar JSON';btn.classList.remove('ok');},2000);
+  navigator.clipboard.writeText(buildCfgStr()).then(() => {
+    const btn=$('btnCopy'); btn.textContent='✓ Copiado'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent='Copiar JSON'; btn.classList.remove('ok'); }, 2000);
   });
 }
 
