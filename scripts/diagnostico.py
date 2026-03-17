@@ -67,7 +67,8 @@ def parsear_log(ruta):
         "dpi": None, "psm": None,
         "fuzzy_activo": None, "fuzzy_umbral": None,
         "id_min": None, "id_max": None,
-        "ocr_invertir": False, "doble_pasada": False,
+        "ocr_invertir": False, "ocr_grayscale": True, "doble_pasada": False,
+        "paginas_prueba": False,
         "paginas": None, "total_excel": None,
         "ids_unicos": None, "etiquetas": None,
         "fuzzy_matches": 0, "recorte_matches": 0,
@@ -121,6 +122,14 @@ def parsear_log(ruta):
         m = re.search(r"Invertir=(True|False)", l)
         if m: d["ocr_invertir"] = m.group(1) == "True"
 
+        m = re.search(r"Grayscale=(True|False)", l)
+        if m: d["ocr_grayscale"] = m.group(1) == "True"
+
+        # paginas_prueba desde STAT
+        if re.search(r"\[STAT\] paginas_prueba=", l):
+            val = l.split("=", 1)[1].strip()
+            d["paginas_prueba"] = False if val == "False" else int(val)
+
         m = re.search(r"Error en p.gina (\d+):", l)
         if m: d["errores_pagina"].append(int(m.group(1)))
 
@@ -162,6 +171,26 @@ def diagnosticar(d):
     ids_u     = d["ids_unicos"] or 0
     total     = d["total_excel"] or 0
     ids_falta = max(0, total - ids_u)
+
+    # ══════════════════════════════════════════
+    # MODO PRUEBA — corta el diagnóstico
+    # ══════════════════════════════════════════
+
+    if d["paginas_prueba"] is not False and d["paginas_prueba"] >= 1:
+        add("INFO",
+            f"Modo prueba activo — {d['paginas_prueba']} página(s)",
+            "Estás en área de testeo. La efectividad parcial no\n"
+            "corresponde al semáforo real del catálogo completo.\n"
+            "\n"
+            "Tu validación es manual:\n"
+            "  · ¿Los precios aparecen junto a los productos?\n"
+            "  · ¿El logo queda bien posicionado?\n"
+            "  · ¿El offset de la etiqueta se ve correcto?\n"
+            "\n"
+            "Cuando los parámetros se vean bien:\n"
+            "  → cambia paginas_prueba: false\n"
+            "  → ejecuta el catálogo completo")
+        return hallazgos
 
     # ══════════════════════════════════════════
     # NIVEL 1 — infraestructura
@@ -297,21 +326,18 @@ def diagnosticar(d):
             "Vuelve a ejecutar con cada opción y compara.",
             config_key="psm")
 
-    # ─── Paso 4 — fuzzy umbral ──────────────────────────────────────
+    # ─── Paso 4 — fuzzy (sutil, solo si hay riesgo real) ───────────
     if fuzzy_alto:
-        add("ADVERTENCIA",
-            f"Paso 4  —  Revisa los precios marcados con fuzzy  "
-            f"({d['fuzzy_matches']} IDs, umbral {d['fuzzy_umbral']}%)",
-            "Con tasa baja y muchos fuzzy hay riesgo de que algunos\n"
-            "precios no correspondan al producto correcto.\n"
+        add("INFO",
+            f"Nota — fuzzy recuperó {d['fuzzy_matches']} IDs  "
+            f"(umbral {d['fuzzy_umbral']}%)",
+            "El script corrigió automáticamente algunos IDs con errores\n"
+            "de lectura. Antes de publicar, verifica en el PDF que los\n"
+            "precios de esos productos sean correctos.\n"
             "\n"
-            "Antes de publicar: abre el PDF y revisa visualmente\n"
-            "que los precios coincidan con los productos.\n"
-            "\n"
-            "Si encuentras errores, sube el umbral o desactiva fuzzy:\n"
-            f"  \"fuzzy_umbral\": 90\n"
+            "Si encuentras un precio incorrecto, desactiva fuzzy:\n"
             "  \"fuzzy_activo\": false",
-            config_key="fuzzy_umbral  /  fuzzy_activo")
+            config_key="fuzzy_activo")
 
     # ─── Paso 5 — doble pasada (último recurso) ─────────────────────
     if not d["doble_pasada"] and ocr_no_detecta:
@@ -415,15 +441,19 @@ def imprimir_reporte(d, hallazgos):
     print(f"\n{BD}  Parámetros usados{RS}")
     print(f"  {SEP}")
     for lbl, val in [
-        ("DPI",            d["dpi"]),
-        ("PSM",            d["psm"]),
-        ("IDs",            f"{d['id_min']}–{d['id_max']} dígitos" if d["id_min"] else "—"),
-        ("Fuzzy",          f"{'ON' if d['fuzzy_activo'] else 'OFF'}  umbral {d['fuzzy_umbral']}%"
-                           if d["fuzzy_activo"] is not None else "—"),
-        ("OCR invertido",  "Sí" if d["ocr_invertir"] else "No"),
+        ("Rango IDs",      f"{d['id_min']}–{d['id_max']} dígitos" if d["id_min"] else "—"),
+        ("DPI",            d["dpi"] or "—"),
+        ("PSM",            d["psm"] or "—"),
         ("Doble pasada",   "Sí" if d["doble_pasada"] else "No"),
     ]:
         print(f"  {DM}{lbl:<18}{RS}{val}")
+    # Avanzado — una sola línea discreta
+    avz_parts = []
+    if d["fuzzy_activo"] is not None:
+        avz_parts.append(f"fuzzy={'ON' if d['fuzzy_activo'] else 'OFF'} ({d['fuzzy_umbral']}%)")
+    avz_parts.append(f"invertir={'Sí' if d['ocr_invertir'] else 'No'}")
+    avz_parts.append(f"grayscale={'Sí' if d['ocr_grayscale'] else 'No'}")
+    print(f"  {DM}{'Avanzado':<18}{RS}{DM}{' | '.join(avz_parts)}{RS}")
 
     # ── Hallazgos ─────────────────────────────────────────────
     hay_escalar = any(h["escalar"] for h in hallazgos)

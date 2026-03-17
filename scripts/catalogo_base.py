@@ -96,6 +96,9 @@ class EtiquetadorCatalogo:
         self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
+        # Modo prueba — False procesa todo el catálogo; int limita a N páginas
+        self.paginas_prueba = config.get("paginas_prueba", False)
+
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
@@ -119,10 +122,6 @@ class EtiquetadorCatalogo:
         self.etiqueta_color     = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
         self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
         self.etiqueta_offset_y  = config.get("etiqueta_offset_y_pt", 5.67)
-
-        # Modo prueba — false = catálogo completo, n >= 1 = solo primeras n páginas
-        paginas_prueba_raw      = config.get("paginas_prueba", False)
-        self.paginas_prueba     = False if paginas_prueba_raw is False else int(paginas_prueba_raw)
 
         # Parámetros logo
         self.logo_activo        = config.get("logo_activo", False)
@@ -336,15 +335,33 @@ class EtiquetadorCatalogo:
     # ── Proceso principal ─────────────────────────────────────────────────────
 
     def marcar(self):
-        modo = "DOBLE PASADA" if self.ocr_doble_pasada else "PASADA ÚNICA"
-        self.logger.info(f"🚀 Iniciando: {os.path.basename(self.pdf_path)}")
-        self.logger.info(
-            f"   DPI={self.dpi} | PSM={self.psm} | "
-            f"Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | "
-            f"IDs: {self.id_len_min}–{self.id_len_max} dígitos | "
-            f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
-            f"Modo OCR={modo}"
+        SEP  = "─" * 54
+        SEP2 = "═" * 54
+        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
+
+        self.logger.info("")
+        self.logger.info(SEP2)
+        self.logger.info(f"  🚀  {os.path.basename(self.pdf_path)}")
+        self.logger.info(SEP)
+
+        # ── Parámetros básicos — en orden de operación ──
+        self.logger.info(f"  📂  Excel           {os.path.basename(self.excel_path)}")
+        if prueba_activa:
+            self.logger.info(f"  🧪  Modo prueba     {self.paginas_prueba} pág. — validación manual")
+        self.logger.info(f"  🔢  Rango IDs       {self.id_len_min}–{self.id_len_max} dígitos")
+        self.logger.info(f"  📸  DPI             {self.dpi}")
+        self.logger.info(f"  🔍  PSM             {self.psm}")
+        self.logger.info(f"  🔄  Doble pasada    {'Sí' if self.ocr_doble_pasada else 'No'}")
+
+        # ── Parámetros avanzados — una sola línea, discreta ──
+        avanzado = (
+            f"contraste={self.contraste} | nitidez={self.nitidez} | "
+            f"grayscale={self.ocr_grayscale} | invertir={self.ocr_invertir} | "
+            f"fuzzy={'ON' if self.fuzzy_activo else 'OFF'}({self.fuzzy_umbral}%)"
         )
+        self.logger.info(f"  ·   Avanzado        {avanzado}")
+        self.logger.info(SEP2)
+        self.logger.info("")
 
         try:
             reader_pdf = PdfReader(self.pdf_path)
@@ -357,12 +374,8 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
-
-        # Modo prueba
-        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
-            total_paginas = min(self.paginas_prueba, total_paginas)
-            self.logger.info(f"🧪 MODO PRUEBA — procesando solo {total_paginas} página(s)")
-
+        if self.paginas_prueba and self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            total_paginas = min(total_paginas, int(self.paginas_prueba))
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
@@ -483,50 +496,63 @@ class EtiquetadorCatalogo:
             raise
 
         # ── Reporte final ─────────────────────────────────────────────────────
-        ids_unicos   = len(ids_detectados)
-        ids_falta    = max(0, self.total_en_excel - ids_unicos)
-        tasa         = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
-        bloques      = int(tasa / 5)           # 20 bloques = 100 %
-        barra        = "█" * bloques + "░" * (20 - bloques)
-        semaforo_key = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
-
-        if tasa >= 85:
-            semaforo = "🟢  VERDE"
-            accion   = "Listo para publicar en WhatsApp Business."
-        elif tasa >= 65:
-            semaforo = "🟡  AMARILLO"
-            accion   = "Revisar antes de publicar.  →  python3 scripts/diagnostico.py"
-        else:
-            semaforo = "🔴  ROJO"
-            accion   = "No publicar.  →  python3 scripts/diagnostico.py"
-
-        SEP  = "─" * 54
-        SEP2 = "═" * 54
+        ids_unicos    = len(ids_detectados)
+        ids_falta     = max(0, self.total_en_excel - ids_unicos)
+        tasa          = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        bloques       = int(tasa / 5)
+        barra         = "█" * bloques + "░" * (20 - bloques)
+        semaforo_key  = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
+        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
 
         self.logger.info("")
         self.logger.info(SEP2)
         self.logger.info("  ✅  PROCESO TERMINADO")
-        self.logger.info(SEP2)
+        self.logger.info(SEP)
+
+        # ── Resultados básicos ──
         self.logger.info(f"  📄  Páginas          {total_paginas}")
         self.logger.info(f"  📋  En Excel         {self.total_en_excel}")
         self.logger.info(f"  🔢  IDs marcados     {ids_unicos} / {self.total_en_excel}  (faltan {ids_falta})")
         self.logger.info(f"  🏷️   Etiquetas        {total_etiquetado}")
         if recorte_matches:
             self.logger.info(f"  ✂️   Recortes auto    {recorte_matches}")
+        # Avanzado — sutil, solo si existe
         if fuzzy_matches:
-            self.logger.info(f"  🔍  Fuzzy            {fuzzy_matches}")
+            self.logger.info(f"  ·   Fuzzy            {fuzzy_matches} IDs recuperados")
         if self.ocr_doble_pasada:
-            self.logger.info(f"  🔄  Modo OCR         DOBLE PASADA")
-        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
-            self.logger.info(f"  🧪  Modo prueba      {total_paginas} pág. — no publicar")
+            self.logger.info(f"  🔄  Doble pasada     activa")
+
         self.logger.info(SEP)
         self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
-        self.logger.info(f"      {semaforo}")
-        self.logger.info(f"      {accion}")
+        self.logger.info("")
+
+        # ── Semáforo o aviso de prueba ──
+        if prueba_activa:
+            self.logger.info(f"  🧪  MODO PRUEBA — {total_paginas} páginas procesadas")
+            self.logger.info(f"      Esta efectividad no es el semáforo real del catálogo.")
+            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente:")
+            self.logger.info(f"      · ¿Los precios aparecen junto a los productos?")
+            self.logger.info(f"      · ¿El logo queda bien posicionado?")
+            self.logger.info(f"      Cuando estés lista → cambia paginas_prueba: false")
+            self.logger.info(f"      y ejecuta el catálogo completo.")
+        elif tasa >= 85:
+            self.logger.info(f"  🟢  VERDE — listo para publicar")
+            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente.")
+            self.logger.info(f"      Si todo se ve bien, continúa con la Fase 3 del checklist.")
+        elif tasa >= 65:
+            self.logger.info(f"  🟡  AMARILLO — revisar antes de publicar")
+            self.logger.info(f"      Ejecuta el diagnóstico para saber qué ajustar:")
+            self.logger.info(f"      python3 scripts/diagnostico.py")
+        else:
+            self.logger.info(f"  🔴  ROJO — no publicar")
+            self.logger.info(f"      Ejecuta el diagnóstico para saber qué ajustar:")
+            self.logger.info(f"      python3 scripts/diagnostico.py")
+
         self.logger.info(SEP)
         self.logger.info(f"  📂  {os.path.basename(self.output_path)}")
         self.logger.info(SEP2)
         self.logger.info("")
+
         # Métricas parseables por diagnostico.py — no modificar formato
         self.logger.info(f"[STAT] paginas={total_paginas}")
         self.logger.info(f"[STAT] total_excel={self.total_en_excel}")

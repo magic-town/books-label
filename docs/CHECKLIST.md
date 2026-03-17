@@ -24,17 +24,17 @@ precios         catálogo        en WA
 ### Descargar y verificar
 
 - [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
-- [ ] Hacer una validación visual que el catálogo y la lista coincidan en paginas, ID's.
+- [ ] Hacer una validación visual de que  el catálogo y la lista coincidan en Pag, ID. Seg_cred.
 - [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos` y `~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
 
 ### Extraer los precios con LLM (solución temporal, estamos revisando si un script.py es más preciso)
 
 - [ ] Elige un LLM - NotebookLM, Claude, puedes hacerlo simultaneamente y agrega tu lista cruda
 - [ ] Abrir los prompts de extraccion en 👉 [magic-town/books-label](../prompts/extraer_columnas_listas.md)
-- [ ] Usar el prompt con Claude o Gemini para extraer los campos `Pag`, `ID`, `Sug_credito`
-- [ ] Revisar rápidamente que los datos se vean bien — sin huecos raros ni precios en cero
+- [ ] Pegar el prompt en la caja de texto del LLM.
+- [ ] Hacer una validación visual **Lista cruda del proveedor** Vs **Lista extraida por el LLM**.
 
-### Armar la tabla en LibreOffice
+### Crear la tabla en LibreOffice
 
 - [ ] Abrir `~/books-label/precios/tabla_precios.ods` en LibreOffice Calc
 - [ ] Agregar hoja nueva → renombrar como `<proveedor_categoria>`
@@ -88,8 +88,8 @@ precios         catálogo        en WA
   | Campo | Qué escribir |
   |-------|--------------|
   | `pdf_input` | `"libros/<catalogo_temp.pdf"` |
-  | `excel_input` | `"precios/<lista_catalogo.xlsx"` |
-  | `pdf_output` | `"salidas/<catalgo_temp_precios.pdf>" |
+  | `excel_input` | `"precios/<lista_catalogo.xlsx>"` |
+  | `pdf_output` | `"salidas/<catalgo_temp_precios.pdf>"` |
 
 - [ ] Guardar el archivo (`Ctrl+S`)
 
