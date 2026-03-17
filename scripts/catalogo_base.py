@@ -96,6 +96,9 @@ class EtiquetadorCatalogo:
         self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
+        # Modo prueba — False procesa todo el catálogo; int limita a N páginas
+        self.paginas_prueba = config.get("paginas_prueba", False)
+
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
