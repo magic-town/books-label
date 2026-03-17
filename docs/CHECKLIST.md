@@ -30,7 +30,7 @@ precios         catálogo        en WA
 ### Extraer los precios con LLM (solución temporal, estamos revisando si un script.py es más preciso)
 
 - [ ] Elige un LLM - NotebookLM, Claude, puedes hacerlo simultaneamente y agrega tu lista cruda
-- [ ] Abrir el prompt en [Abrir prompt de extracción](prompts/extraer_columnas_listas.md)
+- [ ] Abrir los prompts de extraccion en 👉 [magic-town/books-label](../prompts/extraer_columnas_listas.md)
 - [ ] Usar el prompt con Claude o Gemini para extraer los campos `Pag`, `ID`, `Sug_credito`
 - [ ] Revisar rápidamente que los datos se vean bien — sin huecos raros ni precios en cero
 
