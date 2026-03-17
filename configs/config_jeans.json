@@ -4,23 +4,23 @@
 
     "pdf_input":   "libros/jeans_PV26.pdf",
     "excel_input": "precios/lista_jeans.xlsx",
-    "pdf_output":  "salidas/jeans_final.pdf",
+    "pdf_output":  "salidas/jeans_precios.pdf",
 
     "paginas_prueba": false,
 
     "etiqueta_font_size": 13,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
-    "etiqueta_offset_x_pt": 0.0,
-    "etiqueta_offset_y_pt": 0.0,
+    "etiqueta_offset_x_pt": -6.0,
+    "etiqueta_offset_y_pt": 45.0,
 
-    "dpi": 300,
-    "psm": 11,
+    "dpi": 250,
+    "psm": 4,
     "contraste": 2.5,
     "nitidez": 2.0,
 
     "ocr_grayscale": true,
     "ocr_invertir": false,
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -28,11 +28,11 @@
     "fuzzy_activo": false,
     "fuzzy_umbral": 80,
 
-    "logo_activo": false,
+    "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
-    "logo_x_pt": 20.0,
-    "logo_y_pt": 750.0,
+    "logo_x_pt": 415.0,
+    "logo_y_pt": 705.0,
     "logo_ancho_pt": 80.0,
-    "logo_alto_pt": 40.0,
-    "logo_transparencia": 0.85
+    "logo_alto_pt": 80.0,
+    "logo_transparencia": 0.75
 }

@@ -23,13 +23,14 @@ precios         catálogo        en WA
 
 ### Descargar y verificar
 
-- [ ] Descargar el catálogo PDF y la lista de precios del proveedor
-- [ ] Confirmar que son del mismo proveedor y la misma temporada
-- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/`
+- [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
+- [ ] Hacer una validación visual que el catálogo y la lista coincidan en paginas, ID's.
+- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos y ~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
 
-### Extraer los precios
+### Extraer los precios con LLM (solución temporal, estamos revisando si un script.py es más preciso)
 
-- [ ] Abrir el prompt en `prompts/extraer_columnas_listas.txt`
+- [ ] Elige un LLM - NotebookLM, Claude, puedes hacerlo simultaneamente y agrega tu lista cruda
+- [ ] Abrir el prompt en [Abrir prompt de extracción](prompts/extraer_columnas_listas.md)
 - [ ] Usar el prompt con Claude o Gemini para extraer los campos `Pag`, `ID`, `Sug_credito`
 - [ ] Revisar rápidamente que los datos se vean bien — sin huecos raros ni precios en cero
 
@@ -86,9 +87,9 @@ precios         catálogo        en WA
 
   | Campo | Qué escribir |
   |-------|--------------|
-  | `pdf_input` | `"libros/<nombre_del_pdf>.pdf"` |
-  | `excel_input` | `"precios/<nombre_del_excel>.xlsx"` |
-  | `pdf_output` | `"salidas/<nombre_que_quieras>.pdf"` |
+  | `pdf_input` | `"libros/<catalogo_temp.pdf"` |
+  | `excel_input` | `"precios/<lista_catalogo.xlsx"` |
+  | `pdf_output` | `"salidas/<catalgo_temp_precios.pdf>" |
 
 - [ ] Guardar el archivo (`Ctrl+S`)
 
