@@ -104,9 +104,14 @@ precios         catálogo        en WA
   ```bash
   python3 abrir_configurador.py
   ```
-- [ ] Mover los sliders para entender qué hace cada parámetro
-- [ ] Anotar los valores que quieres probar
-- [ ] Escribir esos valores en tu config en VSC y guardar
+- [ ] Usa el paramétro `paginas_prueba` para insertar «logo» y «etiquetas» de manera óptima y equilibrada. 
+    
+    - `paginas_prueba`: `false, 1, 40, 30, ...`
+    - `dpi`: `200, 250, 300` 
+    - `psm`: `4`, `6`, `11`
+    - `doble_pasada`: `false, true`
+
+- [ ] La doble pasada es una última optimización, y depende de que tan bien quedo con una primera pasada. Itera lo que sea necesario, para encontrar la mayor tasa de etiquetado.
 
 ### Ejecutar
 
