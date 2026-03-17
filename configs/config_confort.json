@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_confort.xlsx",
     "pdf_output":  "salidas/confort_test.pdf",
 
-    "paginas_prueba": 30,
+    "paginas_prueba": false,
 
     "etiqueta_font_size": 13,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
@@ -27,7 +27,7 @@
     "dpi": 200,
     "psm": 11,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste": 2.5,
     "nitidez": 2.0,
