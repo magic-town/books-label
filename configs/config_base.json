@@ -1,24 +1,26 @@
 {
-    "_comentario": "Configuración base extraída de script_2mm_up.py — Boutique Zepeda",
-    "_uso": "python3 scripts/catalogo_base.py --config configs/config_base.json",
+    "_comentario": "Configuración para Jeans PV26 — Boutique Zepeda",
+    "_uso": "python3 scripts/catalogo_base.py --config configs/config_jeans_PV26.json",
 
-    "pdf_input":   "libros/urbano_26.pdf",
-    "excel_input": "precios/lista_urbano.xlsx",
-    "pdf_output":  "salidas/urbano_26_final.pdf",
+    "pdf_input":   "libros/jeans_PV26.pdf",
+    "excel_input": "precios/lista_jeans.xlsx",
+    "pdf_output":  "salidas/jeans_final.pdf",
 
-    "etiqueta_font_size": 11,
-    "etiqueta_color_rgb": [0.0, 0.0, 1.0],
-    "etiqueta_offset_x_pt": 4.0,
-    "etiqueta_offset_y_pt": 5.67,
+    "paginas_prueba": false,
 
-    "dpi": 200,
-    "psm": 6,
+    "etiqueta_font_size": 13,
+    "etiqueta_color_rgb": [0.89, 0.20, 0.23],
+    "etiqueta_offset_x_pt": 0.0,
+    "etiqueta_offset_y_pt": 0.0,
+
+    "dpi": 300,
+    "psm": 11,
     "contraste": 2.5,
     "nitidez": 2.0,
 
     "ocr_grayscale": true,
     "ocr_invertir": false,
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
