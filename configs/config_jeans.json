@@ -6,6 +6,8 @@
     "excel_input": "precios/lista_jeans.xlsx",
     "pdf_output":  "salidas/jeans_final.pdf",
 
+    "paginas_prueba": false,
+
     "etiqueta_font_size": 13,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
     "etiqueta_offset_x_pt": 0.0,
@@ -27,7 +29,7 @@
     "fuzzy_umbral": 80,
 
     "logo_activo": false,
-    "logo_path": "images/assets/logo_boutique.png",
+    "logo_path": "imagenes/logos/logo_bz.png",
     "logo_x_pt": 20.0,
     "logo_y_pt": 750.0,
     "logo_ancho_pt": 80.0,

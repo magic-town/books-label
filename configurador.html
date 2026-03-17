@@ -19,6 +19,7 @@
   --borde:      #D6CCBF;
   --blanco:     #FDFAF6;
   --sombra:     rgba(28,24,20,0.07);
+  --logo-color: rgba(122,140,120,0.55);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +119,13 @@ input[type=range]::-webkit-slider-thumb {
 }
 input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-color:var(--terracota-h); }
 
+/* slider variante sage para sección logo */
+input[type=range].sl-logo::-webkit-slider-thumb {
+  border-color: var(--sage);
+  box-shadow:0 1px 4px rgba(122,140,120,.3);
+}
+input[type=range].sl-logo::-webkit-slider-thumb:hover { border-color:#5a7a58; }
+
 /* ── Grid helpers ── */
 .g2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
 
@@ -134,6 +142,9 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
 .sw input:checked + .sw-track { background:var(--terracota); }
 .sw input:checked + .sw-track::before { transform:translateX(19px); }
 
+/* switch variante sage */
+.sw-sage input:checked + .sw-track { background:var(--sage); }
+
 /* ── Panel derecho sticky ── */
 .right { position:sticky; top:1.5rem; display:flex; flex-direction:column; gap:1.5rem; }
 
@@ -143,6 +154,24 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   border-radius:4px; overflow:hidden; box-shadow:0 2px 12px var(--sombra);
 }
 
+/* ── Tab navegación del preview ── */
+.pv-tabs {
+  display:flex;
+  background:var(--tinta);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.pv-tab {
+  flex:1; padding:0.7rem 1rem;
+  font-family:'Jost',sans-serif; font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--gris-cl); cursor:pointer;
+  border:none; background:transparent;
+  border-bottom:2px solid transparent;
+  transition:color .2s, border-color .2s;
+}
+.pv-tab:hover { color:var(--arena); }
+.pv-tab.active { color:var(--arena); border-bottom-color:var(--terracota); }
+.pv-tab.active.sage { border-bottom-color:var(--sage); color:#b8d4b6; }
+
 .pv-head, .json-head { background:var(--tinta); color:var(--arena); padding:0.75rem 1.2rem; }
 .pv-head   { font-family:'Playfair Display',serif; font-size:0.85rem; font-style:italic; }
 .json-head { display:flex; align-items:center; justify-content:space-between; }
@@ -151,13 +180,12 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
 .pv-body { padding:1.2rem; display:flex; flex-direction:column; gap:1rem; }
 
 /* ── Simulador (canvas visual) ── */
-/* Proporción Carta: 612 × 792 pt (8.5 × 11 in) */
 .sim {
   background: var(--arena);
   border: 1px solid var(--borde);
   border-radius: 3px;
   width: 100%;
-  aspect-ratio: 612 / 792;   /* proporción Carta exacta */
+  aspect-ratio: 612 / 792;
   position: relative;
   overflow: hidden;
 }
@@ -171,7 +199,6 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   overflow: hidden;
 }
 
-/* Regla de escala — indicador visual de 1cm */
 .sim-ruler {
   position: absolute;
   bottom: 14px; right: 14px;
@@ -204,7 +231,48 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   /* sin transition para respuesta inmediata al mover slider */
 }
 
-/* Crosshairs */
+/* ── Logo en simulador ── */
+.sim-logo {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px dashed rgba(122,140,120,0.6);
+  border-radius: 2px;
+  background: rgba(122,140,120,0.08);
+  pointer-events: none;
+  user-select: none;
+  transition: opacity .2s;
+}
+.sim-logo-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 7px;
+  font-style: italic;
+  color: var(--sage);
+  letter-spacing: 0.05em;
+  text-align: center;
+  line-height: 1.3;
+  padding: 2px;
+}
+
+/* Crosshairs del logo */
+.sim-logo-cross {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+.sim-logo-vline {
+  position: absolute;
+  width: 1px;
+  top: 0; bottom: 0;
+  background: rgba(122,140,120,0.2);
+}
+.sim-logo-hline {
+  position: absolute;
+  height: 1px;
+  left: 0; right: 0;
+  background: rgba(122,140,120,0.2);
+}
+
+/* Crosshairs etiqueta */
 .sim-vline, .sim-hline {
   position: absolute;
   background: rgba(168,82,46,0.25);
@@ -226,8 +294,10 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
 /* ── Badges mm ── */
 .mm-row { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
 .mm-badge { background:var(--arena); border:1px solid var(--borde); border-radius:2px; padding:0.5rem 0.75rem; text-align:center; }
+.mm-badge.sage { border-color: rgba(122,140,120,0.4); background: rgba(122,140,120,0.05); }
 .mm-label { font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--gris-cl); }
 .mm-val   { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--terracota); font-style:italic; }
+.mm-val.sage { color: var(--sage); }
 .mm-sub   { font-size:10px; color:var(--gris-cl); }
 
 /* Cuadro de referencia cm */
@@ -241,6 +311,19 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   text-align: center;
 }
 .mm-ref strong { color: var(--terracota); }
+.mm-ref.sage strong { color: var(--sage); }
+
+/* ── Badge "logo desactivado" ── */
+.logo-off-badge {
+  display:flex; align-items:center; justify-content:center; gap:0.4rem;
+  background: rgba(122,140,120,0.08);
+  border: 1px dashed rgba(122,140,120,0.35);
+  border-radius: 3px;
+  padding: 0.5rem 0.75rem;
+  font-size: 11px;
+  color: var(--gris-cl);
+  font-style: italic;
+}
 
 /* ── JSON panel ── */
 .btn-copy { font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--arena);padding:0.3rem 0.75rem;border-radius:2px;cursor:pointer;font-family:'Jost',sans-serif;transition:background .2s; }
@@ -256,6 +339,32 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
 .paso:last-child { margin-bottom:0; }
 .num  { background:var(--terracota);color:white;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px; }
 .instruccion code { background:rgba(255,255,255,.08);padding:0 5px;border-radius:2px;font-size:11px;font-family:'Courier New',monospace;color:#C97A58; }
+
+/* ── Sección logo — acento sage ── */
+.sec-logo .sec-head { background: rgba(122,140,120,0.08); border-bottom-color: rgba(122,140,120,0.25); }
+.sec-logo .sec-icon { background: var(--sage); }
+.sec-logo .sl-val   { color: var(--sage); }
+.sec-logo .sl-name  { color: var(--sage); opacity: 0.85; }
+
+/* ── Leyenda de colores del simulador ── */
+.sim-legend {
+  display: flex; gap: 1rem; align-items: center;
+  font-size: 10px; color: var(--gris-cl);
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0;
+}
+.sim-legend-item { display:flex; align-items:center; gap:0.3rem; }
+.sim-legend-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.sim-legend-box {
+  width: 10px; height: 7px;
+  border: 1.5px dashed rgba(122,140,120,0.6);
+  border-radius: 1px;
+  flex-shrink: 0;
+  background: rgba(122,140,120,0.1);
+}
 </style>
 </head>
 <body>
@@ -277,7 +386,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   <div class="intro">
     <span>🧮</span>
     <span><strong>Calculadora visual — no modifica ningún archivo.</strong>
-    Mueve los controles, observa el efecto, luego escribe los valores en tu <code>configs/config_*.json</code> en VSC y ejecuta el script desde la terminal.</span>
+    Mueve los controles, observa el efecto en la vista previa, luego escribe los valores en tu <code>configs/config_*.json</code> en VSC y ejecuta el script desde la terminal.</span>
   </div>
 
   <!-- ══════════════════ COLUMNA IZQUIERDA ══════════════════ -->
@@ -311,7 +420,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
       </div>
     </div>
 
-    <!-- ② ETIQUETA — primera que enfrenta -->
+    <!-- ② ETIQUETA -->
     <div class="sec">
       <div class="sec-head"><div class="sec-icon">🏷️</div><span class="sec-title">Posición y estilo del precio</span></div>
       <div class="sec-body">
@@ -424,37 +533,71 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
       </div>
     </div>
 
-    <!-- ⑤ LOGO -->
+    <!-- ⑤ MODO PRUEBA -->
     <div class="sec">
-      <div class="sec-head"><div class="sec-icon">🖼️</div><span class="sec-title">Logo en portada</span></div>
+      <div class="sec-head"><div class="sec-icon">🧪</div><span class="sec-title">Modo prueba</span></div>
       <div class="sec-body">
         <div class="tog">
-          <div class="tog-info"><span class="tog-name">Insertar logo</span><span class="tog-desc">Se coloca en la primera página del catálogo</span></div>
-          <label class="sw"><input type="checkbox" id="logo_activo" oninput="upd()"/><span class="sw-track"></span></label>
+          <div class="tog-info">
+            <span class="tog-name">Activar prueba</span>
+            <span class="tog-desc">Procesa solo las primeras N páginas. El PDF de entrada no se toca.</span>
+          </div>
+          <label class="sw"><input type="checkbox" id="prueba_activa" oninput="upd()"/><span class="sw-track"></span></label>
         </div>
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Páginas a procesar</span><span class="sl-val" id="v_prueba">1</span></div>
+          <input type="range" id="paginas_prueba" min="1" max="15" step="1" value="1" oninput="upd()"/>
+          <span class="sl-hint">false = catálogo completo. 1–15 = solo esas páginas.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ LOGO -->
+    <div class="sec sec-logo">
+      <div class="sec-head"><div class="sec-icon">🖼️</div><span class="sec-title">Logo en portada</span></div>
+      <div class="sec-body">
+        <div class="tog" style="border-color:rgba(122,140,120,0.4);background:rgba(122,140,120,0.06);">
+          <div class="tog-info">
+            <span class="tog-name" style="color:var(--sage)">Insertar logo</span>
+            <span class="tog-desc">Se coloca en la primera página del catálogo. Visible en el simulador →</span>
+          </div>
+          <label class="sw sw-sage"><input type="checkbox" id="logo_activo" oninput="upd()"/><span class="sw-track"></span></label>
+        </div>
+
+        <div class="sl">
+          <div class="sl-label"><span class="sl-name">Ruta del logo — logo_path</span></div>
+          <input type="text" id="logo_path" value="imagenes/logos/logo_bz.png"
+            style="border:1px solid rgba(122,140,120,0.35);background:rgba(122,140,120,0.05);padding:0.5rem 0.75rem;font-family:'Jost',sans-serif;font-size:13px;border-radius:2px;width:100%;color:var(--tinta);"
+            oninput="upd()"/>
+          <span class="sl-hint">Disponibles: <code style="background:var(--arena-dark);padding:0 3px;border-radius:2px;font-size:11px;">imagenes/logos/logo_bz.png</code> · <code style="background:var(--arena-dark);padding:0 3px;border-radius:2px;font-size:11px;">imagenes/logos/logo_ocean.png</code></span>
+        </div>
+
         <div class="g2">
           <div class="sl">
-            <div class="sl-label"><span class="sl-name">Posición horizontal</span><span class="sl-val" id="v_lx">20 pt</span></div>
-            <input type="range" id="logo_x_pt" min="0" max="500" step="5" value="20" oninput="upd()"/>
+            <div class="sl-label"><span class="sl-name">◀ Posición horizontal ▶</span><span class="sl-val" id="v_lx">20 pt</span></div>
+            <input type="range" class="sl-logo" id="logo_x_pt" min="0" max="560" step="1" value="20" oninput="upd()"/>
+            <span class="sl-hint">Desde el borde izquierdo. Esquina der: ~475 pt (logo 80pt).</span>
           </div>
           <div class="sl">
-            <div class="sl-label"><span class="sl-name">Posición vertical</span><span class="sl-val" id="v_ly">750 pt</span></div>
-            <input type="range" id="logo_y_pt" min="0" max="800" step="5" value="750" oninput="upd()"/>
+            <div class="sl-label"><span class="sl-name">▼ Posición vertical ▲</span><span class="sl-val" id="v_ly">750 pt</span></div>
+            <input type="range" class="sl-logo" id="logo_y_pt" min="0" max="780" step="1" value="750" oninput="upd()"/>
+            <span class="sl-hint">Desde el borde inferior. Esquina sup: ~695 pt (logo 40pt).</span>
           </div>
         </div>
         <div class="g2">
           <div class="sl">
             <div class="sl-label"><span class="sl-name">Ancho</span><span class="sl-val" id="v_lw">80 pt</span></div>
-            <input type="range" id="logo_ancho_pt" min="20" max="300" step="5" value="80" oninput="upd()"/>
+            <input type="range" class="sl-logo" id="logo_ancho_pt" min="20" max="300" step="1" value="80" oninput="upd()"/>
           </div>
           <div class="sl">
             <div class="sl-label"><span class="sl-name">Alto</span><span class="sl-val" id="v_lh">40 pt</span></div>
-            <input type="range" id="logo_alto_pt" min="10" max="150" step="5" value="40" oninput="upd()"/>
+            <input type="range" class="sl-logo" id="logo_alto_pt" min="10" max="150" step="1" value="40" oninput="upd()"/>
           </div>
         </div>
         <div class="sl">
           <div class="sl-label"><span class="sl-name">Transparencia (1.0 = opaco)</span><span class="sl-val" id="v_lt">0.85</span></div>
-          <input type="range" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
+          <input type="range" class="sl-logo" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
+          <span class="sl-hint">0.85 es un buen punto de partida. 1.0 = completamente opaco.</span>
         </div>
       </div>
     </div>
@@ -464,41 +607,100 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); border-col
   <!-- ══════════════════ COLUMNA DERECHA ══════════════════ -->
   <div class="right">
 
-    <!-- Preview -->
+    <!-- Preview con tabs -->
     <div class="pv-card">
-      <div class="pv-head">Vista previa — posición del precio</div>
+      <div class="pv-tabs">
+        <button class="pv-tab active" id="tab-precio" onclick="switchTab('precio')">🏷️ &nbsp;Precio</button>
+        <button class="pv-tab" id="tab-logo" onclick="switchTab('logo')">🖼️ &nbsp;Logo</button>
+        <button class="pv-tab" id="tab-ambos" onclick="switchTab('ambos')">◈ &nbsp;Completo</button>
+      </div>
       <div class="pv-body">
 
-        <!-- Simulador A4 proporcional -->
+        <!-- Leyenda -->
+        <div class="sim-legend">
+          <div class="sim-legend-item">
+            <div class="sim-legend-dot" style="background:var(--terracota)"></div>
+            <span>precio</span>
+          </div>
+          <div class="sim-legend-item" id="legendLogo" style="opacity:0.4">
+            <div class="sim-legend-box"></div>
+            <span>logo</span>
+          </div>
+        </div>
+
+        <!-- Simulador -->
         <div class="sim" id="sim">
           <div class="sim-page" id="simPage">
+
+            <!-- Etiqueta -->
             <div class="sim-dot"  id="simDot"></div>
             <span class="sim-id"    id="simID">12345</span>
             <span class="sim-price" id="simPrice">$150.00</span>
             <div class="sim-vline"  id="simV"></div>
             <div class="sim-hline"  id="simH"></div>
-            <div class="sim-ruler"  id="simRuler">escala ≈ Carta</div>
+
+            <!-- Logo -->
+            <div class="sim-logo" id="simLogo">
+              <span class="sim-logo-label" id="simLogoLabel">logo</span>
+            </div>
+            <div class="sim-logo-vline" id="simLogoV"></div>
+            <div class="sim-logo-hline" id="simLogoH"></div>
+
+            <div class="sim-ruler">escala ≈ Carta</div>
           </div>
         </div>
 
-        <!-- Badges de offset -->
-        <div class="mm-row">
-          <div class="mm-badge">
-            <div class="mm-label">Offset X</div>
-            <div class="mm-val" id="mmXval">4.00</div>
-            <div class="mm-sub" id="mmXmm">1.4 mm →</div>
+        <!-- Badges según pestaña activa -->
+        <div id="badges-precio">
+          <div class="mm-row">
+            <div class="mm-badge">
+              <div class="mm-label">Offset X</div>
+              <div class="mm-val" id="mmXval">4.00</div>
+              <div class="mm-sub" id="mmXmm">1.4 mm →</div>
+            </div>
+            <div class="mm-badge">
+              <div class="mm-label">Offset Y</div>
+              <div class="mm-val" id="mmYval">5.67</div>
+              <div class="mm-sub" id="mmYmm">2.0 mm ↑</div>
+            </div>
           </div>
-          <div class="mm-badge">
-            <div class="mm-label">Offset Y</div>
-            <div class="mm-val" id="mmYval">5.67</div>
-            <div class="mm-sub" id="mmYmm">2.0 mm ↑</div>
+          <div class="mm-ref" style="margin-top:0.5rem">
+            Página simulada: <strong>612 × 792 pt</strong> (Carta 8.5×11") ·
+            Rango: <strong>±150 pt = ±5.3 cm</strong>
           </div>
         </div>
 
-        <!-- Referencia de escala -->
-        <div class="mm-ref">
-          Página simulada: <strong>612 × 792 pt</strong> (Carta 8.5×11") ·
-          Rango visible: <strong>±150 pt = ±5.3 cm</strong>
+        <div id="badges-logo" style="display:none">
+          <div class="mm-row">
+            <div class="mm-badge sage">
+              <div class="mm-label">X (desde izq.)</div>
+              <div class="mm-val sage" id="mmLx">20</div>
+              <div class="mm-sub" id="mmLxmm">7.1 mm</div>
+            </div>
+            <div class="mm-badge sage">
+              <div class="mm-label">Y (desde inf.)</div>
+              <div class="mm-val sage" id="mmLy">750</div>
+              <div class="mm-sub" id="mmLymm">264.7 mm</div>
+            </div>
+          </div>
+          <div class="mm-row" style="margin-top:0.5rem">
+            <div class="mm-badge sage">
+              <div class="mm-label">Ancho</div>
+              <div class="mm-val sage" id="mmLw">80</div>
+              <div class="mm-sub" id="mmLwmm">28.2 mm</div>
+            </div>
+            <div class="mm-badge sage">
+              <div class="mm-label">Alto</div>
+              <div class="mm-val sage" id="mmLh">40</div>
+              <div class="mm-sub" id="mmLhmm">14.1 mm</div>
+            </div>
+          </div>
+          <div class="mm-ref sage" style="margin-top:0.5rem">
+            Esquina sup. der. a 2 cm: <strong>X≈475 pt · Y≈695 pt</strong> (logo 80×40 pt)
+          </div>
+          <div id="logoOffBadge" style="display:none;margin-top:0.5rem">
+            <div class="logo-off-badge">⚠️ Activa "Insertar logo" para que aparezca en el simulador</div>
+          </div>
         </div>
 
       </div>
@@ -531,12 +733,31 @@ const fv = id => parseFloat($(id).value);
 const bv = id => $(id).checked;
 const sv = id => $(id).value;
 
-// Página Carta en puntos PDF (8.5 × 11 in)
 const PAGE_W_PT = 612;
 const PAGE_H_PT = 792;
+const PT_TO_MM  = 0.3528;
+
+// ── Estado de pestaña activa ──
+let activeTab = 'precio';
+
+function switchTab(tab) {
+  activeTab = tab;
+
+  ['precio','logo','ambos'].forEach(t => {
+    $(  'tab-' + t).classList.toggle('active', t === tab);
+    $('tab-' + t).classList.toggle('sage', t === 'logo' && t === tab);
+  });
+  if (tab === 'logo') $('tab-logo').classList.add('sage');
+  else $('tab-logo').classList.remove('sage');
+
+  $('badges-precio').style.display = (tab === 'precio' || tab === 'ambos') ? '' : 'none';
+  $('badges-logo'  ).style.display = (tab === 'logo'   || tab === 'ambos') ? '' : 'none';
+
+  upd();
+}
 
 function upd() {
-  // ── Displays sliders ──
+  // ── Displays sliders etiqueta ──
   $('v_ox').textContent        = fv('etiqueta_offset_x_pt').toFixed(2) + ' pt';
   $('v_oy').textContent        = fv('etiqueta_offset_y_pt').toFixed(2) + ' pt';
   $('v_fs').textContent        = $('etiqueta_font_size').value + ' pt';
@@ -555,6 +776,7 @@ function upd() {
   $('v_lw').textContent        = $('logo_ancho_pt').value + ' pt';
   $('v_lh').textContent        = $('logo_alto_pt').value + ' pt';
   $('v_lt').textContent        = fv('logo_transparencia').toFixed(2);
+  $('v_prueba').textContent    = bv('prueba_activa') ? $('paginas_prueba').value + ' pág.' : 'false';
 
   updPreview();
   updJSON();
@@ -565,51 +787,90 @@ function updPreview() {
   const pw   = page.offsetWidth  || 320;
   const ph   = page.offsetHeight || 453;
 
-  // Escala: px por punto PDF
   const scX = pw / PAGE_W_PT;
   const scY = ph / PAGE_H_PT;
 
-  // Centro de la página (posición fija del ID)
+  // ── Visibilidad por pestaña ──
+  const showPrecio = (activeTab === 'precio' || activeTab === 'ambos');
+  const logoActivo = bv('logo_activo');
+  const showLogo   = logoActivo && (activeTab === 'logo' || activeTab === 'ambos');
+
+  ['simDot','simID','simPrice','simV','simH'].forEach(el => {
+    $(el).style.opacity = showPrecio ? '1' : '0';
+  });
+
+  $('simLogo').style.opacity   = showLogo ? fv('logo_transparencia') : '0';
+  $('simLogoV').style.opacity  = showLogo ? '1' : '0';
+  $('simLogoH').style.opacity  = showLogo ? '1' : '0';
+  $('legendLogo').style.opacity = logoActivo ? '1' : '0.35';
+
+  // Badge aviso logo desactivado
+  if ($('logoOffBadge')) {
+    $('logoOffBadge').style.display = (!logoActivo && (activeTab === 'logo' || activeTab === 'ambos')) ? '' : 'none';
+  }
+
+  // ══ ETIQUETA ══
   const cx = pw * 0.42;
   const cy = ph * 0.45;
-
-  // Offset en píxeles (proporcional a la página real)
   const ox = fv('etiqueta_offset_x_pt') * scX;
   const oy = fv('etiqueta_offset_y_pt') * scY;
-
-  // Tamaño de fuente escalado
   const fs = fv('etiqueta_font_size') * scX;
+  const r  = Math.round(fv('cr') * 255);
+  const g  = Math.round(fv('cg') * 255);
+  const b  = Math.round(fv('cb') * 255);
 
-  // Color del precio
-  const r = Math.round(fv('cr') * 255);
-  const g = Math.round(fv('cg') * 255);
-  const b = Math.round(fv('cb') * 255);
-
-  // ID — posición fija
-  $('simID').style.cssText = `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);font-size:${fs * 1.05}px;`;
-
-  // Punto de anclaje
-  $('simDot').style.cssText = `left:${cx}px;top:${cy}px;`;
-
-  // Precio — se desplaza con offset
-  // En PDF: Y crece hacia arriba. En CSS: Y crece hacia abajo → restamos oy
+  $('simID').style.cssText    = `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);font-size:${fs * 1.05}px;`;
+  $('simDot').style.cssText   = `left:${cx}px;top:${cy}px;`;
   $('simPrice').style.cssText = `left:${cx + ox}px;top:${cy - oy}px;transform:translateY(-50%);font-size:${fs}px;color:rgb(${r},${g},${b});`;
+  $('simV').style.left        = (cx + ox) + 'px';
+  $('simH').style.top         = (cy - oy) + 'px';
 
-  // Crosshairs centrados en el precio
-  $('simV').style.left = (cx + ox) + 'px';
-  $('simH').style.top  = (cy - oy) + 'px';
-
-  // Badges mm
-  const PT   = 0.3528;
-  const xmm  = (fv('etiqueta_offset_x_pt') * PT).toFixed(1);
-  const ymm  = (fv('etiqueta_offset_y_pt') * PT).toFixed(1);
-  const xcm  = (Math.abs(parseFloat(xmm)) / 10).toFixed(1);
-  const ycm  = (Math.abs(parseFloat(ymm)) / 10).toFixed(1);
-
+  // Badges etiqueta
+  const xmm = (fv('etiqueta_offset_x_pt') * PT_TO_MM).toFixed(1);
+  const ymm = (fv('etiqueta_offset_y_pt') * PT_TO_MM).toFixed(1);
   $('mmXval').textContent = fv('etiqueta_offset_x_pt').toFixed(2);
   $('mmYval').textContent = fv('etiqueta_offset_y_pt').toFixed(2);
-  $('mmXmm').textContent  = `${xmm} mm (${xcm} cm) ${parseFloat(xmm) >= 0 ? '→' : '←'}`;
-  $('mmYmm').textContent  = `${ymm} mm (${ycm} cm) ${parseFloat(ymm) >= 0 ? '↑' : '↓'}`;
+  $('mmXmm').textContent  = `${xmm} mm ${parseFloat(xmm) >= 0 ? '→' : '←'}`;
+  $('mmYmm').textContent  = `${ymm} mm ${parseFloat(ymm) >= 0 ? '↑' : '↓'}`;
+
+  // ══ LOGO ══
+  // En ReportLab: logo_x = desde izq, logo_y = desde abajo (esquina inf-izq del logo)
+  // En CSS: top = ph - (logo_y_pt + logo_alto_pt) * scY
+  const lx_pt  = fv('logo_x_pt');
+  const ly_pt  = fv('logo_y_pt');
+  const lw_pt  = fv('logo_ancho_pt');
+  const lh_pt  = fv('logo_alto_pt');
+
+  const lx_px  = lx_pt * scX;
+  const lw_px  = lw_pt * scX;
+  const lh_px  = lh_pt * scY;
+  // Y en CSS: la esquina superior del logo en píxeles de la página
+  // ReportLab logo_y = distancia desde abajo hasta la esquina INFERIOR del logo
+  // CSS top = ph - (logo_y + logo_alto) * scY
+  const ly_px  = ph - (ly_pt + lh_pt) * scY;
+
+  $('simLogo').style.cssText = `left:${lx_px}px;top:${ly_px}px;width:${lw_px}px;height:${lh_px}px;`;
+
+  // Crosshairs del logo — centrados en el logo
+  const logoCX = lx_px + lw_px / 2;
+  const logoCY = ly_px + lh_px / 2;
+  $('simLogoV').style.cssText = `position:absolute;width:1px;top:0;bottom:0;left:${logoCX}px;background:rgba(122,140,120,0.2);pointer-events:none;`;
+  $('simLogoH').style.cssText = `position:absolute;height:1px;left:0;right:0;top:${logoCY}px;background:rgba(122,140,120,0.2);pointer-events:none;`;
+
+  // Etiqueta interna del logo
+  const lw_mm = (lw_pt * PT_TO_MM).toFixed(0);
+  const lh_mm = (lh_pt * PT_TO_MM).toFixed(0);
+  $('simLogoLabel').textContent = lw_px > 30 ? `logo\n${lw_mm}×${lh_mm}mm` : '';
+
+  // Badges logo
+  $('mmLx').textContent  = lx_pt.toFixed(0);
+  $('mmLy').textContent  = ly_pt.toFixed(0);
+  $('mmLw').textContent  = lw_pt.toFixed(0);
+  $('mmLh').textContent  = lh_pt.toFixed(0);
+  $('mmLxmm').textContent = (lx_pt * PT_TO_MM).toFixed(1) + ' mm';
+  $('mmLymm').textContent = (ly_pt * PT_TO_MM).toFixed(1) + ' mm';
+  $('mmLwmm').textContent = (lw_pt * PT_TO_MM).toFixed(1) + ' mm';
+  $('mmLhmm').textContent = (lh_pt * PT_TO_MM).toFixed(1) + ' mm';
 }
 
 function buildCfg() {
@@ -619,6 +880,7 @@ function buildCfg() {
     "pdf_input":            sv('pdf_input'),
     "excel_input":          sv('excel_input'),
     "pdf_output":           sv('pdf_output'),
+    "paginas_prueba":        bv('prueba_activa') ? parseInt(fv('paginas_prueba')) : false,
     "dpi":                  parseInt(fv('dpi')),
     "psm":                  parseInt(fv('psm')),
     "contraste":            +fv('contraste').toFixed(1),
@@ -635,7 +897,7 @@ function buildCfg() {
     "etiqueta_offset_x_pt": +fv('etiqueta_offset_x_pt').toFixed(2),
     "etiqueta_offset_y_pt": +fv('etiqueta_offset_y_pt').toFixed(2),
     "logo_activo":          bv('logo_activo'),
-    "logo_path":            "imagenes/logos/logo_bz.png",
+    "logo_path":            sv('logo_path'),
     "logo_x_pt":            +fv('logo_x_pt'),
     "logo_y_pt":            +fv('logo_y_pt'),
     "logo_ancho_pt":        +fv('logo_ancho_pt'),
@@ -655,7 +917,6 @@ function updJSON() {
   $('jsonPre').innerHTML = html;
 }
 
-// Valores por defecto — espejo exacto de config_base.json
 const DEFAULTS = {
   pdf_input:             'libros/NOMBRE.pdf',
   excel_input:           'precios/lista_NOMBRE.xlsx',
@@ -671,37 +932,41 @@ const DEFAULTS = {
   id_longitud_max:       8,
   fuzzy_activo:          false,
   fuzzy_umbral:          80,
-  etiqueta_font_size:    11,
-  cr:                    0,
-  cg:                    0,
-  cb:                    1,
+  etiqueta_font_size:    13,
+  cr:                    0.89,
+  cg:                    0.20,
+  cb:                    0.23,
   etiqueta_offset_x_pt:  4.0,
   etiqueta_offset_y_pt:  5.67,
   logo_activo:           false,
+  logo_path:             'imagenes/logos/logo_bz.png',
   logo_x_pt:             20,
   logo_y_pt:             750,
   logo_ancho_pt:         80,
   logo_alto_pt:          40,
   logo_transparencia:    0.85,
+  prueba_activa:         false,
+  paginas_prueba:        1,
 };
 
 function resetear() {
-  // Texto
   $('pdf_input').value   = DEFAULTS.pdf_input;
   $('excel_input').value = DEFAULTS.excel_input;
   $('pdf_output').value  = DEFAULTS.pdf_output;
-  // Sliders numéricos
+  $('logo_path').value   = DEFAULTS.logo_path;
   ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max',
    'fuzzy_umbral','etiqueta_font_size','cr','cg','cb',
    'etiqueta_offset_x_pt','etiqueta_offset_y_pt',
-   'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
+   'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia',
+   'paginas_prueba'
   ].forEach(id => { $(id).value = DEFAULTS[id]; });
-  // Checkboxes
   $('ocr_grayscale').checked    = DEFAULTS.ocr_grayscale;
   $('ocr_invertir').checked     = DEFAULTS.ocr_invertir;
   $('ocr_doble_pasada').checked = DEFAULTS.ocr_doble_pasada;
   $('fuzzy_activo').checked     = DEFAULTS.fuzzy_activo;
   $('logo_activo').checked      = DEFAULTS.logo_activo;
+  $('prueba_activa').checked    = DEFAULTS.prueba_activa;
+  $('paginas_prueba').value     = DEFAULTS.paginas_prueba;
   upd();
 }
 

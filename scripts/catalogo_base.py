@@ -120,6 +120,10 @@ class EtiquetadorCatalogo:
         self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
         self.etiqueta_offset_y  = config.get("etiqueta_offset_y_pt", 5.67)
 
+        # Modo prueba — false = catálogo completo, n >= 1 = solo primeras n páginas
+        paginas_prueba_raw      = config.get("paginas_prueba", False)
+        self.paginas_prueba     = False if paginas_prueba_raw is False else int(paginas_prueba_raw)
+
         # Parámetros logo
         self.logo_activo        = config.get("logo_activo", False)
         self.logo_path          = os.path.join(base_dir, config.get("logo_path", "")) if config.get("logo_path") else None
@@ -353,6 +357,12 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
+
+        # Modo prueba
+        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            total_paginas = min(self.paginas_prueba, total_paginas)
+            self.logger.info(f"🧪 MODO PRUEBA — procesando solo {total_paginas} página(s)")
+
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
@@ -507,6 +517,8 @@ class EtiquetadorCatalogo:
             self.logger.info(f"  🔍  Fuzzy            {fuzzy_matches}")
         if self.ocr_doble_pasada:
             self.logger.info(f"  🔄  Modo OCR         DOBLE PASADA")
+        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            self.logger.info(f"  🧪  Modo prueba      {total_paginas} pág. — no publicar")
         self.logger.info(SEP)
         self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
         self.logger.info(f"      {semaforo}")
@@ -523,6 +535,7 @@ class EtiquetadorCatalogo:
         self.logger.info(f"[STAT] fuzzy_matches={fuzzy_matches}")
         self.logger.info(f"[STAT] recorte_matches={recorte_matches}")
         self.logger.info(f"[STAT] doble_pasada={self.ocr_doble_pasada}")
+        self.logger.info(f"[STAT] paginas_prueba={self.paginas_prueba}")
         self.logger.info(f"[STAT] tasa={tasa:.2f}")
         self.logger.info(f"[STAT] semaforo={semaforo_key}")
 
