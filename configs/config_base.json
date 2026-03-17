@@ -8,6 +8,7 @@
 
     "paginas_prueba": 1,
 
+    "etiqueta_font": "Helvetica-Bold",
     "etiqueta_font_size": 12,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
     "etiqueta_offset_x_pt": 0.0,

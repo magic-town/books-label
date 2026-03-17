@@ -541,7 +541,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
   <div class="intro">
     <span class="intro-icon">🌸</span>
     <span>
-      <strong>Esta herramienta no modifica algún archivo.</strong>
+      <strong>Esta herramienta no modifica ningún archivo.</strong>
       Mueve los controles, observa la vista previa, copia el JSON y pégalo en tu
       <code>configs/config_*.json</code> en VSC. Luego ejecuta el script.
     </span>
@@ -619,8 +619,17 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <div class="slider-hint">Negativo = por debajo</div>
           </div>
         </div>
+        <div class="field">
+          <div class="field-label">🔤 Tipo de fuente</div>
+          <select id="etiqueta_font" oninput="upd()" style="border:1.5px solid var(--terra-l);background:var(--cream);padding:0.5rem 0.85rem;font-family:'Nunito',sans-serif;font-size:13px;border-radius:var(--r-sm);width:100%;color:var(--ink);outline:none;cursor:pointer;">
+            <option value="Helvetica-Bold">Helvetica Bold — sin serifas, moderno</option>
+            <option value="Helvetica-BoldOblique">Helvetica Bold Oblique — inclinado, dinámico</option>
+            <option value="Times-Bold">Times Bold — clásico, con serifas</option>
+            <option value="Times-BoldItalic">Times Bold Italic — elegante, serif cursiva</option>
+          </select>
+        </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">🔤 Tamaño de fuente</span><span class="slider-val" id="v_fs">12 pt</span></div>
+          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span><span class="slider-val" id="v_fs">12 pt</span></div>
           <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
         </div>
         <div class="sec-divider"></div>
@@ -689,8 +698,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </div>
         </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">✨ Transparencia</span><span class="slider-val sage" id="v_lt">0.75</span></div>
-          <input type="range" class="r-sage" id="logo_transparencia" min="0" max="1" step="0.05" value="0.75" oninput="upd()"/>
+          <div class="slider-top"><span class="slider-name">✨ Transparencia</span><span class="slider-val sage" id="v_lt">0.85</span></div>
+          <input type="range" class="r-sage" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
           <div class="slider-hint">0.0 = invisible · 1.0 = opaco completo</div>
         </div>
       </div>
@@ -942,11 +951,11 @@ const DEFAULTS = {
   dpi:200, psm:6, contraste:2.5, nitidez:2.0,
   ocr_grayscale:true, ocr_invertir:false, ocr_doble_pasada:false,
   id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
-  etiqueta_font_size:12, cr:0.89, cg:0.20, cb:0.23,
+  etiqueta_font:'Helvetica-Bold', etiqueta_font_size:12, cr:0.89, cg:0.20, cb:0.23,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
   prueba_activa:false, paginas_prueba:1,
   logo_activo:true, logo_path:'imagenes/logos/logo_bz.png',
-  logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.75
+  logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.85
 };
 
 // ── Update ──────────────────────────────────────────────────────────────────
@@ -1081,6 +1090,7 @@ function buildCfg() {
     "_uso":"python3 scripts/catalogo_base.py --config configs/<catalogo_26.json>",
     "pdf_input":sv('pdf_input'),"excel_input":sv('excel_input'),"pdf_output":sv('pdf_output'),
     "paginas_prueba":bv('prueba_activa')?parseInt(fv('paginas_prueba')):false,
+    "etiqueta_font":sv('etiqueta_font'),
     "etiqueta_font_size":parseInt(fv('etiqueta_font_size')),
     "etiqueta_color_rgb":[+fv('cr').toFixed(3),+fv('cg').toFixed(3),+fv('cb').toFixed(3)],
     "etiqueta_offset_x_pt":+fv('etiqueta_offset_x_pt').toFixed(2),
@@ -1110,6 +1120,7 @@ function updJSON() {
 
 function resetear() {
   $('pdf_input').value=DEFAULTS.pdf_input;$('excel_input').value=DEFAULTS.excel_input;$('pdf_output').value=DEFAULTS.pdf_output;
+  $('etiqueta_font').value=DEFAULTS.etiqueta_font;
   $('logo_path').value=DEFAULTS.logo_path;
   ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','fuzzy_umbral',
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba',

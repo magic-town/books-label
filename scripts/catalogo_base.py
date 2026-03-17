@@ -96,9 +96,6 @@ class EtiquetadorCatalogo:
         self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
-        # Modo prueba — False procesa todo el catálogo; int limita a N páginas
-        self.paginas_prueba = config.get("paginas_prueba", False)
-
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
@@ -118,6 +115,7 @@ class EtiquetadorCatalogo:
         self.fuzzy_umbral   = config.get("fuzzy_umbral", 85)
 
         # Parámetros etiqueta
+        self.etiqueta_font      = config.get("etiqueta_font", "Helvetica-Bold")
         self.etiqueta_font_size = config.get("etiqueta_font_size", 11)
         self.etiqueta_color     = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
         self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
@@ -374,8 +372,6 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
-        if self.paginas_prueba and self.paginas_prueba is not False and self.paginas_prueba >= 1:
-            total_paginas = min(total_paginas, int(self.paginas_prueba))
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
@@ -422,7 +418,7 @@ class EtiquetadorCatalogo:
 
                 packet = BytesIO()
                 can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
-                can.setFont("Helvetica-Bold", self.etiqueta_font_size)
+                can.setFont(self.etiqueta_font, self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
 
                 # IDs detectados en esta página antes de procesar
@@ -449,7 +445,7 @@ class EtiquetadorCatalogo:
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
                         y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
 
-                        can.drawString(x_pdf, y_pdf, f"${precio:,.2f}")
+                        can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
                         total_etiquetado += 1
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
