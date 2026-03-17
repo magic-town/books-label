@@ -25,7 +25,7 @@ precios         catálogo        en WA
 
 - [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
 - [ ] Hacer una validación visual que el catálogo y la lista coincidan en paginas, ID's.
-- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos y ~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
+- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos` y `~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
 
 ### Extraer los precios con LLM (solución temporal, estamos revisando si un script.py es más preciso)
 
