@@ -90,12 +90,12 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 - Bitly: `https://bit.ly/PS_Caballeros_25_26`
 
 **Importados**
-- Dropbox: `https://www.dropbox.com/scl/fi/s7qq1u0qn9vhvfgjt37y8/imp_spring_26_final.pdf?rlkey=u1l8s9jh77jw8uk8j4dhgv39r&st=q5fjrh1b&dl=1`
+- Dropbox: `https://www.dropbox.com/scl/fi/d98t61pp6c39yr9frw4kd/importados_precios.pdf?rlkey=ku6y7ahxdt1jnysi4yjv320ix&st=swmhcqhl&dl=1`
 - Bitly: `https://bit.ly/ps_importados`
 
 **Confort**
-- Dropbox: `https://www.dropbox.com/scl/fi/yw749zjadujsxu6g6z47y/confort_26_final.pdf?rlkey=ugcjoeefefc9zw49p3st=sspuri6k&dl=1`
-- Bitly: `https://bit.ly/ps_confort`
+- Dropbox: `https://www.dropbox.com/scl/fi/od9gsqxm1oul94xt4hx8n/confort_precios.pdf?rlkey=47f1i9e0bi2x2xwiw9nsq8kul&st=nd2sii5w&dl=1`
+- Bitly: `https://bit.ly/4rDj86A`
 
 **Sandalias**
 - Dropbox: `https://www.dropbox.com/scl/fi/p681fiurjxutp9bw2hfnk/sandalias_final.pdf?rlkey=jxudboz7nmi9ohif3tjnypo3d&st=8kg1i7pz&dl=1`
@@ -111,10 +111,8 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 
 **Basicos**
-- Dropbox: `https://www.dropbox.com/scl/fi/vhzsuja9dns1lj45ey4ah/basicos_26_final.pdf?rlkey=17qgtf3gvz1ddnbwezglspsy2&st=e0gxqr6b&dl=1`
-- Bitly: `https://bit.ly/4rxNeIF`
-
-
+- Dropbox: `https://www.dropbox.com/scl/fi/31kpn7b3bmmx6ye4vli0m/basicos_precios.pdf?rlkey=p5xl7ncnj6uram6jnebdrta6l&st=k3rb4bqb&dl=1`
+- Bitly: `https://bit.ly/3NMr1c6`
 
 --
 ## 🔴 Cklass
