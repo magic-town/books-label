@@ -401,9 +401,9 @@ class EtiquetadorCatalogo:
 
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(["ocr_leyo", "excel_matcheo", "precio_insertado", "similitud_%"])
-            for ocr, matcheo, precio, score in detalle:
-                writer.writerow([ocr, matcheo, f"${precio:,.0f}", f"{score:.0f}"])
+            writer.writerow(["pagina", "ocr_leyo", "excel_matcheo", "precio_insertado", "similitud_%"])
+            for ocr, matcheo, precio, score, pagina in detalle:
+                writer.writerow([pagina, ocr, matcheo, f"${precio:,.0f}", f"{score:.0f}"])
 
         return csv_path
 
@@ -551,7 +551,7 @@ class EtiquetadorCatalogo:
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
                             fuzzy_matches += 1
-                            fuzzy_detalle.append((id_detectado, id_match, precio, score))
+                            fuzzy_detalle.append((id_detectado, id_match, precio, score, i + 1))
                         elif tipo_match == "recorte":
                             recorte_matches += 1
 
