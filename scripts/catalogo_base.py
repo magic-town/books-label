@@ -96,9 +96,6 @@ class EtiquetadorCatalogo:
         self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
-        # Modo prueba — False procesa todo el catálogo; int limita a N páginas
-        self.paginas_prueba = config.get("paginas_prueba", False)
-
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
@@ -118,7 +115,6 @@ class EtiquetadorCatalogo:
         self.fuzzy_umbral   = config.get("fuzzy_umbral", 85)
 
         # Parámetros etiqueta
-        self.etiqueta_font      = config.get("etiqueta_font", "Helvetica-Bold")
         self.etiqueta_font_size = config.get("etiqueta_font_size", 11)
         self.etiqueta_color     = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
         self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
@@ -133,8 +129,79 @@ class EtiquetadorCatalogo:
         self.logo_alto          = config.get("logo_alto_pt", 40.0)
         self.logo_transparencia = config.get("logo_transparencia", 1.0)
 
+        # Páginas de presentación — lista de {path, posicion}
+        # posicion: 1=primera, 2=segunda, -1=última, N=posición exacta
+        # Se procesan todas en orden antes de guardar el PDF final.
+        raw_pres = config.get("presentaciones", [])
+        self.presentaciones = [
+            {
+                "path":     os.path.join(base_dir, p["path"]),
+                "posicion": p.get("posicion", 1)
+            }
+            for p in raw_pres
+            if isinstance(p, dict) and p.get("path")
+        ]
+
         self._cargar_precios()
         self._verificar_tesseract()
+
+    # ── Insertar páginas de presentación ────────────────────────────────────────
+
+    def _insertar_presentaciones(self, paginas: list) -> list:
+        """
+        Recibe la lista de páginas del catálogo etiquetado e inserta
+        las páginas de presentación en las posiciones indicadas.
+
+        Cada presentación se procesa en el orden del config.
+        Las posiciones se recalculan después de cada inserción para que
+        "posicion: -1" siempre signifique el final del documento resultante.
+
+        posicion  1  → antes de la primera página del catálogo
+        posicion  2  → segunda página (después de la portada del proveedor)
+        posicion -1  → última página del documento final
+        posicion  N  → posición N; si N > total, se inserta al final
+        """
+        resultado = list(paginas)
+
+        for pres in self.presentaciones:
+            ruta = pres["path"]
+            pos  = pres["posicion"]
+
+            if not os.path.exists(ruta):
+                self.logger.warning(
+                    f"⚠️  Presentación no encontrada: {ruta} — se omite."
+                )
+                continue
+
+            try:
+                reader_pres  = PdfReader(ruta)
+                paginas_pres = list(reader_pres.pages)
+            except Exception as e:
+                self.logger.warning(
+                    f"⚠️  Error al leer presentación {os.path.basename(ruta)}: {e} — se omite."
+                )
+                continue
+
+            total = len(resultado)
+            if pos == -1:
+                idx = total
+            elif pos >= 1:
+                idx = min(pos - 1, total)
+            else:
+                idx = 0
+
+            resultado = resultado[:idx] + paginas_pres + resultado[idx:]
+
+            pos_label = (
+                "primera" if idx == 0 else
+                "última"  if idx == total else
+                f"posición {idx + 1}"
+            )
+            self.logger.info(
+                f"  📎  {os.path.basename(ruta):<30} → {pos_label}"
+            )
+
+        return resultado
 
     # ── Carga de precios ──────────────────────────────────────────────────────
 
@@ -336,33 +403,15 @@ class EtiquetadorCatalogo:
     # ── Proceso principal ─────────────────────────────────────────────────────
 
     def marcar(self):
-        SEP  = "─" * 54
-        SEP2 = "═" * 54
-        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
-
-        self.logger.info("")
-        self.logger.info(SEP2)
-        self.logger.info(f"  🚀  {os.path.basename(self.pdf_path)}")
-        self.logger.info(SEP)
-
-        # ── Parámetros básicos — en orden de operación ──
-        self.logger.info(f"  📂  Excel           {os.path.basename(self.excel_path)}")
-        if prueba_activa:
-            self.logger.info(f"  🧪  Modo prueba     {self.paginas_prueba} pág. — validación manual")
-        self.logger.info(f"  🔢  Rango IDs       {self.id_len_min}–{self.id_len_max} dígitos")
-        self.logger.info(f"  📸  DPI             {self.dpi}")
-        self.logger.info(f"  🔍  PSM             {self.psm}")
-        self.logger.info(f"  🔄  Doble pasada    {'Sí' if self.ocr_doble_pasada else 'No'}")
-
-        # ── Parámetros avanzados — una sola línea, discreta ──
-        avanzado = (
-            f"contraste={self.contraste} | nitidez={self.nitidez} | "
-            f"grayscale={self.ocr_grayscale} | invertir={self.ocr_invertir} | "
-            f"fuzzy={'ON' if self.fuzzy_activo else 'OFF'}({self.fuzzy_umbral}%)"
+        modo = "DOBLE PASADA" if self.ocr_doble_pasada else "PASADA ÚNICA"
+        self.logger.info(f"🚀 Iniciando: {os.path.basename(self.pdf_path)}")
+        self.logger.info(
+            f"   DPI={self.dpi} | PSM={self.psm} | "
+            f"Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | "
+            f"IDs: {self.id_len_min}–{self.id_len_max} dígitos | "
+            f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
+            f"Modo OCR={modo}"
         )
-        self.logger.info(f"  ·   Avanzado        {avanzado}")
-        self.logger.info(SEP2)
-        self.logger.info("")
 
         try:
             reader_pdf = PdfReader(self.pdf_path)
@@ -375,8 +424,6 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
-        if self.paginas_prueba and self.paginas_prueba is not False and self.paginas_prueba >= 1:
-            total_paginas = min(total_paginas, int(self.paginas_prueba))
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
@@ -423,7 +470,7 @@ class EtiquetadorCatalogo:
 
                 packet = BytesIO()
                 can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
-                can.setFont(self.etiqueta_font, self.etiqueta_font_size)
+                can.setFont("Helvetica-Bold", self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
 
                 # IDs detectados en esta página antes de procesar
@@ -450,7 +497,7 @@ class EtiquetadorCatalogo:
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
                         y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
 
-                        can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
+                        can.drawString(x_pdf, y_pdf, f"${precio:,.2f}")
                         total_etiquetado += 1
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
@@ -485,6 +532,16 @@ class EtiquetadorCatalogo:
 
         print(" " * 60, end="\r")
 
+        # ── Insertar páginas de presentación ─────────────────────────────────────
+        if self.presentaciones:
+            self.logger.info("📎 Insertando páginas de presentación...")
+            paginas_catalogo = list(writer.pages)
+            paginas_final    = self._insertar_presentaciones(paginas_catalogo)
+            writer_final     = PdfWriter()
+            for p in paginas_final:
+                writer_final.add_page(p)
+            writer = writer_final
+
         # Guardar PDF
         self.logger.info("💾 Guardando PDF final...")
         os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
@@ -497,63 +554,50 @@ class EtiquetadorCatalogo:
             raise
 
         # ── Reporte final ─────────────────────────────────────────────────────
-        ids_unicos    = len(ids_detectados)
-        ids_falta     = max(0, self.total_en_excel - ids_unicos)
-        tasa          = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
-        bloques       = int(tasa / 5)
-        barra         = "█" * bloques + "░" * (20 - bloques)
-        semaforo_key  = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
-        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
+        ids_unicos   = len(ids_detectados)
+        ids_falta    = max(0, self.total_en_excel - ids_unicos)
+        tasa         = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        bloques      = int(tasa / 5)           # 20 bloques = 100 %
+        barra        = "█" * bloques + "░" * (20 - bloques)
+        semaforo_key = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
+
+        if tasa >= 85:
+            semaforo = "🟢  VERDE"
+            accion   = "Listo para publicar en WhatsApp Business."
+        elif tasa >= 65:
+            semaforo = "🟡  AMARILLO"
+            accion   = "Revisar antes de publicar.  →  python3 scripts/diagnostico.py"
+        else:
+            semaforo = "🔴  ROJO"
+            accion   = "No publicar.  →  python3 scripts/diagnostico.py"
+
+        SEP  = "─" * 54
+        SEP2 = "═" * 54
 
         self.logger.info("")
         self.logger.info(SEP2)
         self.logger.info("  ✅  PROCESO TERMINADO")
-        self.logger.info(SEP)
-
-        # ── Resultados básicos ──
+        self.logger.info(SEP2)
         self.logger.info(f"  📄  Páginas          {total_paginas}")
         self.logger.info(f"  📋  En Excel         {self.total_en_excel}")
         self.logger.info(f"  🔢  IDs marcados     {ids_unicos} / {self.total_en_excel}  (faltan {ids_falta})")
         self.logger.info(f"  🏷️   Etiquetas        {total_etiquetado}")
         if recorte_matches:
             self.logger.info(f"  ✂️   Recortes auto    {recorte_matches}")
-        # Avanzado — sutil, solo si existe
         if fuzzy_matches:
-            self.logger.info(f"  ·   Fuzzy            {fuzzy_matches} IDs recuperados")
+            self.logger.info(f"  🔍  Fuzzy            {fuzzy_matches}")
         if self.ocr_doble_pasada:
-            self.logger.info(f"  🔄  Doble pasada     activa")
-
+            self.logger.info(f"  🔄  Modo OCR         DOBLE PASADA")
+        if self.presentaciones:
+            self.logger.info(f"  📎  Presentaciones   {len(self.presentaciones)} página(s) insertada(s)")
         self.logger.info(SEP)
         self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
-        self.logger.info("")
-
-        # ── Semáforo o aviso de prueba ──
-        if prueba_activa:
-            self.logger.info(f"  🧪  MODO PRUEBA — {total_paginas} páginas procesadas")
-            self.logger.info(f"      Esta efectividad no es el semáforo real del catálogo.")
-            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente:")
-            self.logger.info(f"      · ¿Los precios aparecen junto a los productos?")
-            self.logger.info(f"      · ¿El logo queda bien posicionado?")
-            self.logger.info(f"      Cuando estés lista → cambia paginas_prueba: false")
-            self.logger.info(f"      y ejecuta el catálogo completo.")
-        elif tasa >= 85:
-            self.logger.info(f"  🟢  VERDE — listo para publicar")
-            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente.")
-            self.logger.info(f"      Si todo se ve bien, continúa con la Fase 3 del checklist.")
-        elif tasa >= 65:
-            self.logger.info(f"  🟡  AMARILLO — revisar antes de publicar")
-            self.logger.info(f"      Ejecuta el diagnóstico para saber qué ajustar:")
-            self.logger.info(f"      python3 scripts/diagnostico.py")
-        else:
-            self.logger.info(f"  🔴  ROJO — no publicar")
-            self.logger.info(f"      Ejecuta el diagnóstico para saber qué ajustar:")
-            self.logger.info(f"      python3 scripts/diagnostico.py")
-
+        self.logger.info(f"      {semaforo}")
+        self.logger.info(f"      {accion}")
         self.logger.info(SEP)
         self.logger.info(f"  📂  {os.path.basename(self.output_path)}")
         self.logger.info(SEP2)
         self.logger.info("")
-
         # Métricas parseables por diagnostico.py — no modificar formato
         self.logger.info(f"[STAT] paginas={total_paginas}")
         self.logger.info(f"[STAT] total_excel={self.total_en_excel}")
@@ -562,7 +606,6 @@ class EtiquetadorCatalogo:
         self.logger.info(f"[STAT] fuzzy_matches={fuzzy_matches}")
         self.logger.info(f"[STAT] recorte_matches={recorte_matches}")
         self.logger.info(f"[STAT] doble_pasada={self.ocr_doble_pasada}")
-        self.logger.info(f"[STAT] paginas_prueba={self.paginas_prueba}")
         self.logger.info(f"[STAT] tasa={tasa:.2f}")
         self.logger.info(f"[STAT] semaforo={semaforo_key}")
 
