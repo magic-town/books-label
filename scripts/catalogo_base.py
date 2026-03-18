@@ -452,6 +452,8 @@ class EtiquetadorCatalogo:
             f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
             f"Modo OCR={modo}"
         )
+        self.logger.info(f"   📸  DPI            {self.dpi}")
+        self.logger.info(f"   🔍  PSM            {self.psm}")
 
         try:
             reader_pdf = PdfReader(self.pdf_path)

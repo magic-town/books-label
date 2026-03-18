@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_urbano.xlsx",
     "pdf_output":  "salidas/urbano_test.pdf",
 
-    "paginas_prueba": 10,
+    "paginas_prueba": 20,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
@@ -17,8 +17,8 @@
     "etiqueta_font": "Helvetica-Bold",
     "etiqueta_font_size": 12,
     "etiqueta_color_rgb": [0.89, 0.2, 0.23],
-    "etiqueta_offset_x_pt": 12.0,
-    "etiqueta_offset_y_pt": -2.0,
+    "etiqueta_offset_x_pt": 16.0,
+    "etiqueta_offset_y_pt": -7.0,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
@@ -32,7 +32,7 @@
     "id_longitud_max": 8,
 
     "dpi": 200,
-    "psm": 6,
+    "psm": 11,
 
     "ocr_doble_pasada": false,
 
