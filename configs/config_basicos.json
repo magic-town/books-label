@@ -4,31 +4,31 @@
 
     "pdf_input":   "libros/basicos_ropa26.pdf",
     "excel_input": "precios/lista_basicos.xlsx",
-    "pdf_output":  "salidas/basicos_test.pdf",
+    "pdf_output":  "salidas/basicos_precios.pdf",
 
-    "paginas_prueba": 10,
+    "paginas_prueba": false,
 
-    "etiqueta_font": "Times-BoldItalic",
+    "etiqueta_font": "Helvetica-Bold",
     "etiqueta_font_size": 12,
     "etiqueta_color_rgb": [0.89, 0.2, 0.23],
-    "etiqueta_offset_x_pt": 26,
-    "etiqueta_offset_y_pt": -6.5,
+    "etiqueta_offset_x_pt": 58.0,
+    "etiqueta_offset_y_pt": -8.0,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
-    "logo_x_pt": 486,
-    "logo_y_pt": 603,
-    "logo_ancho_pt": 95,
-    "logo_alto_pt": 95,
+    "logo_x_pt": 470,
+    "logo_y_pt": 605,
+    "logo_ancho_pt": 90,
+    "logo_alto_pt": 90,
     "logo_transparencia": 0.85,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "dpi": 200,
-    "psm": 6,
+    "dpi": 300,
+    "psm": 11,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste": 2.5,
     "nitidez": 2,

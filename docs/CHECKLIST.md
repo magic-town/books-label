@@ -25,14 +25,14 @@ precios         catálogo        en WA
 
 - [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
 - [ ] Validar visualmente que el catálogo y la lista coincidan: número de páginas, IDs y precios sugeridos.
-- [ ] Mover ambos archivos a `~/boutique_zepeda/<proveedor>/catalogos` y `~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
+- [ ] Mover ambos archivos a: `~/boutique_zepeda/<proveedor>/catalogos` y `~/boutique_zepeda/<proveedor>/lista_precios` respectivamente.
 
 ### Extraer los precios con LLM *(solución temporal — se evalúa script.py como alternativa más precisa)*
 
-- [ ] Elige un LLM: NotebookLM, Claude, o ambos en paralelo. Adjunta la lista cruda del proveedor.
+- [ ] Elige un LLM: NotebookLM, Claude, o ambos en paralelo. 📎 Adjunta la lista cruda del proveedor.
 - [ ] Abrir el prompt de extracción: 👉 [magic-town/books-label](../prompts/extraer_columnas_listas.md)
 - [ ] Pegar el prompt en el LLM y ejecutar.
-- [ ] Validar visualmente: **lista cruda del proveedor** vs. **lista extraída por el LLM**.
+- [ ] Validar visualmente: **lista cruda del proveedor** Vs **lista extraída por el LLM**.
 
 ### Crear la tabla en LibreOffice
 
@@ -100,6 +100,10 @@ precios         catálogo        en WA
   - Desde terminal:
     ```bash
     source venv_catalogo/bin/activate
+
+    ```
+
+    ```bash
     python3 abrir_configurador.py
     ```
   - Desde Dolphin: doble clic en `abrir_configurador.py`.
