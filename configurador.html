@@ -225,6 +225,58 @@ header::after{
 .slider-val.teal{color:var(--teal);background:var(--teal-bg);border-color:var(--teal-l);}
 .slider-hint{font-size:11px;color:var(--ink-l);}
 
+/* ══════════════════════════════════════════
+   SPINBOX — valor editable con + / −
+══════════════════════════════════════════ */
+.spinbox{
+  display:inline-flex;align-items:center;
+  border-radius:20px;overflow:hidden;
+  border:1.5px solid var(--terra-l);
+  background:var(--terra-bg);
+  height:28px;
+}
+.spinbox.rose  {border-color:var(--rose-l);  background:var(--rose-bg);}
+.spinbox.sage  {border-color:var(--sage-l);  background:var(--sage-bg);}
+.spinbox.amber {border-color:var(--amber-l); background:var(--amber-bg);}
+.spinbox.violet{border-color:var(--violet-l);background:var(--violet-bg);}
+.spinbox.sky   {border-color:var(--sky-l);   background:var(--sky-bg);}
+.spinbox.teal  {border-color:var(--teal-l);  background:var(--teal-bg);}
+
+.spinbox-btn{
+  width:24px;height:100%;
+  border:none;background:transparent;
+  font-size:14px;font-weight:800;line-height:1;
+  cursor:pointer;color:var(--terra);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s;
+  flex-shrink:0;user-select:none;
+}
+.spinbox-btn:hover{background:rgba(0,0,0,0.07);}
+.spinbox-btn:active{background:rgba(0,0,0,0.13);}
+.spinbox.rose   .spinbox-btn{color:var(--rose);}
+.spinbox.sage   .spinbox-btn{color:var(--sage);}
+.spinbox.amber  .spinbox-btn{color:var(--amber);}
+.spinbox.violet .spinbox-btn{color:var(--violet);}
+.spinbox.sky    .spinbox-btn{color:var(--sky);}
+.spinbox.teal   .spinbox-btn{color:var(--teal);}
+
+.spinbox-input{
+  width:52px;height:100%;
+  border:none;background:transparent;
+  font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;
+  text-align:center;color:var(--terra);
+  outline:none;padding:0;
+  -moz-appearance:textfield;
+}
+.spinbox-input::-webkit-inner-spin-button,
+.spinbox-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.spinbox.rose   .spinbox-input{color:var(--rose);}
+.spinbox.sage   .spinbox-input{color:var(--sage);}
+.spinbox.amber  .spinbox-input{color:var(--amber);}
+.spinbox.violet .spinbox-input{color:var(--violet);}
+.spinbox.sky    .spinbox-input{color:var(--sky);}
+.spinbox.teal   .spinbox-input{color:var(--teal);}
+
 input[type=range]{
   -webkit-appearance:none;width:100%;height:4px;
   background:var(--cream-d);border-radius:4px;
@@ -605,7 +657,11 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <div class="slider-wrap">
           <div class="slider-top">
             <span class="slider-name">📄 Páginas a procesar</span>
-            <span class="slider-val amber" id="v_prueba">false</span>
+            <span class="spinbox amber" id="spn_prueba">
+              <button class="spinbox-btn" onclick="sbStep('paginas_prueba',-1)">−</button>
+              <input class="spinbox-input" id="si_prueba" type="number" step="1" value="1" onchange="sbSet('paginas_prueba',this.value)"/>
+              <button class="spinbox-btn" onclick="sbStep('paginas_prueba',1)">+</button>
+            </span>
           </div>
           <input type="range" class="r-amber" id="paginas_prueba" min="1" max="40" step="1" value="1" oninput="upd()"/>
           <div class="slider-hint">⚠️ Con prueba activa no hay semáforo real — tu validación es visual y manual</div>
@@ -622,12 +678,24 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span><span class="slider-val" id="v_ox">0.00 pt</span></div>
+            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span>
+              <span class="spinbox" id="spn_ox">
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',-0.5)">−</button>
+                <input class="spinbox-input" id="si_ox" type="number" step="0.5" value="0.00" onchange="sbSet('etiqueta_offset_x_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',0.5)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-terra" id="etiqueta_offset_x_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
             <div class="slider-hint">Negativo = izquierda</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span><span class="slider-val" id="v_oy">0.00 pt</span></div>
+            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span>
+              <span class="spinbox" id="spn_oy">
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',-0.5)">−</button>
+                <input class="spinbox-input" id="si_oy" type="number" step="0.5" value="0.00" onchange="sbSet('etiqueta_offset_y_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',0.5)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-terra" id="etiqueta_offset_y_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
             <div class="slider-hint">Negativo = por debajo</div>
           </div>
@@ -642,7 +710,13 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </select>
         </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span><span class="slider-val" id="v_fs">12 pt</span></div>
+          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span>
+            <span class="spinbox" id="spn_fs">
+              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',-1)">−</button>
+              <input class="spinbox-input" id="si_fs" type="number" step="1" value="12" onchange="sbSet('etiqueta_font_size',this.value)"/>
+              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',1)">+</button>
+            </span>
+          </div>
           <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
         </div>
         <div class="sec-divider"></div>
@@ -651,15 +725,33 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
             <div class="g3">
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔴 Rojo</span><span class="slider-val rose" id="v_cr">0.89</span></div>
+                <div class="slider-top"><span class="slider-name">🔴 Rojo</span>
+                  <span class="spinbox rose" id="spn_cr">
+                    <button class="spinbox-btn" onclick="sbStep('cr',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cr" type="number" step="0.01" value="0.89" onchange="sbSet('cr',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cr',0.01)">+</button>
+                  </span>
+                </div>
                 <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.89" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🟢 Verde</span><span class="slider-val" style="color:var(--sage);background:var(--sage-bg);border-color:var(--sage-l)" id="v_cg">0.20</span></div>
+                <div class="slider-top"><span class="slider-name">🟢 Verde</span>
+                  <span class="spinbox sage" id="spn_cg">
+                    <button class="spinbox-btn" onclick="sbStep('cg',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cg" type="number" step="0.01" value="0.20" onchange="sbSet('cg',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cg',0.01)">+</button>
+                  </span>
+                </div>
                 <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.20" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔵 Azul</span><span class="slider-val sky" id="v_cb">0.23</span></div>
+                <div class="slider-top"><span class="slider-name">🔵 Azul</span>
+                  <span class="spinbox sky" id="spn_cb">
+                    <button class="spinbox-btn" onclick="sbStep('cb',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cb" type="number" step="0.01" value="0.23" onchange="sbSet('cb',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cb',0.01)">+</button>
+                  </span>
+                </div>
                 <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="0.23" oninput="upd()"/>
               </div>
             </div>
@@ -690,28 +782,58 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         </div>
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">◀ Posición horizontal ▶</span><span class="slider-val sage" id="v_lx">415 pt</span></div>
+            <div class="slider-top"><span class="slider-name">◀ Posición horizontal ▶</span>
+              <span class="spinbox sage" id="spn_lx">
+                <button class="spinbox-btn" onclick="sbStep('logo_x_pt',-1)">−</button>
+                <input class="spinbox-input" id="si_lx" type="number" step="1" value="415" onchange="sbSet('logo_x_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('logo_x_pt',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sage" id="logo_x_pt" min="0" max="560" step="1" value="415" oninput="upd()"/>
             <div class="slider-hint">Desde el borde izquierdo</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">▼ Posición vertical ▲</span><span class="slider-val sage" id="v_ly">705 pt</span></div>
+            <div class="slider-top"><span class="slider-name">▼ Posición vertical ▲</span>
+              <span class="spinbox sage" id="spn_ly">
+                <button class="spinbox-btn" onclick="sbStep('logo_y_pt',-1)">−</button>
+                <input class="spinbox-input" id="si_ly" type="number" step="1" value="705" onchange="sbSet('logo_y_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('logo_y_pt',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sage" id="logo_y_pt" min="0" max="780" step="1" value="705" oninput="upd()"/>
             <div class="slider-hint">Desde el borde inferior</div>
           </div>
         </div>
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">↔ Ancho</span><span class="slider-val sage" id="v_lw">80 pt</span></div>
+            <div class="slider-top"><span class="slider-name">↔ Ancho</span>
+              <span class="spinbox sage" id="spn_lw">
+                <button class="spinbox-btn" onclick="sbStep('logo_ancho_pt',-1)">−</button>
+                <input class="spinbox-input" id="si_lw" type="number" step="1" value="80" onchange="sbSet('logo_ancho_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('logo_ancho_pt',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sage" id="logo_ancho_pt" min="20" max="300" step="1" value="80" oninput="upd()"/>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">↕ Alto</span><span class="slider-val sage" id="v_lh">80 pt</span></div>
+            <div class="slider-top"><span class="slider-name">↕ Alto</span>
+              <span class="spinbox sage" id="spn_lh">
+                <button class="spinbox-btn" onclick="sbStep('logo_alto_pt',-1)">−</button>
+                <input class="spinbox-input" id="si_lh" type="number" step="1" value="80" onchange="sbSet('logo_alto_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('logo_alto_pt',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sage" id="logo_alto_pt" min="10" max="200" step="1" value="80" oninput="upd()"/>
           </div>
         </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">✨ Transparencia</span><span class="slider-val sage" id="v_lt">0.85</span></div>
+          <div class="slider-top"><span class="slider-name">✨ Transparencia</span>
+            <span class="spinbox sage" id="spn_lt">
+              <button class="spinbox-btn" onclick="sbStep('logo_transparencia',-0.05)">−</button>
+              <input class="spinbox-input" id="si_lt" type="number" step="0.05" value="0.85" onchange="sbSet('logo_transparencia',this.value)"/>
+              <button class="spinbox-btn" onclick="sbStep('logo_transparencia',0.05)">+</button>
+            </span>
+          </div>
           <input type="range" class="r-sage" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
           <div class="slider-hint">0.0 = invisible · 1.0 = opaco completo</div>
         </div>
@@ -727,12 +849,24 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span><span class="slider-val sky" id="v_id_min">4</span></div>
+            <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span>
+              <span class="spinbox sky" id="spn_idmin">
+                <button class="spinbox-btn" onclick="sbStep('id_longitud_min',-1)">−</button>
+                <input class="spinbox-input" id="si_idmin" type="number" step="1" value="4" onchange="sbSet('id_longitud_min',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('id_longitud_min',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
             <div class="slider-hint">IDs más cortos se ignoran</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Máximo de dígitos</span><span class="slider-val sky" id="v_id_max">8</span></div>
+            <div class="slider-top"><span class="slider-name">Máximo de dígitos</span>
+              <span class="spinbox sky" id="spn_idmax">
+                <button class="spinbox-btn" onclick="sbStep('id_longitud_max',-1)">−</button>
+                <input class="spinbox-input" id="si_idmax" type="number" step="1" value="8" onchange="sbSet('id_longitud_max',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('id_longitud_max',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
             <div class="slider-hint">IDs más largos se ignoran</div>
           </div>
@@ -752,12 +886,24 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">📸 Resolución DPI</span><span class="slider-val violet" id="v_dpi">200</span></div>
+            <div class="slider-top"><span class="slider-name">📸 Resolución DPI</span>
+              <span class="spinbox violet" id="spn_dpi">
+                <button class="spinbox-btn" onclick="sbStep('dpi',-25)">−</button>
+                <input class="spinbox-input" id="si_dpi" type="number" step="25" value="200" onchange="sbSet('dpi',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('dpi',25)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-violet" id="dpi" min="100" max="400" step="25" value="200" oninput="upd()"/>
             <div class="slider-hint">Normal: 200 · Catálogo borroso: 250–300</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">🔍 Modo lectura PSM</span><span class="slider-val violet" id="v_psm">6</span></div>
+            <div class="slider-top"><span class="slider-name">🔍 Modo lectura PSM</span>
+              <span class="spinbox violet" id="spn_psm">
+                <button class="spinbox-btn" onclick="sbStep('psm',-1)">−</button>
+                <input class="spinbox-input" id="si_psm" type="number" step="1" value="6" onchange="sbSet('psm',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('psm',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-violet" id="psm" min="3" max="13" step="1" value="6" oninput="upd()"/>
             <div class="slider-hint">6 = normal · 11 = IDs dispersos · 4 = columnas</div>
           </div>
@@ -813,12 +959,24 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <div class="card-body">
           <div class="g2">
             <div class="slider-wrap">
-              <div class="slider-top"><span class="slider-name">Contraste</span><span class="slider-val violet" id="v_contraste">2.5</span></div>
+              <div class="slider-top"><span class="slider-name">Contraste</span>
+                <span class="spinbox violet" id="spn_contra">
+                  <button class="spinbox-btn" onclick="sbStep('contraste',-0.1)">−</button>
+                  <input class="spinbox-input" id="si_contra" type="number" step="0.1" value="2.5" onchange="sbSet('contraste',this.value)"/>
+                  <button class="spinbox-btn" onclick="sbStep('contraste',0.1)">+</button>
+                </span>
+              </div>
               <input type="range" class="r-violet" id="contraste" min="1.0" max="5.0" step="0.1" value="2.5" oninput="upd()"/>
               <div class="slider-hint">Default: 2.5 · No cambiar sin diagnóstico</div>
             </div>
             <div class="slider-wrap">
-              <div class="slider-top"><span class="slider-name">Nitidez</span><span class="slider-val violet" id="v_nitidez">2.0</span></div>
+              <div class="slider-top"><span class="slider-name">Nitidez</span>
+                <span class="spinbox violet" id="spn_nitid">
+                  <button class="spinbox-btn" onclick="sbStep('nitidez',-0.1)">−</button>
+                  <input class="spinbox-input" id="si_nitid" type="number" step="0.1" value="2.0" onchange="sbSet('nitidez',this.value)"/>
+                  <button class="spinbox-btn" onclick="sbStep('nitidez',0.1)">+</button>
+                </span>
+              </div>
               <input type="range" class="r-violet" id="nitidez" min="1.0" max="5.0" step="0.1" value="2.0" oninput="upd()"/>
               <div class="slider-hint">Default: 2.0 · No cambiar sin diagnóstico</div>
             </div>
@@ -850,7 +1008,13 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <label class="sw"><input type="checkbox" id="fuzzy_activo" oninput="upd()"/><span class="sw-track"></span></label>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Tolerancia</span><span class="slider-val violet" id="v_fuzzy">80%</span></div>
+            <div class="slider-top"><span class="slider-name">Tolerancia</span>
+              <span class="spinbox violet" id="spn_fuzzy">
+                <button class="spinbox-btn" onclick="sbStep('fuzzy_umbral',-1)">−</button>
+                <input class="spinbox-input" id="si_fuzzy" type="number" step="1" value="80" onchange="sbSet('fuzzy_umbral',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('fuzzy_umbral',1)">+</button>
+              </span>
+            </div>
             <input type="range" class="r-violet" id="fuzzy_umbral" min="60" max="99" step="1" value="80" oninput="upd()"/>
             <div class="slider-hint">80–85% es seguro · más bajo = más recupera pero más riesgo</div>
           </div>
@@ -971,28 +1135,56 @@ const DEFAULTS = {
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.85
 };
 
+// ── Spinbox helpers ─────────────────────────────────────────────────────────
+function sbClamp(id, val) {
+  const el = $(id);
+  const mn = parseFloat(el.min), mx = parseFloat(el.max);
+  return isNaN(mn) ? val : Math.min(mx, Math.max(mn, val));
+}
+function sbStep(id, delta) {
+  const el = $(id);
+  const cur = parseFloat(el.value) || 0;
+  const step = parseFloat(el.step) || 1;
+  // redondear para evitar flotantes sucios (0.1 + 0.2 = 0.30000000004)
+  const decimals = (step.toString().split('.')[1] || '').length;
+  el.value = sbClamp(id, parseFloat((cur + delta).toFixed(decimals)));
+  upd();
+}
+function sbSet(id, val) {
+  const el = $(id);
+  const step = parseFloat(el.step) || 1;
+  const decimals = (step.toString().split('.')[1] || '').length;
+  el.value = sbClamp(id, parseFloat(parseFloat(val).toFixed(decimals)));
+  upd();
+}
+
 // ── Update ──────────────────────────────────────────────────────────────────
 function upd() {
-  // Slider values
-  $('v_ox').textContent        = fv('etiqueta_offset_x_pt').toFixed(2)+' pt';
-  $('v_oy').textContent        = fv('etiqueta_offset_y_pt').toFixed(2)+' pt';
-  $('v_fs').textContent        = $('etiqueta_font_size').value+' pt';
-  $('v_cr').textContent        = fv('cr').toFixed(2);
-  $('v_cg').textContent        = fv('cg').toFixed(2);
-  $('v_cb').textContent        = fv('cb').toFixed(2);
-  $('v_dpi').textContent       = $('dpi').value;
-  $('v_psm').textContent       = $('psm').value;
-  $('v_contraste').textContent = fv('contraste').toFixed(1);
-  $('v_nitidez').textContent   = fv('nitidez').toFixed(1);
-  $('v_id_min').textContent    = $('id_longitud_min').value;
-  $('v_id_max').textContent    = $('id_longitud_max').value;
-  $('v_fuzzy').textContent     = $('fuzzy_umbral').value+'%';
-  $('v_prueba').textContent    = bv('prueba_activa') ? $('paginas_prueba').value+' pág.' : 'false';
-  $('v_lx').textContent        = $('logo_x_pt').value+' pt';
-  $('v_ly').textContent        = $('logo_y_pt').value+' pt';
-  $('v_lw').textContent        = $('logo_ancho_pt').value+' pt';
-  $('v_lh').textContent        = $('logo_alto_pt').value+' pt';
-  $('v_lt').textContent        = fv('logo_transparencia').toFixed(2);
+  // Sincronizar spinbox inputs ← sliders (el slider es la fuente de verdad)
+  const sync = (sliderId, spinInputId, decimals) => {
+    const si = $(spinInputId);
+    if (si && document.activeElement !== si)
+      si.value = parseFloat($(sliderId).value).toFixed(decimals);
+  };
+  sync('etiqueta_offset_x_pt', 'si_ox',     2);
+  sync('etiqueta_offset_y_pt', 'si_oy',     2);
+  sync('etiqueta_font_size',   'si_fs',     0);
+  sync('cr',                   'si_cr',     2);
+  sync('cg',                   'si_cg',     2);
+  sync('cb',                   'si_cb',     2);
+  sync('logo_x_pt',            'si_lx',     0);
+  sync('logo_y_pt',            'si_ly',     0);
+  sync('logo_ancho_pt',        'si_lw',     0);
+  sync('logo_alto_pt',         'si_lh',     0);
+  sync('logo_transparencia',   'si_lt',     2);
+  sync('id_longitud_min',      'si_idmin',  0);
+  sync('id_longitud_max',      'si_idmax',  0);
+  sync('dpi',                  'si_dpi',    0);
+  sync('psm',                  'si_psm',    0);
+  sync('contraste',            'si_contra', 1);
+  sync('nitidez',              'si_nitid',  1);
+  sync('fuzzy_umbral',         'si_fuzzy',  0);
+  sync('paginas_prueba',       'si_prueba', 0);
 
   // Color preview
   const r=Math.round(fv('cr')*255), g=Math.round(fv('cg')*255), b=Math.round(fv('cb')*255);

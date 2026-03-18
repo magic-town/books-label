@@ -152,66 +152,83 @@ class EtiquetadorCatalogo:
 
     # ── Insertar páginas de presentación ────────────────────────────────────────
 
-    def _insertar_presentaciones(self, paginas: list) -> list:
+    def _insertar_presentaciones(self, paginas: list, total_real: int = None) -> list:
         """
-        Recibe la lista de páginas del catálogo etiquetado e inserta
-        las páginas de presentación en las posiciones indicadas.
+        Inserta carátulas en las posiciones indicadas y devuelve
+        la lista ya recortada a paginas_prueba si el modo está activo.
 
-        Cada presentación se procesa en el orden del config.
-        Las posiciones se recalculan después de cada inserción.
+        Reglas de posición:
+          posicion false  → carátula desactivada, se omite
+          posicion N >= 1 → posición absoluta en el catálogo completo
+                            si N > total_real, se omite
+          posicion -1     → última página del PDF que se va a generar
+          posicion -N     → N páginas desde el final del PDF final
 
-        posicion  1  → primera página
-        posicion  N  → posición N desde el inicio
-        posicion -1  → última página
-        posicion -2  → penúltima página
-        posicion -N  → N páginas desde el final
+        Las posiciones negativas se resuelven sobre el PDF de salida
+        (después del recorte), no sobre el catálogo completo.
+        Eso garantiza que -1 siempre sea la última hoja visible.
+
+        Si dos carátulas caen en el mismo índice, la de posición
+        negativa tiene prioridad.
         """
-        resultado = list(paginas)
+        total_real     = total_real if total_real is not None else len(paginas)
+        prueba_n       = self.paginas_prueba
+        prueba_activa  = prueba_n is not False and prueba_n >= 1
+
+        # ── Paso 1: separar carátulas positivas y negativas ───────────────────
+        positivas = []   # (idx_absoluto, paginas_pres, ruta)
+        negativas = []   # (pos_negativa, paginas_pres, ruta)
 
         for pres in self.presentaciones:
             ruta = pres["path"]
             pos  = pres["posicion"]
 
             if not os.path.exists(ruta):
-                self.logger.warning(
-                    f"⚠️  Presentación no encontrada: {ruta} — se omite."
-                )
+                self.logger.warning(f"⚠️  Presentación no encontrada: {ruta} — se omite.")
                 continue
-
             try:
-                reader_pres  = PdfReader(ruta)
-                paginas_pres = list(reader_pres.pages)
+                paginas_pres = list(PdfReader(ruta).pages)
             except Exception as e:
-                self.logger.warning(
-                    f"⚠️  Error al leer presentación {os.path.basename(ruta)}: {e} — se omite."
-                )
+                self.logger.warning(f"⚠️  Error al leer {os.path.basename(ruta)}: {e} — se omite.")
                 continue
 
-            total = len(resultado)
+            if pos is False:
+                self.logger.info(f"  ⏭️  {os.path.basename(ruta)} — desactivada, se omite.")
+                continue
+
             if pos >= 1:
-                if pos - 1 > total:
+                if pos > total_real:
                     self.logger.info(
                         f"  ⏭️  {os.path.basename(ruta)} — posición {pos} supera "
-                        f"las {total} págs. del catálogo, se omite en esta corrida."
+                        f"las {total_real} págs. del catálogo, se omite."
                     )
                     continue
-                idx = pos - 1
+                positivas.append((pos - 1, paginas_pres, ruta))
+
             elif pos < 0:
-                # -1 = última, -2 = penúltima, etc.
-                idx = max(0, total + pos + 1)
-            else:
-                idx = 0
+                negativas.append((pos, paginas_pres, ruta))
 
+        # ── Paso 2: insertar positivas (sobre catálogo, de atrás hacia adelante)
+        resultado = list(paginas)
+        for idx, paginas_pres, ruta in sorted(positivas, key=lambda x: x[0], reverse=True):
             resultado = resultado[:idx] + paginas_pres + resultado[idx:]
+            self.logger.info(f"  📎  {os.path.basename(ruta):<30} → posición {idx + 1}")
 
-            pos_label = (
-                "primera" if idx == 0 else
-                "última"  if idx >= total else
-                f"posición {idx + 1}"
-            )
-            self.logger.info(
-                f"  📎  {os.path.basename(ruta):<30} → {pos_label}"
-            )
+        # ── Paso 3: recortar a paginas_prueba antes de resolver negativas ─────
+        if prueba_activa:
+            resultado = resultado[:prueba_n]
+
+        # ── Paso 4: insertar negativas sobre el PDF ya recortado ──────────────
+        total_recortado = len(resultado)
+        for pos, paginas_pres, ruta in sorted(negativas, key=lambda x: x[0]):
+            idx = max(0, total_recortado + pos)
+            resultado = resultado[:idx] + paginas_pres + resultado[idx:]
+            total_recortado = len(resultado)
+            self.logger.info(f"  📎  {os.path.basename(ruta):<30} → posición {idx + 1}")
+
+        # Recorte final: las negativas pueden haber sumado páginas extra
+        if prueba_activa:
+            resultado = resultado[:prueba_n]
 
         return resultado
 
@@ -585,9 +602,11 @@ class EtiquetadorCatalogo:
         # ── Insertar páginas de presentación ─────────────────────────────────────
         if self.presentaciones:
             self.logger.info("📎 Insertando páginas de presentación...")
+            total_real_pdf   = len(reader_pdf.pages)
             paginas_catalogo = list(writer.pages)
-            paginas_final    = self._insertar_presentaciones(paginas_catalogo)
-            writer_final     = PdfWriter()
+            paginas_final    = self._insertar_presentaciones(
+                                   paginas_catalogo, total_real_pdf)
+            writer_final = PdfWriter()
             for p in paginas_final:
                 writer_final.add_page(p)
             writer = writer_final
