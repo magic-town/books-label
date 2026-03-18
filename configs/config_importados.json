@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_importados.xlsx",
     "pdf_output":  "salidas/importados_precios.pdf",
 
-    "paginas_prueba": 20,
+    "paginas_prueba": false,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
@@ -34,7 +34,7 @@
     "dpi":      200,
     "psm":      6,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste": 2.5,
     "nitidez":   2.0,
