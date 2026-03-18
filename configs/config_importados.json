@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_importados.xlsx",
     "pdf_output":  "salidas/importados_precios.pdf",
 
-    "paginas_prueba": 4,
+    "paginas_prueba": 20,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},

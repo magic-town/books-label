@@ -158,13 +158,13 @@ class EtiquetadorCatalogo:
         las páginas de presentación en las posiciones indicadas.
 
         Cada presentación se procesa en el orden del config.
-        Las posiciones se recalculan después de cada inserción para que
-        "posicion: -1" siempre signifique el final del documento resultante.
+        Las posiciones se recalculan después de cada inserción.
 
-        posicion  1  → antes de la primera página del catálogo
-        posicion  2  → segunda página (después de la portada del proveedor)
-        posicion -1  → última página del documento final
-        posicion  N  → posición N; si N > total, se inserta al final
+        posicion  1  → primera página
+        posicion  N  → posición N desde el inicio
+        posicion -1  → última página
+        posicion -2  → penúltima página
+        posicion -N  → N páginas desde el final
         """
         resultado = list(paginas)
 
@@ -188,10 +188,17 @@ class EtiquetadorCatalogo:
                 continue
 
             total = len(resultado)
-            if pos == -1:
-                idx = total
-            elif pos >= 1:
-                idx = min(pos - 1, total)
+            if pos >= 1:
+                if pos - 1 > total:
+                    self.logger.info(
+                        f"  ⏭️  {os.path.basename(ruta)} — posición {pos} supera "
+                        f"las {total} págs. del catálogo, se omite en esta corrida."
+                    )
+                    continue
+                idx = pos - 1
+            elif pos < 0:
+                # -1 = última, -2 = penúltima, etc.
+                idx = max(0, total + pos + 1)
             else:
                 idx = 0
 
@@ -199,7 +206,7 @@ class EtiquetadorCatalogo:
 
             pos_label = (
                 "primera" if idx == 0 else
-                "última"  if idx == total else
+                "última"  if idx >= total else
                 f"posición {idx + 1}"
             )
             self.logger.info(
@@ -508,7 +515,7 @@ class EtiquetadorCatalogo:
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
                         y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
 
-                        can.drawString(x_pdf, y_pdf, f"${precio:,.2f}")
+                        can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
                         total_etiquetado += 1
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
