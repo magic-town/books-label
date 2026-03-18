@@ -344,6 +344,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
 .adv-panel .card{border:1.5px solid var(--violet-l);}
 .adv-panel .card-head{background:linear-gradient(135deg,var(--violet-bg),#fff);border-bottom:1px solid var(--violet-l);}
 .adv-panel .card-icon{background:var(--violet-l);}
+.adv-panel .slider-val{color:var(--violet);background:var(--violet-bg);border-color:var(--violet-l);}
 .adv-warning{
   display:flex;align-items:center;gap:0.6rem;
   background:var(--violet-bg);border:1.5px solid var(--violet-l);
@@ -621,12 +622,12 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span><input type="number" class="slider-val" id="v_ox" min="-150" max="150" step="0.5" oninput="syncBadge('v_ox','etiqueta_offset_x_pt',-150,150)"></div>
+            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span><span class="slider-val" id="v_ox">0.00 pt</span></div>
             <input type="range" class="r-terra" id="etiqueta_offset_x_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
             <div class="slider-hint">Negativo = izquierda</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span><input type="number" class="slider-val" id="v_oy" min="-150" max="150" step="0.5" oninput="syncBadge('v_oy','etiqueta_offset_y_pt',-150,150)"></div>
+            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span><span class="slider-val" id="v_oy">0.00 pt</span></div>
             <input type="range" class="r-terra" id="etiqueta_offset_y_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
             <div class="slider-hint">Negativo = por debajo</div>
           </div>
@@ -641,7 +642,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </select>
         </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span><input type="number" class="slider-val" id="v_fs" min="7" max="18" step="1" oninput="syncBadge('v_fs','etiqueta_font_size',7,18)"></div>
+          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span><span class="slider-val" id="v_fs">12 pt</span></div>
           <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
         </div>
         <div class="sec-divider"></div>
@@ -650,15 +651,15 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
             <div class="g3">
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔴 Rojo</span><input type="number" class="slider-val rose" id="v_cr" min="0" max="1" step="0.01" oninput="syncBadge('v_cr','cr',0,1)"></div>
+                <div class="slider-top"><span class="slider-name">🔴 Rojo</span><span class="slider-val rose" id="v_cr">0.89</span></div>
                 <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.89" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🟢 Verde</span><input type="number" class="slider-val" id="v_cg" style="color:var(--sage);background:var(--sage-bg);border-color:var(--sage-l)" min="0" max="1" step="0.01" oninput="syncBadge('v_cg','cg',0,1)"></div>
+                <div class="slider-top"><span class="slider-name">🟢 Verde</span><span class="slider-val" style="color:var(--sage);background:var(--sage-bg);border-color:var(--sage-l)" id="v_cg">0.20</span></div>
                 <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.20" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔵 Azul</span><input type="number" class="slider-val sky" id="v_cb" min="0" max="1" step="0.01" oninput="syncBadge('v_cb','cb',0,1)"></div>
+                <div class="slider-top"><span class="slider-name">🔵 Azul</span><span class="slider-val sky" id="v_cb">0.23</span></div>
                 <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="0.23" oninput="upd()"/>
               </div>
             </div>
@@ -689,28 +690,28 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         </div>
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">◀ Posición horizontal ▶</span><input type="number" class="slider-val sage" id="v_lx" min="0" max="560" step="1" oninput="syncBadge('v_lx','logo_x_pt',0,560)"></div>
+            <div class="slider-top"><span class="slider-name">◀ Posición horizontal ▶</span><span class="slider-val sage" id="v_lx">415 pt</span></div>
             <input type="range" class="r-sage" id="logo_x_pt" min="0" max="560" step="1" value="415" oninput="upd()"/>
             <div class="slider-hint">Desde el borde izquierdo</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">▼ Posición vertical ▲</span><input type="number" class="slider-val sage" id="v_ly" min="0" max="780" step="1" oninput="syncBadge('v_ly','logo_y_pt',0,780)"></div>
+            <div class="slider-top"><span class="slider-name">▼ Posición vertical ▲</span><span class="slider-val sage" id="v_ly">705 pt</span></div>
             <input type="range" class="r-sage" id="logo_y_pt" min="0" max="780" step="1" value="705" oninput="upd()"/>
             <div class="slider-hint">Desde el borde inferior</div>
           </div>
         </div>
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">↔ Ancho</span><input type="number" class="slider-val sage" id="v_lw" min="20" max="300" step="1" oninput="syncBadge('v_lw','logo_ancho_pt',20,300)"></div>
+            <div class="slider-top"><span class="slider-name">↔ Ancho</span><span class="slider-val sage" id="v_lw">80 pt</span></div>
             <input type="range" class="r-sage" id="logo_ancho_pt" min="20" max="300" step="1" value="80" oninput="upd()"/>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">↕ Alto</span><input type="number" class="slider-val sage" id="v_lh" min="10" max="200" step="1" oninput="syncBadge('v_lh','logo_alto_pt',10,200)"></div>
+            <div class="slider-top"><span class="slider-name">↕ Alto</span><span class="slider-val sage" id="v_lh">80 pt</span></div>
             <input type="range" class="r-sage" id="logo_alto_pt" min="10" max="200" step="1" value="80" oninput="upd()"/>
           </div>
         </div>
         <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">✨ Transparencia</span><input type="number" class="slider-val sage" id="v_lt" min="0" max="1" step="0.05" oninput="syncBadge('v_lt','logo_transparencia',0,1)"></div>
+          <div class="slider-top"><span class="slider-name">✨ Transparencia</span><span class="slider-val sage" id="v_lt">0.85</span></div>
           <input type="range" class="r-sage" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
           <div class="slider-hint">0.0 = invisible · 1.0 = opaco completo</div>
         </div>
@@ -726,12 +727,12 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span><input type="number" class="slider-val sky" id="v_id_min" min="2" max="8" step="1" oninput="syncBadge('v_id_min','id_longitud_min',2,8)"></div>
+            <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span><span class="slider-val sky" id="v_id_min">4</span></div>
             <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
             <div class="slider-hint">IDs más cortos se ignoran</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Máximo de dígitos</span><input type="number" class="slider-val sky" id="v_id_max" min="4" max="12" step="1" oninput="syncBadge('v_id_max','id_longitud_max',4,12)"></div>
+            <div class="slider-top"><span class="slider-name">Máximo de dígitos</span><span class="slider-val sky" id="v_id_max">8</span></div>
             <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
             <div class="slider-hint">IDs más largos se ignoran</div>
           </div>
@@ -751,12 +752,12 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       <div class="card-body">
         <div class="g2">
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">📸 Resolución DPI</span><input type="number" class="slider-val violet" id="v_dpi" min="100" max="400" step="25" oninput="syncBadge('v_dpi','dpi',100,400)"></div>
+            <div class="slider-top"><span class="slider-name">📸 Resolución DPI</span><span class="slider-val violet" id="v_dpi">200</span></div>
             <input type="range" class="r-violet" id="dpi" min="100" max="400" step="25" value="200" oninput="upd()"/>
             <div class="slider-hint">Normal: 200 · Catálogo borroso: 250–300</div>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">🔍 Modo lectura PSM</span><input type="number" class="slider-val violet" id="v_psm" min="3" max="13" step="1" oninput="syncBadge('v_psm','psm',3,13)"></div>
+            <div class="slider-top"><span class="slider-name">🔍 Modo lectura PSM</span><span class="slider-val violet" id="v_psm">6</span></div>
             <input type="range" class="r-violet" id="psm" min="3" max="13" step="1" value="6" oninput="upd()"/>
             <div class="slider-hint">6 = normal · 11 = IDs dispersos · 4 = columnas</div>
           </div>
@@ -812,12 +813,12 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <div class="card-body">
           <div class="g2">
             <div class="slider-wrap">
-              <div class="slider-top"><span class="slider-name">Contraste</span><input type="number" class="slider-val violet" id="v_contraste" min="1" max="5" step="0.1" oninput="syncBadge('v_contraste','contraste',1,5)"></div>
+              <div class="slider-top"><span class="slider-name">Contraste</span><span class="slider-val violet" id="v_contraste">2.5</span></div>
               <input type="range" class="r-violet" id="contraste" min="1.0" max="5.0" step="0.1" value="2.5" oninput="upd()"/>
               <div class="slider-hint">Default: 2.5 · No cambiar sin diagnóstico</div>
             </div>
             <div class="slider-wrap">
-              <div class="slider-top"><span class="slider-name">Nitidez</span><input type="number" class="slider-val violet" id="v_nitidez" min="1" max="5" step="0.1" oninput="syncBadge('v_nitidez','nitidez',1,5)"></div>
+              <div class="slider-top"><span class="slider-name">Nitidez</span><span class="slider-val violet" id="v_nitidez">2.0</span></div>
               <input type="range" class="r-violet" id="nitidez" min="1.0" max="5.0" step="0.1" value="2.0" oninput="upd()"/>
               <div class="slider-hint">Default: 2.0 · No cambiar sin diagnóstico</div>
             </div>
@@ -849,7 +850,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <label class="sw"><input type="checkbox" id="fuzzy_activo" oninput="upd()"/><span class="sw-track"></span></label>
           </div>
           <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Tolerancia</span><input type="number" class="slider-val violet" id="v_fuzzy" min="60" max="99" step="1" oninput="syncBadge('v_fuzzy','fuzzy_umbral',60,99)"></div>
+            <div class="slider-top"><span class="slider-name">Tolerancia</span><span class="slider-val violet" id="v_fuzzy">80%</span></div>
             <input type="range" class="r-violet" id="fuzzy_umbral" min="60" max="99" step="1" value="80" oninput="upd()"/>
             <div class="slider-hint">80–85% es seguro · más bajo = más recupera pero más riesgo</div>
           </div>
@@ -939,15 +940,6 @@ const sv = id => $(id).value;
 const PAGE_W = 612, PAGE_H = 792, PT_MM = 0.3528;
 let activeTab = 'precio';
 
-// ── Sync badge → slider → preview (tridirecional) ──────────────────────────
-function syncBadge(badgeId, sliderId, min, max) {
-  const raw = parseFloat($(badgeId).value);
-  if (isNaN(raw)) return;
-  const clamped = Math.max(min, Math.min(max, raw));
-  $(sliderId).value = clamped;
-  upd();
-}
-
 // ── Panel avanzado ──────────────────────────────────────────────────────────
 function toggleAdv() {
   const btn   = $('advBtn');
@@ -982,25 +974,25 @@ const DEFAULTS = {
 // ── Update ──────────────────────────────────────────────────────────────────
 function upd() {
   // Slider values
-  $('v_ox').value              = fv('etiqueta_offset_x_pt').toFixed(2);
-  $('v_oy').value              = fv('etiqueta_offset_y_pt').toFixed(2);
-  $('v_fs').value              = $('etiqueta_font_size').value;
-  $('v_cr').value              = fv('cr').toFixed(2);
-  $('v_cg').value              = fv('cg').toFixed(2);
-  $('v_cb').value              = fv('cb').toFixed(2);
-  $('v_dpi').value             = $('dpi').value;
-  $('v_psm').value             = $('psm').value;
-  $('v_contraste').value       = fv('contraste').toFixed(1);
-  $('v_nitidez').value         = fv('nitidez').toFixed(1);
-  $('v_id_min').value          = $('id_longitud_min').value;
-  $('v_id_max').value          = $('id_longitud_max').value;
-  $('v_fuzzy').value           = $('fuzzy_umbral').value;
+  $('v_ox').textContent        = fv('etiqueta_offset_x_pt').toFixed(2)+' pt';
+  $('v_oy').textContent        = fv('etiqueta_offset_y_pt').toFixed(2)+' pt';
+  $('v_fs').textContent        = $('etiqueta_font_size').value+' pt';
+  $('v_cr').textContent        = fv('cr').toFixed(2);
+  $('v_cg').textContent        = fv('cg').toFixed(2);
+  $('v_cb').textContent        = fv('cb').toFixed(2);
+  $('v_dpi').textContent       = $('dpi').value;
+  $('v_psm').textContent       = $('psm').value;
+  $('v_contraste').textContent = fv('contraste').toFixed(1);
+  $('v_nitidez').textContent   = fv('nitidez').toFixed(1);
+  $('v_id_min').textContent    = $('id_longitud_min').value;
+  $('v_id_max').textContent    = $('id_longitud_max').value;
+  $('v_fuzzy').textContent     = $('fuzzy_umbral').value+'%';
   $('v_prueba').textContent    = bv('prueba_activa') ? $('paginas_prueba').value+' pág.' : 'false';
-  $('v_lx').value              = $('logo_x_pt').value;
-  $('v_ly').value              = $('logo_y_pt').value;
-  $('v_lw').value              = $('logo_ancho_pt').value;
-  $('v_lh').value              = $('logo_alto_pt').value;
-  $('v_lt').value              = fv('logo_transparencia').toFixed(2);
+  $('v_lx').textContent        = $('logo_x_pt').value+' pt';
+  $('v_ly').textContent        = $('logo_y_pt').value+' pt';
+  $('v_lw').textContent        = $('logo_ancho_pt').value+' pt';
+  $('v_lh').textContent        = $('logo_alto_pt').value+' pt';
+  $('v_lt').textContent        = fv('logo_transparencia').toFixed(2);
 
   // Color preview
   const r=Math.round(fv('cr')*255), g=Math.round(fv('cg')*255), b=Math.round(fv('cb')*255);
@@ -1145,6 +1137,12 @@ function buildCfgStr() {
     "pdf_output":  ${v(pdf_out)},
 
     "paginas_prueba": ${v(prueba)},
+
+    "presentaciones": [
+        {"path": "imagenes/logos/portada_01.pdf", "posicion": 1},
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": 10},
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": -1}
+    ],
 
     "etiqueta_font": ${v(font)},
     "etiqueta_font_size": ${fs},

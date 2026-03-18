@@ -10,7 +10,7 @@
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 1},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": 2},
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": 10},
         {"path": "imagenes/logos/portada_03.pdf", "posicion": -1}
     ],
 
