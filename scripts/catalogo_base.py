@@ -355,7 +355,7 @@ class EtiquetadorCatalogo:
         """
         # 1. Exacto
         if id_detectado in self.precios_dict:
-            return self.precios_dict[id_detectado], "exacto"
+            return self.precios_dict[id_detectado], "exacto", None, None
 
         # 2. Recorte por la derecha
         if len(id_detectado) > self.id_len_max:
@@ -363,7 +363,7 @@ class EtiquetadorCatalogo:
                 sufijo = id_detectado[-n:]
                 if sufijo in self.precios_dict:
                     self.logger.debug(f"   ✂️  Recorte: '{id_detectado}' → '{sufijo}'")
-                    return self.precios_dict[sufijo], "recorte"
+                    return self.precios_dict[sufijo], "recorte", None, None
 
         # 3. Fuzzy
         if self.fuzzy_activo:
@@ -375,9 +375,37 @@ class EtiquetadorCatalogo:
             )
             if resultado:
                 id_match, score, _ = resultado
-                return self.precios_dict[id_match], "fuzzy"
+                return self.precios_dict[id_match], "fuzzy", id_match, score
 
-        return None, None
+        return None, None, None, None
+
+    # ── CSV de validación fuzzy ──────────────────────────────────────────────
+
+    def _generar_csv_fuzzy(self, detalle: list) -> str:
+        """
+        Genera un CSV con los IDs recuperados por fuzzy matching para
+        que el analista los verifique manualmente en LibreOffice Calc.
+        El archivo queda pareado con el log: mismo nombre base + _fuzzy.csv
+        """
+        import csv
+        log_handlers = [h for h in logging.getLogger().handlers if hasattr(h, 'baseFilename')]
+        if log_handlers:
+            log_base = os.path.splitext(log_handlers[0].baseFilename)[0]
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nombre    = os.path.splitext(os.path.basename(self.output_path))[0]
+            log_base  = os.path.join(self.base_dir, "diagnosticos", f"{nombre}_{timestamp}")
+
+        csv_path = log_base + "_fuzzy.csv"
+        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["ocr_leyo", "excel_matcheo", "precio_insertado", "similitud_%"])
+            for ocr, matcheo, precio, score in detalle:
+                writer.writerow([ocr, matcheo, f"${precio:,.0f}", f"{score:.0f}"])
+
+        return csv_path
 
     # ── Insertar logo en portada ──────────────────────────────────────────────
 
@@ -446,6 +474,7 @@ class EtiquetadorCatalogo:
         ids_detectados   = set()
         fuzzy_matches    = 0
         recorte_matches  = 0  # IDs recuperados por recorte por la derecha
+        fuzzy_detalle    = []  # (ocr_leyo, excel_matcheo, precio, similitud)
 
         ancho_barra = 28
         for i in range(total_paginas):
@@ -509,7 +538,7 @@ class EtiquetadorCatalogo:
                     if len(id_detectado) > self.id_len_max * 2:
                         continue
 
-                    precio, tipo_match = self._buscar_id(id_detectado)
+                    precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
 
                     if precio and precio > 0:
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
@@ -520,6 +549,7 @@ class EtiquetadorCatalogo:
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
                             fuzzy_matches += 1
+                            fuzzy_detalle.append((id_detectado, id_match, precio, score))
                         elif tipo_match == "recorte":
                             recorte_matches += 1
 
@@ -572,22 +602,13 @@ class EtiquetadorCatalogo:
             raise
 
         # ── Reporte final ─────────────────────────────────────────────────────
-        ids_unicos   = len(ids_detectados)
-        ids_falta    = max(0, self.total_en_excel - ids_unicos)
-        tasa         = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
-        bloques      = int(tasa / 5)           # 20 bloques = 100 %
-        barra        = "█" * bloques + "░" * (20 - bloques)
-        semaforo_key = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
-
-        if tasa >= 85:
-            semaforo = "🟢  VERDE"
-            accion   = "Listo para publicar en WhatsApp Business."
-        elif tasa >= 65:
-            semaforo = "🟡  AMARILLO"
-            accion   = "Revisar antes de publicar.  →  python3 scripts/diagnostico.py"
-        else:
-            semaforo = "🔴  ROJO"
-            accion   = "No publicar.  →  python3 scripts/diagnostico.py"
+        ids_unicos    = len(ids_detectados)
+        ids_falta     = max(0, self.total_en_excel - ids_unicos)
+        tasa          = (ids_unicos / self.total_en_excel * 100) if self.total_en_excel > 0 else 0.0
+        bloques       = int(tasa / 5)
+        barra         = "█" * bloques + "░" * (20 - bloques)
+        semaforo_key  = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
+        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
 
         SEP  = "─" * 54
         SEP2 = "═" * 54
@@ -595,7 +616,7 @@ class EtiquetadorCatalogo:
         self.logger.info("")
         self.logger.info(SEP2)
         self.logger.info("  ✅  PROCESO TERMINADO")
-        self.logger.info(SEP2)
+        self.logger.info(SEP)
         self.logger.info(f"  📄  Páginas          {total_paginas}")
         self.logger.info(f"  📋  En Excel         {self.total_en_excel}")
         self.logger.info(f"  🔢  IDs marcados     {ids_unicos} / {self.total_en_excel}  (faltan {ids_falta})")
@@ -603,19 +624,50 @@ class EtiquetadorCatalogo:
         if recorte_matches:
             self.logger.info(f"  ✂️   Recortes auto    {recorte_matches}")
         if fuzzy_matches:
-            self.logger.info(f"  🔍  Fuzzy            {fuzzy_matches}")
+            self.logger.info(f"  ·   Fuzzy            {fuzzy_matches} IDs recuperados")
         if self.ocr_doble_pasada:
-            self.logger.info(f"  🔄  Modo OCR         DOBLE PASADA")
+            self.logger.info(f"  🔄  Doble pasada     activa")
         if self.presentaciones:
-            self.logger.info(f"  📎  Presentaciones   {len(self.presentaciones)} página(s) insertada(s)")
+            self.logger.info(f"  📎  Presentaciones   {len(self.presentaciones)} pág. insertada(s)")
         self.logger.info(SEP)
         self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
-        self.logger.info(f"      {semaforo}")
-        self.logger.info(f"      {accion}")
+        self.logger.info("")
+
+        # ── Semáforo o aviso de prueba ──
+        if prueba_activa:
+            self.logger.info(f"  🧪  MODO PRUEBA — {total_paginas} páginas procesadas")
+            self.logger.info(f"      Esta efectividad no es el semáforo real del catálogo.")
+            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente:")
+            self.logger.info(f"      · ¿Los precios aparecen junto a los productos?")
+            self.logger.info(f"      · ¿El logo y las portadas quedan bien posicionados?")
+            self.logger.info(f"      Cuando estés lista → cambia paginas_prueba: false")
+            self.logger.info(f"      y ejecuta el catálogo completo.")
+        elif tasa >= 85:
+            self.logger.info(f"  🟢  VERDE — listo para publicar")
+            self.logger.info(f"      Abre el PDF en salidas/ y revisa visualmente.")
+            self.logger.info(f"      Si todo se ve bien, continúa con la Fase 3 del checklist.")
+            if fuzzy_matches:
+                self.logger.info(f"      ⚠️  Hay {fuzzy_matches} IDs por fuzzy — revisa el CSV antes de publicar.")
+        elif tasa >= 65:
+            self.logger.info(f"  🟡  AMARILLO — revisar antes de publicar")
+            self.logger.info(f"      python3 scripts/diagnostico.py")
+        else:
+            self.logger.info(f"  🔴  ROJO — no publicar")
+            self.logger.info(f"      python3 scripts/diagnostico.py")
+
         self.logger.info(SEP)
         self.logger.info(f"  📂  {os.path.basename(self.output_path)}")
+
+        # ── CSV fuzzy — solo si hubo matches ────────────────────────────────
+        if fuzzy_detalle:
+            csv_path = self._generar_csv_fuzzy(fuzzy_detalle)
+            self.logger.info(f"  📋  Fuzzy CSV        {os.path.basename(csv_path)}")
+            self.logger.info(f"      Abre ese archivo en LibreOffice Calc y verifica")
+            self.logger.info(f"      que cada precio corresponda al producto correcto.")
+
         self.logger.info(SEP2)
         self.logger.info("")
+
         # Métricas parseables por diagnostico.py — no modificar formato
         self.logger.info(f"[STAT] paginas={total_paginas}")
         self.logger.info(f"[STAT] total_excel={self.total_en_excel}")
@@ -624,6 +676,7 @@ class EtiquetadorCatalogo:
         self.logger.info(f"[STAT] fuzzy_matches={fuzzy_matches}")
         self.logger.info(f"[STAT] recorte_matches={recorte_matches}")
         self.logger.info(f"[STAT] doble_pasada={self.ocr_doble_pasada}")
+        self.logger.info(f"[STAT] paginas_prueba={self.paginas_prueba}")
         self.logger.info(f"[STAT] tasa={tasa:.2f}")
         self.logger.info(f"[STAT] semaforo={semaforo_key}")
 
