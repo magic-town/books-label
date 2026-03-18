@@ -208,8 +208,5 @@ __marimo__/
 .directory
 
 # ── books-label — datos operativos ──────────────────────────────────────────
-libros/
-precios/
-salidas/
 diagnosticos/
 venv_catalogo/
