@@ -115,6 +115,7 @@ class EtiquetadorCatalogo:
         self.fuzzy_umbral   = config.get("fuzzy_umbral", 85)
 
         # Parámetros etiqueta
+        self.etiqueta_font      = config.get("etiqueta_font", "Helvetica-Bold")
         self.etiqueta_font_size = config.get("etiqueta_font_size", 11)
         self.etiqueta_color     = config.get("etiqueta_color_rgb", [0.0, 0.0, 1.0])
         self.etiqueta_offset_x  = config.get("etiqueta_offset_x_pt", 4.0)
@@ -141,6 +142,10 @@ class EtiquetadorCatalogo:
             for p in raw_pres
             if isinstance(p, dict) and p.get("path")
         ]
+
+        # Modo prueba — false = catálogo completo, n >= 1 = solo primeras n páginas
+        paginas_prueba_raw  = config.get("paginas_prueba", False)
+        self.paginas_prueba = False if paginas_prueba_raw is False else int(paginas_prueba_raw)
 
         self._cargar_precios()
         self._verificar_tesseract()
@@ -424,6 +429,12 @@ class EtiquetadorCatalogo:
 
         writer           = PdfWriter()
         total_paginas    = len(reader_pdf.pages)
+
+        # Modo prueba
+        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            total_paginas = min(self.paginas_prueba, total_paginas)
+            self.logger.info(f"🧪 MODO PRUEBA — procesando solo {total_paginas} página(s)")
+
         total_etiquetado = 0
         ids_detectados   = set()
         fuzzy_matches    = 0
@@ -470,7 +481,7 @@ class EtiquetadorCatalogo:
 
                 packet = BytesIO()
                 can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
-                can.setFont("Helvetica-Bold", self.etiqueta_font_size)
+                can.setFont(self.etiqueta_font, self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
 
                 # IDs detectados en esta página antes de procesar

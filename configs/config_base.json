@@ -20,26 +20,27 @@
     "etiqueta_offset_x_pt": 0.0,
     "etiqueta_offset_y_pt": 0.0,
 
-    "dpi":      200,
-    "psm":      6,
-    "contraste": 2.5,
-    "nitidez":   2.0,
-
-    "ocr_grayscale":    true,
-    "ocr_invertir":     false,
-    "ocr_doble_pasada": false,
+    "logo_activo": true,
+    "logo_path": "imagenes/logos/logo_bz.png",
+    "logo_x_pt": 351,
+    "logo_y_pt": 677,
+    "logo_ancho_pt": 80,
+    "logo_alto_pt": 80,
+    "logo_transparencia": 0.85,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "fuzzy_activo": false,
-    "fuzzy_umbral": 80,
+    "dpi":      200,
+    "psm":      6,
 
-    "logo_activo":        false,
-    "logo_path":          "imagenes/logos/logo_bz.png",
-    "logo_x_pt":          415.0,
-    "logo_y_pt":          705.0,
-    "logo_ancho_pt":      80.0,
-    "logo_alto_pt":       80.0,
-    "logo_transparencia": 0.75
+    "ocr_doble_pasada": false,
+    
+    "contraste": 2.5,
+    "nitidez":   2.0,
+    "ocr_grayscale":    true,
+    "ocr_invertir":     false,
+
+    "fuzzy_activo": false,
+    "fuzzy_umbral": 80
 }
