@@ -82,38 +82,35 @@ precios         catálogo        en WA
 
 ### Preparar el config
 
-- [ ] Hacer una copia de `configs/config_base.json`.
-- [ ] Renombrarla como `config_<proveedor>_<temporada>.json` — ejemplo: `config_jeans_PV26.json`.
-- [ ] Abrir el configurador visual y actualizar los tres campos de archivos desde ahí (ver sección siguiente). Si prefieres editar el JSON directamente en VSC, los campos son:
+- [ ] Hacer una copia de `configs/config_base.json`. Puedes hacer clic en el fichero en **VSC** o **Dolphin** hacer `Ctrl + C` inmediatamente depués `Ctrl + V` y te genera la copia.
+- [ ] Renombrarla `F12` como `config_<proveedor>_<temporada>.json` — ejemplo: `config_importados_26.json`.
+- [ ] Abrir el `configurador.html` de una de las siguientes 3 maneras:
 
-  | Campo | Qué escribir |
-  |-------|--------------|
-  | `pdf_input` | `"libros/<catalogo_temp.pdf>"` |
-  | `excel_input` | `"precios/<lista_catalogo.xlsx>"` |
-  | `pdf_output` | `"salidas/<catalogo_temp_precios.pdf>"` |
+    - Desde terminal:
+      ```bash
+      source venv_catalogo/bin/activate
 
-- [ ] Guardar el archivo (`Ctrl+S`).
+      ```
+
+      ```bash
+      python3 abrir_configurador.py
+      ```
+    - Desde Dolphin: doble clic en `configurador.html`.
+    - Si ya lo tienes abierto en el navegador, no es necesario volver a lanzarlo.
+
+- [ ] Actualizar los tres campos de archivos desde ahí. Si prefieres editar el JSON directamente en VSC, los campos son:
+
+<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 ### Ajustar parámetros con el configurador
 
-- [ ] Abrir el configurador visual. Tienes tres opciones — usa la que tengas a mano:
-  - Desde terminal:
-    ```bash
-    source venv_catalogo/bin/activate
+- [ ] Activa el modo prueba para hacer los primeros ajustes: posición de logo y etiqueta.
 
-    ```
-
-    ```bash
-    python3 abrir_configurador.py
-    ```
-  - Desde Dolphin: doble clic en `abrir_configurador.py`.
-  - Si ya lo tienes abierto en el navegador, no es necesario volver a lanzarlo.
-
-- [ ] Ajusta los parámetros clave. Empieza siempre con `paginas_prueba` activo para no procesar el catálogo completo en cada prueba:
+- [ ] Ajusta los parámetros clave, con el modo prueba, haz algunas pruebas de 3 a 6 dependiendo del caso para encontrar la mayor tasa o etiquietado entre 20 a 30 páginas.
 
   | Parámetro | Valores a probar |
   |-----------|-----------------|
-  | `paginas_prueba` | `1, 5, 10, 40` — usa `false` solo para la corrida final |
+  | `paginas_prueba` | `5, 10, 20, 30` — usa `false` solo para la corrida final |
   | `dpi` | `200, 250, 300` |
   | `psm` | `6` (normal), `11` (IDs dispersos), `4` (columnas) |
   | `ocr_doble_pasada` | `false` primero — activar solo si el diagnóstico lo sugiere |

@@ -4,9 +4,9 @@
 
     "pdf_input":   "libros/urbano_26.pdf",
     "excel_input": "precios/lista_urbano.xlsx",
-    "pdf_output":  "salidas/urbano_test.pdf",
+    "pdf_output":  "salidas/urbano_precios.pdf",
 
-    "paginas_prueba": 3,
+    "paginas_prueba": false,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
@@ -34,7 +34,7 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste": 2.5,
     "nitidez": 2.0,
@@ -44,4 +44,4 @@
 
     "fuzzy_activo": false,
     "fuzzy_umbral": 85
-    }
+}

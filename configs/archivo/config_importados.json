@@ -42,5 +42,5 @@
     "ocr_invertir":     false,
 
     "fuzzy_activo": true,
-    "fuzzy_umbral": 85
+    "fuzzy_umbral": 90
 }
