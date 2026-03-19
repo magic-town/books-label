@@ -106,8 +106,8 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 - Bitly: `https://bit.ly/PS_Jeans`
 
 **Urbano**
-- Dropbox: `https://www.dropbox.com/scl/fi/ec77vg2xgzh3ytii8id4l/urbano_26_final.pdf?rlkey=npw7guudx5xt2manymdjshazo&st=psdmrgpt&dl=1`
-- Bitly: `https://bit.ly/PS_Urbano`
+- Dropbox: `https://www.dropbox.com/scl/fi/zyc29sqbo9l1nidzj6uhs/urbano_precios.pdf?rlkey=27qtxbz83dhh13655efygk8lo&st=k94575uc&dl=1`
+- Bitly: `https://bit.ly/urbano_26`
 
 
 **Basicos**
