@@ -6,19 +6,19 @@
     "excel_input": "precios/lista_jeans.xlsx",
     "pdf_output":  "salidas/jeans_precios.pdf",
 
-    "paginas_prueba": 12,
+    "paginas_prueba": 25,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
         {"path": "imagenes/logos/portada_02.pdf", "posicion": 300},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": -1}
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": false}
     ],
 
     "etiqueta_font": "Helvetica-BoldOblique",
     "etiqueta_font_size": 14,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
     "etiqueta_offset_x_pt": 2.0,
-    "etiqueta_offset_y_pt": 38.0,
+    "etiqueta_offset_y_pt": 42.0,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
