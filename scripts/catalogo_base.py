@@ -212,7 +212,6 @@ class EtiquetadorCatalogo:
         resultado = list(paginas)
         for idx, paginas_pres, ruta in sorted(positivas, key=lambda x: x[0], reverse=True):
             resultado = resultado[:idx] + paginas_pres + resultado[idx:]
-            self.logger.info(f"  📎  {os.path.basename(ruta):<30} → posición {idx + 1}")
 
         # ── Paso 3: recortar a paginas_prueba antes de resolver negativas ─────
         if prueba_activa:
@@ -225,7 +224,6 @@ class EtiquetadorCatalogo:
             idx = max(0, total_recortado + pos + 1)
             resultado = resultado[:idx] + paginas_pres + resultado[idx:]
             total_recortado = len(resultado)
-            self.logger.info(f"  📎  {os.path.basename(ruta):<30} → posición {idx + 1}")
 
         return resultado
 
@@ -646,7 +644,11 @@ class EtiquetadorCatalogo:
         if self.ocr_doble_pasada:
             self.logger.info(f"  🔄  Doble pasada     activa")
         if self.presentaciones:
-            self.logger.info(f"  📎  Presentaciones   {len(self.presentaciones)} pág. insertada(s)")
+            posiciones = ", ".join(
+                str(p["posicion"]) if p["posicion"] != -1 else "última"
+                for p in self.presentaciones
+            )
+            self.logger.info(f"  📎  Portadas         insertadas en pág. {posiciones}")
         self.logger.info(SEP)
         self.logger.info(f"  📊  [{barra}]  {tasa:.1f}%")
         self.logger.info("")

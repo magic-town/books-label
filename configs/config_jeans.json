@@ -10,8 +10,10 @@
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": 300},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": false}
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": 10},
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": 20},
+        {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
+        {"path": "imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
 
     "etiqueta_font": "Helvetica-BoldOblique",
@@ -31,8 +33,8 @@
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "dpi": 250,
-    "psm": 11,
+    "dpi": 200,
+    "psm": 6,
 
     "ocr_doble_pasada": true,
 
