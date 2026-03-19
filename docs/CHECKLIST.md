@@ -66,8 +66,8 @@ precios         catálogo        en WA
 - [ ] Copiar columna `precio_venta` → **pegar especial > Número** (clic derecho).
 - [ ] La hoja debe quedar con dos tablas:
   - Tabla completa con todos los campos.
-  - Tabla simplificada solo con `ID` y `precio_venta`.
-- [ ] Copiar la tabla simplificada a un archivo nuevo: `Archivo > Nueva hoja de cálculo > Pegar`.
+  - Tabla simplificada con `ID` y `precio_venta`.
+- [ ] Copiar la tabla simplificada a un archivo nuevo: `Archivo > Nueva hoja de cálculo > Pegar`. Si tienes la version en ingles es: `File > New spreadsheet > Paste`
 - [ ] Guardar como:
   ```
   ~/books-label/precios/<lista_catalogo.xlsx>
@@ -96,17 +96,17 @@ precios         catálogo        en WA
       python3 abrir_configurador.py
       ```
     - Desde Dolphin: doble clic en `configurador.html`.
-    - Si ya lo tienes abierto en el navegador, no es necesario volver a lanzarlo.
+    - Si ya lo tienes abierto en el browser, no es necesario volver a lanzarlo.
 
-- [ ] Actualizar los tres campos de archivos desde ahí. Si prefieres editar el JSON directamente en VSC, los campos son:
+- [ ] Actualizar los tres campos de archivos desde ahí, o si prefieres editar el JSON directamente en VSC, los campos son:
 
-<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 ### Ajustar parámetros con el configurador
 
 - [ ] Activa el modo prueba para hacer los primeros ajustes: posición de logo y etiqueta.
 
-- [ ] Ajusta los parámetros clave, con el modo prueba, haz algunas pruebas de 3 a 6 dependiendo del caso para encontrar la mayor tasa o etiquietado entre 20 a 30 páginas.
+- [ ] Ajusta los parámetros clave, con el modo prueba, haz algunas pruebas de entre 3 a 6 dependiendo del caso para encontrar la mayor tasa o etiquietado entre 20 a 30 páginas.
 
   | Parámetro | Valores a probar |
   |-----------|-----------------|
@@ -115,7 +115,10 @@ precios         catálogo        en WA
   | `psm` | `6` (normal), `11` (IDs dispersos), `4` (columnas) |
   | `ocr_doble_pasada` | `false` primero — activar solo si el diagnóstico lo sugiere |
 
-- [ ] Copia el JSON generado y pégalo en tu archivo de config.
+- [ ] En cada prueba copia el JSON generado y pégalo en tu archivo de config.
+
+<img src="../imagenes/asset_repo/copy_json.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+
 - [ ] La doble pasada duplica el tiempo de proceso — úsala como último recurso, no como punto de partida.
 
 ### Ejecutar
