@@ -6,21 +6,21 @@
     "excel_input": "precios/lista_jeans.xlsx",
     "pdf_output":  "salidas/jeans_precios.pdf",
 
-    "paginas_prueba": 25,
+    "paginas_prueba": 41,
 
     "presentaciones": [
-        {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": 10},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": 20},
+        {"path": "imagenes/logos/portada_01.pdf", "posicion": false},
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": false},
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": false},
         {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_05.pdf", "posicion": -1}
+        {"path": "imagenes/logos/portada_05.pdf", "posicion": false}
     ],
 
     "etiqueta_font": "Helvetica-BoldOblique",
     "etiqueta_font_size": 14,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
-    "etiqueta_offset_x_pt": 2.0,
-    "etiqueta_offset_y_pt": 42.0,
+    "etiqueta_offset_x_pt": 0.0,
+    "etiqueta_offset_y_pt": 48.0,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
@@ -38,8 +38,8 @@
 
     "ocr_doble_pasada": true,
 
-    "contraste": 2.5,
-    "nitidez": 2.0,
+    "contraste": 3.5,
+    "nitidez": 3.0,
     "ocr_grayscale": true,
     "ocr_invertir": false,
 
