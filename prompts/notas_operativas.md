@@ -94,8 +94,8 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 - Bitly: `https://bit.ly/ps_importados`
 
 **Confort**
-- Dropbox: `https://www.dropbox.com/scl/fi/od9gsqxm1oul94xt4hx8n/confort_precios.pdf?rlkey=47f1i9e0bi2x2xwiw9nsq8kul&st=nd2sii5w&dl=1`
-- Bitly: `https://bit.ly/4rDj86A`
+- Dropbox: `https://www.dropbox.com/scl/fi/od9gsqxm1oul94xt4hx8n/confort_precios.pdf?rlkey=47f1i9e0bi2x2xwiw9nsq8kul&st=enbv5qiz&dl=1`
+- Bitly: `https://bit.ly/confort_26`
 
 **Sandalias**
 - Dropbox: `https://www.dropbox.com/scl/fi/p681fiurjxutp9bw2hfnk/sandalias_final.pdf?rlkey=jxudboz7nmi9ohif3tjnypo3d&st=8kg1i7pz&dl=1`
