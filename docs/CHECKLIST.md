@@ -104,7 +104,9 @@ precios         catálogo        en WA
 
 ### Ajustar parámetros con el configurador
 
-- [ ] Activa el modo prueba para hacer los primeros ajustes: posición de logo y etiqueta.
+- [ ] Activa el modo prueba (20) para hacer los primeros ajustes: posición de logo y etiqueta.
+
+- [ ] 🔎 Revisión visual, antes de probar `dpi`, `psm` validamos que el logo y las etiquetas esten en una posicón correcta en nuestro output `salidas/<catalogo_precios.pdf>`
 
 - [ ] Ajusta los parámetros clave, con el modo prueba, haz algunas pruebas de entre 3 a 6 dependiendo del caso para encontrar la mayor tasa o etiquietado entre 20 a 30 páginas.
 
@@ -117,9 +119,9 @@ precios         catálogo        en WA
 
 - [ ] En cada prueba copia el JSON generado y pégalo en tu archivo de config.
 
-<img src="../imagenes/asset_repo/copy_json.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+<img src="../imagenes/asset_repo/copy_json.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
 
-- [ ] La doble pasada duplica el tiempo de proceso — úsala como último recurso, no como punto de partida.
+- [ ] ⚠️ La doble pasada duplica el tiempo de proceso — úsala como último recurso, no como punto de partida.
 
 ### Ejecutar
 
@@ -138,14 +140,11 @@ Al terminar verás el resultado en consola:
 | 🟡 **AMARILLO** — 65% a 84% | Revisar el PDF y decidir si ajustar antes de continuar |
 | 🔴 **ROJO** — menos de 65% | No publicar — ver sección siguiente |
 
-### Revisar el PDF visualmente
+- [ ] El semaforo solo es para `"paginas_prueba": false,` si estás haciendo pruebas lo que debes validar es el output de consola, recuerda expander y contraer tu terminal:
 
-Abrir el archivo en `salidas/` y confirmar:
+<img src="../imagenes/asset_repo/modo_prueba.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
-- [ ] ¿Los precios aparecen junto a cada producto?
-- [ ] ¿Están en la posición correcta, sin encimarse con otro texto?
-- [ ] ¿El formato del precio se ve bien? — ejemplo: `$250`
-- [ ] ¿Hay páginas completas sin ningún precio?
+- [ ] Al hacer las pruebas con el mismo número de páginas el dato crítico es `Etiquetas` el mayor número de etiquetas asegura un mayor número de etiquetas finales con segunda pasada.
 
 ### Si el semáforo no es verde
 
@@ -166,7 +165,7 @@ Elige el camino según lo que observas:
 - [ ] Captura el PDF con el problema y el output de consola.
 - [ ] Abre Claude y describe lo que ves: *"El precio aparece encimado / no aparece / está muy lejos del ID"*
 
-> 💡 Si sabes dónde está el problema → Camino A. Si no tienes idea → Camino B o C. Nunca publiques con semáforo rojo.
+> 💡 Tu trabajo como analista termina ejecutando el diagnóstico y haciendo las últimas iteraciones. Si depués de esto la tasa esta por debajo del 70% compartes con el catálogo con tu colaborador.
 
 ---
 
@@ -196,16 +195,30 @@ Elige el camino según lo que observas:
 
 <img src="../imagenes/asset_repo/bitly.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
+> 🥺 Bitly da pocas pruebas por mes, ahora tenemos 3 cuentas para generar links comprimidos, si se agotan usamos la liga larga para WB.
+
 - [ ] Copiar el enlace corto generado por Bitly.
 - [ ] Pegarlo en el mismo bloque de **VSC**: `~/books-label/prompts/notas_operativas.md`
 
 ### Crear el artículo en WhatsApp Business
 
-- [ ] Con 🔥 **Flameshot** hacer 10 recortes del catálogo etiquetado, incluyendo la portada. Guardar en `~/boutique_zepeda/<marca>/carrusel` con nombres descriptivos — ejemplo: `jeans_1.png, jeans_2.png, ..., jeans_10.png`
+- [ ] Con 🔥 **Flameshot** hacer 10 recortes del catálogo etiquetado, incluyendo la portada. Guardar en `~/boutique_zepeda/<marca>/carrusel` con nombres simples — ejemplo: `1.png, 2.png, ..., 10.png`
 
 - [ ] Desde **WhatsApp Business Desktop** abrir `Herramientas` > `Catálogo` > `Añadir un artículo nuevo`:
 
 <img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+
+---
+
+> En ocaciones puede fallar la funcionalidad de catálogo en el desktop (escritorio), en ese caso habria que usar el móvil android, compartiendo por chat los recortes de pantalla (**Método Largo**), la ubicación de los ficheros o imagenes compartidos por Whatsapp es:
+
+```
+Almacenamiento interno > Android > media > com.whatsapp > Whatsapp > Media > Whatsapp Images > Sent
+```
+
+desde esa ubicación abria que mover las imagenes a alguna carpeta, por ejemplo `Pictures > carrusel` para que Whatsapp las encuentre, o existen diferentes maneras de encontrarlos, aqui te comparto una de tantas.
+
+---
 
 - [ ] En `Añadir imágenes` cargar las 10 imágenes desde `~/boutique_zepeda/<marca>/carrusel`. Llenar los campos: **Nombre** y en **Descripción** pegar este bloque:
 
