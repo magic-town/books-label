@@ -41,6 +41,6 @@
     "ocr_grayscale":    true,
     "ocr_invertir":     false,
 
-    "fuzzy_activo": true,
+    "fuzzy_activo": false,
     "fuzzy_umbral": 90
 }

@@ -18,12 +18,12 @@
     "etiqueta_font_size": 14,
     "etiqueta_color_rgb": [0.89, 0.20, 0.23],
     "etiqueta_offset_x_pt": 2.0,
-    "etiqueta_offset_y_pt": 24.0,
+    "etiqueta_offset_y_pt": 38.0,
 
     "logo_activo": true,
     "logo_path": "imagenes/logos/logo_bz.png",
-    "logo_x_pt": 425.0,
-    "logo_y_pt": 650.0,
+    "logo_x_pt": 405.0,
+    "logo_y_pt": 706.0,
     "logo_ancho_pt": 80.0,
     "logo_alto_pt": 80.0,
     "logo_transparencia": 0.85,
@@ -32,9 +32,9 @@
     "id_longitud_max": 8,
 
     "dpi": 250,
-    "psm": 6,
+    "psm": 11,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste": 2.5,
     "nitidez": 2.0,
