@@ -121,7 +121,7 @@ precios         catálogo        en WA
 
 <img src="../imagenes/asset_repo/copy_json.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
 
-- [ ] ⚠️ La doble pasada duplica el tiempo de proceso — úsala como último recurso, no como punto de partida.
+- [ ] ⚠️ La doble pasada duplica el tiempo de proceso — úsala para etiquetar el catalogo completo, es decir, `"paginas_prueba": false, "ocr_doble_pasada": true,`
 
 ### Ejecutar
 
