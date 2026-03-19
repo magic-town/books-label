@@ -161,9 +161,9 @@ Elige el camino según lo que observas:
   ```
 - [ ] Copiar el output completo y pegarlo en Claude: *"Este es el diagnóstico de mi script de etiquetado, ¿qué parámetros ajusto?"*
 
-**Camino C — Consulta directa a Claude**
+**Camino C — Consulta directa a Claude (no te corresponde como analista/operadorea, pero se incluye en caso de que quieras explorar más)**
 - [ ] Captura el PDF con el problema y el output de consola.
-- [ ] Abre Claude y describe lo que ves: *"El precio aparece encimado / no aparece / está muy lejos del ID"*
+- [ ] Abre Claude y describe lo que ves: *"Tengo diferentes formatos de etiquete, diferentes backgrounds, diferentes tamaños de ID, ID mixtos, complejos, etc"*
 
 > 💡 Tu trabajo como analista termina ejecutando el diagnóstico y haciendo las últimas iteraciones. Si depués de esto la tasa esta por debajo del 70% compartes con el catálogo con tu colaborador.
 
@@ -209,6 +209,8 @@ Elige el camino según lo que observas:
 <img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 ---
+
+**_Nota_**: Cuando la aplicación de escritorio no funciona
 
 > En ocaciones puede fallar la funcionalidad de catálogo en el desktop (escritorio), en ese caso habria que usar el móvil android, compartiendo por chat los recortes de pantalla (**Método Largo**), la ubicación de los ficheros o imagenes compartidos por Whatsapp es:
 
