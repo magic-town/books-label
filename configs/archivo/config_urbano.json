@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_urbano.xlsx",
     "pdf_output":  "salidas/urbano_precios.pdf",
 
-    "paginas_prueba": false,
+    "paginas_prueba": 1,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
@@ -34,7 +34,7 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
 
     "contraste": 2.5,
     "nitidez": 2.0,
@@ -42,6 +42,6 @@
     "ocr_invertir": false,
 
 
-    "fuzzy_activo": false,
-    "fuzzy_umbral": 85
+    "fuzzy_activo": true,
+    "fuzzy_umbral": 90
 }

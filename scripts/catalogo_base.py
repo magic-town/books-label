@@ -221,14 +221,11 @@ class EtiquetadorCatalogo:
         # ── Paso 4: insertar negativas sobre el PDF ya recortado ──────────────
         total_recortado = len(resultado)
         for pos, paginas_pres, ruta in sorted(negativas, key=lambda x: x[0]):
-            idx = max(0, total_recortado + pos)
+            # pos=-1 → última (idx=total), pos=-2 → penúltima (idx=total-1)
+            idx = max(0, total_recortado + pos + 1)
             resultado = resultado[:idx] + paginas_pres + resultado[idx:]
             total_recortado = len(resultado)
             self.logger.info(f"  📎  {os.path.basename(ruta):<30} → posición {idx + 1}")
-
-        # Recorte final: las negativas pueden haber sumado páginas extra
-        if prueba_activa:
-            resultado = resultado[:prueba_n]
 
         return resultado
 
