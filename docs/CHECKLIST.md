@@ -142,7 +142,7 @@ precios         catálogo        en WA
 
 - [ ] El dato crítico de cada corrida es **Etiquetas** — no la tasa porcentual, que es relativa al Excel completo. Con el mismo número de páginas de prueba, la combinación que produce el mayor número de etiquetas es la ganadora.
 
-<img src="../imagenes/asset_repo/modo_prueba.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100"/>
+<img src="../imagenes/asset_repo/modo_prueba.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
 
 - [ ] Registrar los resultados de cada corrida para comparar. Los outputs se conservan en `diagnosticos/` con nombre y timestamp.
 
