@@ -187,6 +187,38 @@ header::after{
 .c-ocr     .card-body{background:#EEF6FB;}
 
 .c-doble   .card-head{background:linear-gradient(135deg,#F2A0B4,#F5C4CF);border-bottom:2px solid #E8839A;}
+.c-portadas .card-head{background:linear-gradient(135deg,#C8A8D8,#DFC8EC);border-bottom:2px solid #9B72B8;}
+.c-portadas .card-icon{background:#9B72B8;}
+.c-portadas .card-body{background:#F7F0FC;}
+
+/* ── Fila de portada ── */
+.portada-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  align-items:center;gap:0.75rem;
+  padding:0.6rem 0.85rem;
+  border-radius:var(--r-sm);
+  border:1.5px solid #DFC8EC;
+  background:var(--white);
+  transition:background .2s,border-color .2s,opacity .2s;
+}
+.portada-row.row-active{background:#F7F0FC;border-color:#C8A8D8;}
+.portada-row.row-inactive{opacity:0.5;}
+.portada-badge{
+  font-size:9px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+  background:#9B72B8;color:white;
+  padding:2px 8px;border-radius:10px;white-space:nowrap;
+}
+.portada-label{font-size:12px;font-weight:700;color:var(--ink-m);}
+.portada-pos-wrap{display:flex;align-items:center;gap:0.4rem;}
+.portada-pos-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#9B72B8;}
+
+/* sw variante violet */
+.sw.violet input:checked + .sw-track{background:#9B72B8;}
+
+/* master toggle portadas */
+.tog.active-violet{background:#F7F0FC;border-color:#DFC8EC;}
+
 .c-doble   .card-icon{background:#E8839A;}
 .c-doble   .card-body{background:#FEF0F3;}
 
@@ -669,7 +701,112 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ③ ETIQUETA -->
+
+    <!-- ③ PÁGINAS INSERTADAS -->
+    <div class="card c-portadas">
+      <div class="card-head">
+        <div class="card-icon">📎</div>
+        <div><div class="card-title">Páginas insertadas</div><div class="card-sub">Carátulas que se insertan en el PDF final</div></div>
+      </div>
+      <div class="card-body">
+
+        <div class="tog" id="tog-portadas">
+          <div class="tog-info">
+            <div class="tog-name">Activar páginas insertadas</div>
+            <div class="tog-desc">Desactivado → todas las posiciones se exportan como false</div>
+          </div>
+          <label class="sw violet"><input type="checkbox" id="portadas_activas" checked oninput="upd()"/><span class="sw-track"></span></label>
+        </div>
+
+        <div id="portadas-body">
+          <!-- Portada 01 -->
+          <div class="portada-row row-active" id="row-p1">
+            <span class="portada-badge">01</span>
+            <span class="portada-label">portada_01.pdf</span>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p1_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
+            <div class="portada-pos-wrap">
+              <span class="portada-pos-label">pág</span>
+              <span class="spinbox violet" id="spn_p1">
+                <button class="spinbox-btn" onclick="sbStepP('p1_pos',-1)">−</button>
+                <input class="spinbox-input" id="si_p1" type="number" step="1" value="2" onchange="sbSetP('p1_pos',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStepP('p1_pos',1)">+</button>
+              </span>
+              <input type="hidden" id="p1_pos" value="2"/>
+            </div>
+          </div>
+
+          <!-- Portada 02 -->
+          <div class="portada-row row-active" id="row-p2">
+            <span class="portada-badge">02</span>
+            <span class="portada-label">portada_02.pdf</span>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p2_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
+            <div class="portada-pos-wrap">
+              <span class="portada-pos-label">pág</span>
+              <span class="spinbox violet" id="spn_p2">
+                <button class="spinbox-btn" onclick="sbStepP('p2_pos',-1)">−</button>
+                <input class="spinbox-input" id="si_p2" type="number" step="1" value="10" onchange="sbSetP('p2_pos',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStepP('p2_pos',1)">+</button>
+              </span>
+              <input type="hidden" id="p2_pos" value="10"/>
+            </div>
+          </div>
+
+          <!-- Portada 03 -->
+          <div class="portada-row row-active" id="row-p3">
+            <span class="portada-badge">03</span>
+            <span class="portada-label">portada_03.pdf</span>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p3_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
+            <div class="portada-pos-wrap">
+              <span class="portada-pos-label">pág</span>
+              <span class="spinbox violet" id="spn_p3">
+                <button class="spinbox-btn" onclick="sbStepP('p3_pos',-1)">−</button>
+                <input class="spinbox-input" id="si_p3" type="number" step="1" value="20" onchange="sbSetP('p3_pos',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStepP('p3_pos',1)">+</button>
+              </span>
+              <input type="hidden" id="p3_pos" value="20"/>
+            </div>
+          </div>
+
+          <!-- Portada 04 -->
+          <div class="portada-row row-inactive" id="row-p4">
+            <span class="portada-badge">04</span>
+            <span class="portada-label">portada_04.pdf</span>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p4_activa" oninput="upd()"/><span class="sw-track"></span></label>
+            <div class="portada-pos-wrap">
+              <span class="portada-pos-label">pág</span>
+              <span class="spinbox violet" id="spn_p4" style="opacity:0.4;pointer-events:none">
+                <button class="spinbox-btn" onclick="sbStepP('p4_pos',-1)">−</button>
+                <input class="spinbox-input" id="si_p4" type="number" step="1" value="1" onchange="sbSetP('p4_pos',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStepP('p4_pos',1)">+</button>
+              </span>
+              <input type="hidden" id="p4_pos" value="1"/>
+            </div>
+          </div>
+
+          <!-- Portada 05 -->
+          <div class="portada-row row-active" id="row-p5">
+            <span class="portada-badge">05</span>
+            <span class="portada-label">portada_05.pdf</span>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p5_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
+            <div class="portada-pos-wrap">
+              <span class="portada-pos-label">pág</span>
+              <span class="spinbox violet" id="spn_p5">
+                <button class="spinbox-btn" onclick="sbStepP('p5_pos',-1)">−</button>
+                <input class="spinbox-input" id="si_p5" type="number" step="1" value="-1" onchange="sbSetP('p5_pos',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStepP('p5_pos',1)">+</button>
+              </span>
+              <input type="hidden" id="p5_pos" value="-1"/>
+            </div>
+          </div>
+        </div><!-- /portadas-body -->
+
+        <div class="slider-hint" style="background:#F7F0FC;border:1px solid #DFC8EC;border-radius:8px;padding:0.5rem 0.75rem;font-weight:600;color:#9B72B8;">
+          💡 Posición: 1=primera · N=página N · -1=última · -2=penúltima · false=desactivada
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ ETIQUETA -->
     <div class="card c-label">
       <div class="card-head">
         <div class="card-icon">🏷️</div>
@@ -761,7 +898,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ④ LOGO -->
+    <!-- ⑤ LOGO -->
     <div class="card c-logo">
       <div class="card-head">
         <div class="card-icon">🖼️</div>
@@ -840,7 +977,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ⑤ RANGO DE IDs -->
+    <!-- ⑥ RANGO DE IDs -->
     <div class="card c-ids">
       <div class="card-head">
         <div class="card-icon">🔢</div>
@@ -877,7 +1014,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ⑥ DPI y PSM -->
+    <!-- ⑦ DPI y PSM -->
     <div class="card c-ocr">
       <div class="card-head">
         <div class="card-icon">📸</div>
@@ -914,7 +1051,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ⑦ DOBLE PASADA -->
+    <!-- ⑧ DOBLE PASADA -->
     <div class="card c-doble">
       <div class="card-head">
         <div class="card-icon">🔄</div>
@@ -1131,9 +1268,46 @@ const DEFAULTS = {
   etiqueta_font:'Helvetica-Bold', etiqueta_font_size:12, cr:0.89, cg:0.20, cb:0.23,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
   prueba_activa:false, paginas_prueba:1,
+  portadas_activas:true, p1_activa:true, p1_pos:2, p2_activa:true, p2_pos:10, p3_activa:true, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:true, p5_pos:-1,
   logo_activo:true, logo_path:'imagenes/logos/logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.85
 };
+
+
+// ── Portadas — spinbox helpers (sobre hidden input, sin min/max) ─────────────
+function sbStepP(hiddenId, delta) {
+  const h = $(hiddenId);
+  const cur = parseInt(h.value) || 1;
+  h.value = cur + delta;
+  // Sincronizar si el spinbox input visible existe
+  const siId = 'si_' + hiddenId.replace('_pos','').replace('p','p');
+  const si = $(siId);
+  if (si) si.value = h.value;
+  upd();
+}
+function sbSetP(hiddenId, val) {
+  const h = $(hiddenId);
+  h.value = parseInt(val) || 1;
+  upd();
+}
+function updPortadas() {
+  const masterOn = bv('portadas_activas');
+  $('tog-portadas').className = 'tog' + (masterOn ? ' active-violet' : '');
+  $('portadas-body').style.opacity = masterOn ? '1' : '0.35';
+  $('portadas-body').style.pointerEvents = masterOn ? 'auto' : 'none';
+
+  [1,2,3,4,5].forEach(n => {
+    const activa = masterOn && bv('p'+n+'_activa');
+    const row   = $('row-p'+n);
+    const spn   = $('spn_p'+n);
+    if (row) row.className = 'portada-row ' + (activa ? 'row-active' : 'row-inactive');
+    if (spn) { spn.style.opacity = activa ? '1' : '0.4'; spn.style.pointerEvents = activa ? 'auto' : 'none'; }
+    // Sync hidden ← spinbox input visible
+    const si = $('si_p'+n);
+    const h  = $('p'+n+'_pos');
+    if (si && h && document.activeElement !== si) si.value = h.value;
+  });
+}
 
 // ── Spinbox helpers ─────────────────────────────────────────────────────────
 function sbClamp(id, val) {
@@ -1192,6 +1366,7 @@ function upd() {
 
   // Toggle styling
   $('tog-prueba').className = 'tog' + (bv('prueba_activa') ? ' active-rose' : '');
+  updPortadas();
   $('tog-logo').className   = 'tog' + (bv('logo_activo')   ? ' active-sage' : '');
   $('tog-doble').className  = 'tog' + (bv('ocr_doble_pasada') ? ' active-teal' : '');
 
@@ -1292,6 +1467,11 @@ makeDrag($('simLogo'), (dx,dy) => {
 function v(val) { return JSON.stringify(val); }
 
 function buildCfgStr() {
+  const masterOn = bv('portadas_activas');
+  const pPos = n => {
+    if (!masterOn || !bv('p'+n+'_activa')) return false;
+    return parseInt($('p'+n+'_pos').value) || 1;
+  };
   const pdf_in  = sv('pdf_input');
   const xls_in  = sv('excel_input');
   const pdf_out = sv('pdf_output');
@@ -1331,9 +1511,11 @@ function buildCfgStr() {
     "paginas_prueba": ${v(prueba)},
 
     "presentaciones": [
-        {"path": "imagenes/logos/portada_01.pdf", "posicion": 1},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": 10},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": -1}
+        {"path": "imagenes/logos/portada_01.pdf", "posicion": ${pPos(1)}},
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": ${pPos(2)}},
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": ${pPos(3)}},
+        {"path": "imagenes/logos/portada_04.pdf", "posicion": ${pPos(4)}},
+        {"path": "imagenes/logos/portada_05.pdf", "posicion": ${pPos(5)}}
     ],
 
     "etiqueta_font": ${v(font)},
@@ -1391,6 +1573,12 @@ function resetear() {
   $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale; $('ocr_invertir').checked=DEFAULTS.ocr_invertir;
   $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada; $('fuzzy_activo').checked=DEFAULTS.fuzzy_activo;
   $('logo_activo').checked=DEFAULTS.logo_activo; $('prueba_activa').checked=DEFAULTS.prueba_activa;
+  $('portadas_activas').checked=DEFAULTS.portadas_activas;
+  [1,2,3,4,5].forEach(n => {
+    $('p'+n+'_activa').checked = DEFAULTS['p'+n+'_activa'];
+    $('p'+n+'_pos').value    = DEFAULTS['p'+n+'_pos'];
+    $('si_p'+n).value        = DEFAULTS['p'+n+'_pos'];
+  });
   upd();
 }
 
