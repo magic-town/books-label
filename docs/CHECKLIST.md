@@ -124,7 +124,7 @@ precios         catálogo        en WA
 
 ```
 
-    Lo que quiere decir, que las estas colocando en esas páginas, ahora no hay una página 4, por lo que sigue siendo `false`, pagina `2` y página `-1` son fijas, quiere decir segunda y ultima página. La 3ra página es libre y bien puede ser a la mitad del cátalgo.
+Lo que quiere decir, que las estas colocando en esas páginas, ahora no hay una página 4, por lo que sigue siendo `false`, pagina `2` y página `-1` son fijas, quiere decir segunda y ultima página. La 3ra página es libre y bien puede ser a la mitad del cátalgo.
 
 ### Ajustar parámetros con el configurador
 
