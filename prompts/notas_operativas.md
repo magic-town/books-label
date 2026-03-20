@@ -99,11 +99,11 @@ Config: `offset_x` o `offset_y` demasiado alto — bajar de a 5 puntos (~2mm) ha
 
 **Sandalias**
 - Dropbox: `https://www.dropbox.com/scl/fi/9il6j33plgpq6qyqi42bm/sandalias_precios.pdf?rlkey=8vytadcsjbn8781k19a1h3gux&st=50nj9g27&dl=1`
-- Bitly: `https://bit.ly/PS_Sandalias`
+- Bitly: `https://bit.ly/sandalias_26`
 
 **Jeans**
 - Dropbox: `https://www.dropbox.com/scl/fi/1mn1kdtaos8mx9rsv08e4/jeans_precios.pdf?rlkey=o0zxog7s4p95wjgtqyz72ayj1&st=69a7d9q2&dl=1`
-- Bitly: `https://bit.ly/sandalias_26`
+- Bitly: `https://bit.ly/jeans_26`
 
 **Urbano**
 - Dropbox: `https://www.dropbox.com/scl/fi/zyc29sqbo9l1nidzj6uhs/urbano_precios.pdf?rlkey=27qtxbz83dhh13655efygk8lo&st=k94575uc&dl=1`
