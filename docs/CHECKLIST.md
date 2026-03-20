@@ -102,6 +102,30 @@ precios         catálogo        en WA
 
 <img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
+### Insertar páginas con temática de la tienda - pueblo mágico
+
+
+
+- [ ] Esta parte no aparece en el `configurador.html` ya que no es necesaria.
+- [ ] Tiene 2 escenarios:
+
+    - 1. Etapa de pruebas: El parámetro pagina (último), en false. Aunque como estas haciendo pruebas es válido que cambies el parametro a `num` ya que no afecta al resultado finaL.
+
+<img src="../imagenes/asset_repo/caratulas.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>    
+
+    - 2. En la etapa final que continua con los siguientes pasos, por ejemplo cuando ya decidiste hacer una segunda pasada, ahi si coloca las páginas con este orden:
+
+```json
+"presentaciones": [
+        {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
+        {"path": "imagenes/logos/portada_02.pdf", "posicion": 25},
+        {"path": "imagenes/logos/portada_03.pdf", "posicion": 150},
+        {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
+        {"path": "imagenes/logos/portada_05.pdf", "posicion": -1}
+    ],
+```
+    Lo que quiere decir, que las estas colocando en esas páginas, ahora no hay una página 4, por lo que sigue siendo `false`, pagina `2` y página `-1` son fijas, quiere decir segunda y ultima página. La 3ra página es libre y bien puede ser a la mitad del cátalgo.
+
 ### Ajustar parámetros con el configurador
 
 - [ ] Activa el modo prueba (20) para hacer los primeros ajustes: posición de logo y etiqueta.
