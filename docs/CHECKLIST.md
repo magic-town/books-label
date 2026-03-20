@@ -109,10 +109,9 @@ precios         catálogo        en WA
 
     - 1. Etapa de pruebas: El parámetro pagina (último), en false. Aunque como estas haciendo pruebas es válido que cambies el parametro a `num` ya que no afecta al resultado finaL.
 
-<img src="../imagenes/asset_repo/caratulas.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>    
+  <img src="../imagenes/asset_repo/caratulas.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>    
 
-
-    - 2. En la etapa final que continua con los siguientes pasos, por ejemplo cuando ya decidiste hacer una segunda pasada, ahi si coloca las páginas con este orden:
+  - 2. En la etapa final que continua con los siguientes pasos, por ejemplo cuando ya decidiste hacer una segunda pasada, ahi si coloca las páginas con este orden:
 
 ```json
 "presentaciones": [
