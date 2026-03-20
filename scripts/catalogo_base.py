@@ -275,11 +275,13 @@ class EtiquetadorCatalogo:
         """
         Preprocesado estándar — pasada normal.
         Contraste + nitidez + mediana. Inversión si ocr_invertir está activo.
+        Si la imagen está en color (RGB) se conserva — Tesseract la acepta.
         """
         img = ImageEnhance.Contrast(img).enhance(self.contraste)
         img = ImageEnhance.Sharpness(img).enhance(self.nitidez)
         img = img.filter(ImageFilter.MedianFilter(size=3))
         if self.ocr_invertir:
+            img = img.convert("L")
             img = Image.eval(img, lambda px: 255 - px)
         return img
 
@@ -509,7 +511,7 @@ class EtiquetadorCatalogo:
                     grayscale=self.ocr_grayscale
                 )
 
-                img_base = images[0].convert("L")
+                img_base = images[0].convert("L") if self.ocr_grayscale else images[0]
 
                 # ── Pasada normal ──────────────────────────────────────────
                 img_normal  = self._mejorar_imagen(img_base.copy())
