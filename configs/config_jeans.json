@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_jeans.xlsx",
     "pdf_output":  "salidas/jeans_precios.pdf",
 
-    "paginas_prueba": 41,
+    "paginas_prueba": 20,
 
     "presentaciones": [
         {"path": "imagenes/logos/portada_01.pdf", "posicion": false},
@@ -36,7 +36,7 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
 
     "contraste": 3.5,
     "nitidez": 3.0,
