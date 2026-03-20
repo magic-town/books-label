@@ -16,12 +16,6 @@
         {"path": "imagenes/logos/portada_05.pdf", "posicion": false}
     ],
 
-    "etiqueta_font":        "Helvetica-BoldOblique",
-    "etiqueta_font_size":   12,
-    "etiqueta_color_rgb":   [0.89, 0.20, 0.23],
-    "etiqueta_offset_x_pt": 0.0,
-    "etiqueta_offset_y_pt": 0.0,
-
     "logo_activo":        false,
     "logo_path":          "imagenes/logos/logo_bz.png",
     "logo_x_pt":          351,
@@ -29,6 +23,12 @@
     "logo_ancho_pt":      80,
     "logo_alto_pt":       80,
     "logo_transparencia": 0.85,
+
+    "etiqueta_font":        "Helvetica-BoldOblique",
+    "etiqueta_font_size":   12,
+    "etiqueta_color_rgb":   [0.89, 0.20, 0.23],
+    "etiqueta_offset_x_pt": 0.0,
+    "etiqueta_offset_y_pt": 0.0,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,

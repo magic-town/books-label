@@ -784,99 +784,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ④ ETIQUETA -->
-    <div class="card c-label">
-      <div class="card-head">
-        <div class="card-icon">🏷️</div>
-        <div><div class="card-title">Precio — posición y estilo</div><div class="card-sub">Arrastra el precio en la vista previa →</div></div>
-      </div>
-      <div class="card-body">
-        <div class="g2">
-          <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span>
-              <span class="spinbox" id="spn_ox">
-                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',-0.5)">−</button>
-                <input class="spinbox-input" id="si_ox" type="number" step="0.5" value="0.00" onchange="sbSet('etiqueta_offset_x_pt',this.value)"/>
-                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',0.5)">+</button>
-              </span>
-            </div>
-            <input type="range" class="r-terra" id="etiqueta_offset_x_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
-            <div class="slider-hint">Negativo = izquierda</div>
-          </div>
-          <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span>
-              <span class="spinbox" id="spn_oy">
-                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',-0.5)">−</button>
-                <input class="spinbox-input" id="si_oy" type="number" step="0.5" value="0.00" onchange="sbSet('etiqueta_offset_y_pt',this.value)"/>
-                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',0.5)">+</button>
-              </span>
-            </div>
-            <input type="range" class="r-terra" id="etiqueta_offset_y_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
-            <div class="slider-hint">Negativo = por debajo</div>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-label">🔤 Tipo de fuente</div>
-          <select id="etiqueta_font" oninput="upd()" style="border:1.5px solid var(--terra-l);background:var(--cream);padding:0.5rem 0.85rem;font-family:'Nunito',sans-serif;font-size:13px;border-radius:var(--r-sm);width:100%;color:var(--ink);outline:none;cursor:pointer;">
-            <option value="Helvetica-Bold">Helvetica Bold — sin serifas, moderno</option>
-            <option value="Helvetica-BoldOblique" selected>Helvetica Bold Oblique — inclinado, dinámico</option>
-            <option value="Times-Bold">Times Bold — clásico, con serifas</option>
-            <option value="Times-BoldItalic">Times Bold Italic — elegante, serif cursiva</option>
-          </select>
-        </div>
-        <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span>
-            <span class="spinbox" id="spn_fs">
-              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',-1)">−</button>
-              <input class="spinbox-input" id="si_fs" type="number" step="1" value="12" onchange="sbSet('etiqueta_font_size',this.value)"/>
-              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',1)">+</button>
-            </span>
-          </div>
-          <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
-        </div>
-        <div class="sec-divider"></div>
-        <div class="color-row">
-          <div class="color-preview" id="colorPreview" style="background:rgb(227,51,59)"></div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
-            <div class="g3">
-              <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔴 Rojo</span>
-                  <span class="spinbox rose" id="spn_cr">
-                    <button class="spinbox-btn" onclick="sbStep('cr',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cr" type="number" step="0.01" value="0.89" onchange="sbSet('cr',this.value)"/>
-                    <button class="spinbox-btn" onclick="sbStep('cr',0.01)">+</button>
-                  </span>
-                </div>
-                <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.89" oninput="upd()"/>
-              </div>
-              <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🟢 Verde</span>
-                  <span class="spinbox sage" id="spn_cg">
-                    <button class="spinbox-btn" onclick="sbStep('cg',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cg" type="number" step="0.01" value="0.20" onchange="sbSet('cg',this.value)"/>
-                    <button class="spinbox-btn" onclick="sbStep('cg',0.01)">+</button>
-                  </span>
-                </div>
-                <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.20" oninput="upd()"/>
-              </div>
-              <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">🔵 Azul</span>
-                  <span class="spinbox sky" id="spn_cb">
-                    <button class="spinbox-btn" onclick="sbStep('cb',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cb" type="number" step="0.01" value="0.23" onchange="sbSet('cb',this.value)"/>
-                    <button class="spinbox-btn" onclick="sbStep('cb',0.01)">+</button>
-                  </span>
-                </div>
-                <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="0.23" oninput="upd()"/>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="slider-hint">Rojo retail = R:0.89 G:0.20 B:0.23 &nbsp;·&nbsp; Negro = R:0 G:0 B:0</div>
-      </div>
-    </div>
-
-    <!-- ⑤ LOGO -->
+    <!-- ④ LOGO -->
     <div class="card c-logo">
       <div class="card-head">
         <div class="card-icon">🖼️</div>
@@ -945,13 +853,105 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <div class="slider-top"><span class="slider-name">✨ Transparencia</span>
             <span class="spinbox sage" id="spn_lt">
               <button class="spinbox-btn" onclick="sbStep('logo_transparencia',-0.05)">−</button>
-              <input class="spinbox-input" id="si_lt" type="number" step="0.05" value="0.85" onchange="sbSet('logo_transparencia',this.value)"/>
+              <input class="spinbox-input" id="si_lt" type="text" inputmode="decimal" data-step="0.05" value="0.85" onchange="sbSet('logo_transparencia',this.value)"/>
               <button class="spinbox-btn" onclick="sbStep('logo_transparencia',0.05)">+</button>
             </span>
           </div>
           <input type="range" class="r-sage" id="logo_transparencia" min="0" max="1" step="0.05" value="0.85" oninput="upd()"/>
           <div class="slider-hint">0.0 = invisible · 1.0 = opaco completo</div>
         </div>
+      </div>
+    </div>
+
+    <!-- ⑤ ETIQUETA -->
+    <div class="card c-label">
+      <div class="card-head">
+        <div class="card-icon">🏷️</div>
+        <div><div class="card-title">Precio — posición y estilo</div><div class="card-sub">Arrastra el precio en la vista previa →</div></div>
+      </div>
+      <div class="card-body">
+        <div class="g2">
+          <div class="slider-wrap">
+            <div class="slider-top"><span class="slider-name">◀ Izquierda / Derecha ▶</span>
+              <span class="spinbox" id="spn_ox">
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',-0.5)">−</button>
+                <input class="spinbox-input" id="si_ox" type="text" inputmode="decimal" value="0.00" onchange="sbSet('etiqueta_offset_x_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_x_pt',0.5)">+</button>
+              </span>
+            </div>
+            <input type="range" class="r-terra" id="etiqueta_offset_x_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
+            <div class="slider-hint">Negativo = izquierda</div>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-top"><span class="slider-name">▼ Abajo / Arriba ▲</span>
+              <span class="spinbox" id="spn_oy">
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',-0.5)">−</button>
+                <input class="spinbox-input" id="si_oy" type="text" inputmode="decimal" value="0.00" onchange="sbSet('etiqueta_offset_y_pt',this.value)"/>
+                <button class="spinbox-btn" onclick="sbStep('etiqueta_offset_y_pt',0.5)">+</button>
+              </span>
+            </div>
+            <input type="range" class="r-terra" id="etiqueta_offset_y_pt" min="-150" max="150" step="0.5" value="0.0" oninput="upd()"/>
+            <div class="slider-hint">Negativo = por debajo</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">🔤 Tipo de fuente</div>
+          <select id="etiqueta_font" oninput="upd()" style="border:1.5px solid var(--terra-l);background:var(--cream);padding:0.5rem 0.85rem;font-family:'Nunito',sans-serif;font-size:13px;border-radius:var(--r-sm);width:100%;color:var(--ink);outline:none;cursor:pointer;">
+            <option value="Helvetica-Bold">Helvetica Bold — sin serifas, moderno</option>
+            <option value="Helvetica-BoldOblique" selected>Helvetica Bold Oblique — inclinado, dinámico</option>
+            <option value="Times-Bold">Times Bold — clásico, con serifas</option>
+            <option value="Times-BoldItalic">Times Bold Italic — elegante, serif cursiva</option>
+          </select>
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span>
+            <span class="spinbox" id="spn_fs">
+              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',-1)">−</button>
+              <input class="spinbox-input" id="si_fs" type="number" step="1" value="12" onchange="sbSet('etiqueta_font_size',this.value)"/>
+              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',1)">+</button>
+            </span>
+          </div>
+          <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
+        </div>
+        <div class="sec-divider"></div>
+        <div class="color-row">
+          <div class="color-preview" id="colorPreview" style="background:rgb(227,51,59)"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+            <div class="g3">
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">🔴 Rojo</span>
+                  <span class="spinbox rose" id="spn_cr">
+                    <button class="spinbox-btn" onclick="sbStep('cr',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cr" type="text" inputmode="decimal" data-step="0.01" value="0.89" onchange="sbSet('cr',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cr',0.01)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.89" oninput="upd()"/>
+              </div>
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">🟢 Verde</span>
+                  <span class="spinbox sage" id="spn_cg">
+                    <button class="spinbox-btn" onclick="sbStep('cg',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cg" type="text" inputmode="decimal" data-step="0.01" value="0.20" onchange="sbSet('cg',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cg',0.01)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.20" oninput="upd()"/>
+              </div>
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">🔵 Azul</span>
+                  <span class="spinbox sky" id="spn_cb">
+                    <button class="spinbox-btn" onclick="sbStep('cb',-0.01)">−</button>
+                    <input class="spinbox-input" id="si_cb" type="text" inputmode="decimal" data-step="0.01" value="0.23" onchange="sbSet('cb',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('cb',0.01)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="0.23" oninput="upd()"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slider-hint">Rojo retail = R:0.89 G:0.20 B:0.23 &nbsp;·&nbsp; Negro = R:0 G:0 B:0</div>
       </div>
     </div>
 
@@ -1283,17 +1283,19 @@ function sbClamp(id, val) {
 function sbStep(id, delta) {
   const el = $(id);
   const cur = parseFloat(el.value) || 0;
-  const step = parseFloat(el.step) || 1;
+  const step = parseFloat(el.step || el.dataset.step) || 1;
   // redondear para evitar flotantes sucios (0.1 + 0.2 = 0.30000000004)
   const decimals = (step.toString().split('.')[1] || '').length;
-  el.value = sbClamp(id, parseFloat((cur + delta).toFixed(decimals)));
+  const newVal = sbClamp(id, parseFloat((cur + delta).toFixed(decimals)));
+  el.value = decimals > 0 ? newVal.toFixed(decimals) : newVal;
   upd();
 }
 function sbSet(id, val) {
   const el = $(id);
-  const step = parseFloat(el.step) || 1;
+  const step = parseFloat(el.step || el.dataset.step) || 1;
   const decimals = (step.toString().split('.')[1] || '').length;
-  el.value = sbClamp(id, parseFloat(parseFloat(val).toFixed(decimals)));
+  const newVal = sbClamp(id, parseFloat(parseFloat(val).toFixed(decimals)));
+  el.value = decimals > 0 ? newVal.toFixed(decimals) : newVal;
   upd();
 }
 
@@ -1479,12 +1481,6 @@ function buildCfgStr() {
         {"path": "imagenes/logos/portada_05.pdf", "posicion": ${v(pPos(5))}}
     ],
 
-    "etiqueta_font":        ${v(font)},
-    "etiqueta_font_size":   ${fs},
-    "etiqueta_color_rgb":   [${cr}, ${cg}, ${cb}],
-    "etiqueta_offset_x_pt": ${ox},
-    "etiqueta_offset_y_pt": ${oy},
-
     "logo_activo":        ${logo_a},
     "logo_path":          ${v(logo_p)},
     "logo_x_pt":          ${lx},
@@ -1492,6 +1488,12 @@ function buildCfgStr() {
     "logo_ancho_pt":      ${lw},
     "logo_alto_pt":       ${lh},
     "logo_transparencia": ${lt},
+
+    "etiqueta_font":        ${v(font)},
+    "etiqueta_font_size":   ${fs},
+    "etiqueta_color_rgb":   [${cr}, ${cg}, ${cb}],
+    "etiqueta_offset_x_pt": ${ox},
+    "etiqueta_offset_y_pt": ${oy},
 
     "id_longitud_min": ${id_min},
     "id_longitud_max": ${id_max},
