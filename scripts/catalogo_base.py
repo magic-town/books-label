@@ -26,6 +26,7 @@ import pandas as pd
 import pytesseract
 import re
 import gc
+import subprocess
 
 from pdf2image import convert_from_path
 from PyPDF2 import PdfReader, PdfWriter
@@ -149,6 +150,57 @@ class EtiquetadorCatalogo:
 
         self._cargar_precios()
         self._verificar_tesseract()
+
+    # ── Normalización PDF — compatibilidad universal ─────────────────────────────
+
+    def _normalizar_pdf(self, path: str) -> None:
+        """
+        Re-renderiza el PDF con Ghostscript para garantizar compatibilidad
+        universal: Android, lectores básicos, dispositivos legacy.
+
+        PyPDF2 puede producir estructuras no estándar que Adobe tolera
+        pero otros lectores rechazan. Ghostscript normaliza a PDF 1.4 limpio.
+
+        Si Ghostscript no está disponible el PDF original se conserva intacto
+        — el proceso no falla, solo avisa.
+        """
+        import tempfile, shutil
+        tmp = path + ".gs_tmp.pdf"
+        try:
+            result = subprocess.run(
+                [
+                    "gs",
+                    "-dBATCH", "-dNOPAUSE", "-dQUIET",
+                    "-sDEVICE=pdfwrite",
+                    "-dCompatibilityLevel=1.4",
+                    "-dPDFSETTINGS=/default",
+                    "-dEmbedAllFonts=true",
+                    "-dSubsetFonts=true",
+                    f"-sOutputFile={tmp}",
+                    path
+                ],
+                capture_output=True, text=True, timeout=300
+            )
+            if result.returncode == 0 and os.path.exists(tmp):
+                shutil.move(tmp, path)
+                self.logger.info("  ✅  PDF normalizado con Ghostscript — compatible con todos los dispositivos")
+            else:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+                self.logger.warning(f"  ⚠️  Ghostscript falló (código {result.returncode}) — se conserva el PDF original")
+                if result.stderr:
+                    self.logger.debug(f"      GS stderr: {result.stderr[:200]}")
+        except FileNotFoundError:
+            self.logger.warning("  ⚠️  Ghostscript no encontrado — instalar con: sudo apt install ghostscript")
+            self.logger.warning("      El PDF puede no abrirse en todos los dispositivos.")
+        except subprocess.TimeoutExpired:
+            self.logger.warning("  ⚠️  Ghostscript tardó demasiado — se conserva el PDF original")
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception as e:
+            self.logger.warning(f"  ⚠️  Error en normalización: {e} — se conserva el PDF original")
+            if os.path.exists(tmp):
+                os.remove(tmp)
 
     # ── Insertar páginas de presentación ────────────────────────────────────────
 
@@ -275,13 +327,11 @@ class EtiquetadorCatalogo:
         """
         Preprocesado estándar — pasada normal.
         Contraste + nitidez + mediana. Inversión si ocr_invertir está activo.
-        Si la imagen está en color (RGB) se conserva — Tesseract la acepta.
         """
         img = ImageEnhance.Contrast(img).enhance(self.contraste)
         img = ImageEnhance.Sharpness(img).enhance(self.nitidez)
         img = img.filter(ImageFilter.MedianFilter(size=3))
         if self.ocr_invertir:
-            img = img.convert("L")
             img = Image.eval(img, lambda px: 255 - px)
         return img
 
@@ -511,7 +561,7 @@ class EtiquetadorCatalogo:
                     grayscale=self.ocr_grayscale
                 )
 
-                img_base = images[0].convert("L") if self.ocr_grayscale else images[0]
+                img_base = images[0].convert("L")
 
                 # ── Pasada normal ──────────────────────────────────────────
                 img_normal  = self._mejorar_imagen(img_base.copy())
@@ -618,6 +668,9 @@ class EtiquetadorCatalogo:
         except Exception as e:
             self.logger.error(f"❌ Error al guardar PDF: {e}")
             raise
+
+        # ── Normalizar PDF — compatibilidad universal ──────────────────────────────
+        self._normalizar_pdf(self.output_path)
 
         # ── Reporte final ─────────────────────────────────────────────────────
         ids_unicos    = len(ids_detectados)
