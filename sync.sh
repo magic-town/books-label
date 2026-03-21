@@ -3,7 +3,7 @@
 # ── Quién ejecuta este sync ───────────────────────────────────────────────────
 # Detecta automáticamente el usuario de git configurado en esta máquina.
 # Si no está configurado, usa el hostname.
-QUIEN=$(git config user.name 2>/dev/null || hostname)
+QUIEN=$(cat ~/books-label/.quien 2>/dev/null || git config user.name 2>/dev/null || hostname)
 
 # ── Archivos donde esta máquina siempre gana ──────────────────────────────────
 # Si eres Sonia, tu versión de tabla_precios.ods siempre tiene prioridad.
