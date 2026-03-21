@@ -6,15 +6,16 @@
     "excel_input": "precios/lista_vestir_ropa.xlsx",
     "pdf_output":  "salidas/vestir_ropa_precios.pdf",
 
-    "paginas_prueba": 20,
+    "paginas_prueba": false,
 
     "presentaciones": [
-        {"path": "imagenes/logos/portada_01.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_05.pdf", "posicion": false}
-    ],
+    {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
+    {"path": "imagenes/logos/portada_02.pdf", "posicion": 25},
+    {"path": "imagenes/logos/portada_03.pdf", "posicion": 99},
+    {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
+    {"path": "imagenes/logos/portada_05.pdf", "posicion": -1}
+]
+    ,
 
     "logo_activo":        true,
     "logo_path":          "imagenes/logos/logo_bz.png",
@@ -33,10 +34,10 @@
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "dpi": 200,
+    "dpi": 250,
     "psm": 6,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste":     2.5,
     "nitidez":       2,
