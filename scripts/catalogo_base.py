@@ -206,30 +206,27 @@ class EtiquetadorCatalogo:
 
     def _insertar_presentaciones(self, paginas: list, total_real: int = None) -> list:
         """
-        Inserta carátulas en las posiciones indicadas y devuelve
-        la lista ya recortada a paginas_prueba si el modo está activo.
+        Inserta carátulas en posiciones absolutas del documento final.
 
         Reglas de posición:
-          posicion false  → carátula desactivada, se omite
-          posicion N >= 1 → posición absoluta en el catálogo completo
-                            si N > total_real, se omite
-          posicion -1     → última página del PDF que se va a generar
-          posicion -N     → N páginas desde el final del PDF final
+          posicion false  → desactivada, se omite
+          posicion N >= 1 → página N absoluta en el PDF final
+                            las portadas previas ya cuentan en el índice
+                            si N > páginas disponibles, se omite
+          posicion -1     → última página del PDF final
+          posicion -N     → N páginas desde el final
 
-        Las posiciones negativas se resuelven sobre el PDF de salida
-        (después del recorte), no sobre el catálogo completo.
-        Eso garantiza que -1 siempre sea la última hoja visible.
-
-        Si dos carátulas caen en el mismo índice, la de posición
-        negativa tiene prioridad.
+        Las positivas se insertan en orden ascendente sobre el resultado
+        creciente — así la posición es absoluta en el documento final.
+        Las negativas se insertan al final sobre el resultado completo.
+        El recorte a paginas_prueba ya ocurre en marcar() antes de llamar
+        este método — aquí NO se recorta.
         """
-        total_real     = total_real if total_real is not None else len(paginas)
-        prueba_n       = self.paginas_prueba
-        prueba_activa  = prueba_n is not False and prueba_n >= 1
+        n_catalogo = len(paginas)  # páginas disponibles (ya recortadas si hay prueba)
 
-        # ── Paso 1: separar carátulas positivas y negativas ───────────────────
-        positivas = []   # (idx_absoluto, paginas_pres, ruta)
-        negativas = []   # (pos_negativa, paginas_pres, ruta)
+        # ── Paso 1: clasificar carátulas ──────────────────────────────────────
+        positivas = []  # (pos_final, paginas_pres, ruta)  — orden ascendente
+        negativas = []  # (pos_negativa, paginas_pres, ruta)
 
         for pres in self.presentaciones:
             ruta = pres["path"]
@@ -249,33 +246,43 @@ class EtiquetadorCatalogo:
                 continue
 
             if pos >= 1:
-                if pos > total_real:
+                if pos > n_catalogo:
                     self.logger.info(
                         f"  ⏭️  {os.path.basename(ruta)} — posición {pos} supera "
-                        f"las {total_real} págs. del catálogo, se omite."
+                        f"las {n_catalogo} págs. disponibles, se omite en esta corrida."
                     )
                     continue
-                positivas.append((pos - 1, paginas_pres, ruta))
+                positivas.append((pos, paginas_pres, ruta))
 
             elif pos < 0:
                 negativas.append((pos, paginas_pres, ruta))
 
-        # ── Paso 2: insertar positivas (sobre catálogo, de atrás hacia adelante)
+        # ── Paso 2: insertar positivas en orden ascendente ────────────────────
+        # Insertar de menor a mayor posición sobre el resultado creciente.
+        # Cada inserción desplaza el índice siguiente en +1 por cada
+        # portada ya insertada antes de ese punto.
         resultado = list(paginas)
-        for idx, paginas_pres, ruta in sorted(positivas, key=lambda x: x[0], reverse=True):
+
+        for pos, paginas_pres, ruta in sorted(positivas, key=lambda x: x[0]):
+            # pos es absoluta en el documento final — insertar en idx=pos-1
+            # del resultado creciente garantiza la posición exacta
+            idx = pos - 1
             resultado = resultado[:idx] + paginas_pres + resultado[idx:]
+            self.logger.info(
+                f"  📎  {os.path.basename(ruta):<30} → página {idx + 1}"
+            )
 
-        # ── Paso 3: recortar a paginas_prueba antes de resolver negativas ─────
-        if prueba_activa:
-            resultado = resultado[:prueba_n]
-
-        # ── Paso 4: insertar negativas sobre el PDF ya recortado ──────────────
-        total_recortado = len(resultado)
+        # ── Paso 3: insertar negativas al final ───────────────────────────────
+        total_actual = len(resultado)
         for pos, paginas_pres, ruta in sorted(negativas, key=lambda x: x[0]):
-            # pos=-1 → última (idx=total), pos=-2 → penúltima (idx=total-1)
-            idx = max(0, total_recortado + pos + 1)
-            resultado = resultado[:idx] + paginas_pres + resultado[idx:]
-            total_recortado = len(resultado)
+            # pos=-1 → última (idx=total), pos=-2 → penúltima, etc.
+            idx = max(0, total_actual + pos + 1)
+            resultado    = resultado[:idx] + paginas_pres + resultado[idx:]
+            total_actual = len(resultado)
+            pos_label = "última" if idx >= total_actual - 1 else f"página {idx + 1}"
+            self.logger.info(
+                f"  📎  {os.path.basename(ruta):<30} → {pos_label}"
+            )
 
         return resultado
 
