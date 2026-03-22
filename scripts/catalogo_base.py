@@ -428,13 +428,19 @@ class EtiquetadorCatalogo:
         if id_detectado in self.precios_dict:
             return self.precios_dict[id_detectado], "exacto", None, None
 
-        # 2. Recorte por la derecha
-        if len(id_detectado) > self.id_len_max:
-            for n in range(self.id_len_max, self.id_len_min - 1, -1):
-                sufijo = id_detectado[-n:]
-                if sufijo in self.precios_dict:
-                    self.logger.debug(f"   ✂️  Recorte: '{id_detectado}' → '{sufijo}'")
-                    return self.precios_dict[sufijo], "recorte", None, None
+        # 2. Ventana deslizante — recupera IDs cuando el OCR agrega o fusiona
+        #    un dígito extra al inicio, al final o mezcla texto adyacente.
+        #    Solo matchea si la subcadena existe exactamente en el Excel —
+        #    sin riesgo de precio incorrecto.
+        if len(id_detectado) >= self.id_len_min:
+            for largo in range(min(len(id_detectado), self.id_len_max), self.id_len_min - 1, -1):
+                if largo == len(id_detectado):
+                    continue   # ya se probó en exacto
+                for inicio in range(len(id_detectado) - largo + 1):
+                    ventana = id_detectado[inicio:inicio + largo]
+                    if ventana in self.precios_dict:
+                        self.logger.debug(f"   ✂️  Ventana: '{id_detectado}' → '{ventana}'")
+                        return self.precios_dict[ventana], "recorte", None, None
 
         # 3. Fuzzy
         if self.fuzzy_activo:
