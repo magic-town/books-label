@@ -33,7 +33,7 @@ del proveedor        catálogo            al cliente
   ```bash
   cd ~/books-label && ./sync.sh
   ```
-- [ ] Activar el entorno:
+- [ ] Ya dentro de VSC activar el entorno, si no se activa automáteicamente:
   ```bash
   source venv_catalogo/bin/activate
   ```
@@ -42,12 +42,12 @@ del proveedor        catálogo            al cliente
 
 ### Preparar la configuración
 
-- [ ] Crear una copia de `fase_1/config/config_base_extractor.json`. Desde **Dolphin**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V`.
+- [ ] Crear una copia de `fase_1/config/config_base_extractor.json`. Desde **Dolphin** o **VSC**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V`.
 - [ ] Renombrar la copia con `F12` siguiendo la convención:
-  `config_<proveedor>_<temporada>.json`
-  — Ejemplo: `config_ps_pv26.json`
+  `config_<proveedor_ex>.json`
+  — Ejemplo: `config_caballeros_ex.json`
 
-- [ ] Abrir el panel haciendo doble clic sobre:
+- [ ] Abrir el panel haciendo doble clic sobre 👇:
   ```
   fase_1/config/panel_extraer_campos.html
   ```
