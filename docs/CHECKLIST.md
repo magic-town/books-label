@@ -107,10 +107,9 @@ del proveedor        catálogo            al cliente
 - [ ] Aumentar `tolerancia_x` de 20 a 30 o 40 si las columnas no se detectan.
 - [ ] Para Price Shoes: verificar que `encoding_offset` es 29.
 
-**Camino B — Escalar a Gabriel**
-- [ ] Compartir el output de consola, el PDF y los valores del config que usaste.
+**Camino B — Volver usar prompts con LLM**
 
-> Tu responsabilidad en Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
+> La Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
 
 
 ---
