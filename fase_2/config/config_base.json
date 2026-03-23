@@ -1,6 +1,8 @@
 {
     "_comentario": "Configuración base — Boutique Zepeda · books-label",
-    "_uso": "python3 scripts/catalogo_base.py --config configs/<nombre_config>.json",
+    "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json",
+
+    "id_proveedor": "PS",
 
     "pdf_input":   "libros/<nombre_catalogo.pdf>",
     "excel_input": "precios/<lista_catalogo.xlsx>",
@@ -9,15 +11,15 @@
     "paginas_prueba": false,
 
     "presentaciones": [
-        {"path": "imagenes/logos/portada_01.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_01.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
     ],
 
     "logo_activo":        false,
-    "logo_path":          "imagenes/logos/logo_bz.png",
+    "logo_path":          "../imagenes/logos/logo_bz.png",
     "logo_x_pt":          351,
     "logo_y_pt":          677,
     "logo_ancho_pt":      80,

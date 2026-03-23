@@ -1,0 +1,16 @@
+{
+    "_comentario": "Plantilla base — Extractor Fase 1 · books-label",
+    "_uso": "python3 scripts/extractor.py --config configs/fase1/<nombre_config>.json",
+
+    "pdf_input":    "libros/<lista_proveedor.pdf>",
+    "excel_output": "precios/<lista_proveedor.xlsx>",
+
+    "paginas_prueba": false,
+
+    "encoding_offset": 0,
+    "tolerancia_x":    20.0,
+
+    "col_id":     "ID",
+    "col_precio": "Precio",
+    "col_pag":    null
+}

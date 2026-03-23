@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Configurador — Extractor Fase 1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 36px 40px;
+    }
+
+    h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+
+    .subtitle { font-size: 0.83rem; color: #999; margin-bottom: 28px; }
+
+    .section {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #bbb;
+      margin: 24px 0 10px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .hint { font-size: 0.73rem; color: #aaa; margin-top: 3px; }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1.5px solid #dde1e7;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      color: #1a1a2e;
+      background: #fafbfc;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    input:focus { border-color: #4a6cf7; background: #fff; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-row label { margin: 0; }
+
+    input[type="checkbox"] {
+      width: 17px; height: 17px;
+      accent-color: #4a6cf7;
+      cursor: pointer;
+    }
+
+    .pages-wrap { display: none; margin-top: 6px; }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 26px; }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+
+    .btn-primary   { background: #4a6cf7; color: #fff; flex: 1; }
+    .btn-secondary { background: #f0f2f5; color: #666; }
+
+    .output-wrap { display: none; margin-top: 22px; }
+
+    .output-wrap > label {
+      font-size: 0.78rem;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 250px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.79rem;
+      border: 1.5px solid #dde1e7;
+      border-radius: 7px;
+      padding: 12px;
+      background: #f8f9fb;
+      color: #222;
+      resize: vertical;
+      outline: none;
+    }
+
+    .btn-copy {
+      margin-top: 8px;
+      background: #22c55e;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 0.83rem;
+    }
+
+    .cmd-wrap {
+      display: none;
+      margin-top: 16px;
+      background: #1a1a2e;
+      color: #7effa0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.81rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #eef2ff;
+      color: #4a6cf7;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <h1>Extractor de Lista de Precios <span class="badge">Fase 1</span></h1>
+  <p class="subtitle">Configura la corrida y copia el JSON al archivo de configuración.</p>
+
+  <!-- Archivos -->
+  <div class="section">Archivos</div>
+
+  <div class="field">
+    <label>PDF de entrada</label>
+    <input type="text" id="pdf_input" placeholder="libros/lista_price_shoes_spring26.pdf"/>
+    <p class="hint">Ruta relativa desde la raíz del proyecto.</p>
+  </div>
+
+  <div class="field">
+    <label>Excel de salida</label>
+    <input type="text" id="excel_output" placeholder="precios/lista_price_shoes_spring26.xlsx"/>
+    <p class="hint">Usar .ods si trabajas en LibreOffice.</p>
+  </div>
+
+  <!-- Columnas en el PDF -->
+  <div class="section">Columnas en el PDF</div>
+  <p class="hint" style="margin-bottom:12px">Escribe el nombre exacto como aparece en el encabezado del PDF del proveedor.</p>
+
+  <div class="row2">
+    <div class="field">
+      <label>Columna ID</label>
+      <input type="text" id="col_id" value="ID"/>
+    </div>
+    <div class="field">
+      <label>Columna precio sugerido</label>
+      <input type="text" id="col_precio" value="Precio"/>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Columna página <span style="font-weight:400;color:#aaa">(opcional — para auditoría)</span></label>
+    <input type="text" id="col_pag" placeholder="Pag — dejar vacío si no se necesita"/>
+  </div>
+
+  <!-- Parámetros de lectura -->
+  <div class="section">Parámetros de lectura</div>
+
+  <div class="row2">
+    <div class="field">
+      <label>Offset de encoding</label>
+      <input type="number" id="encoding_offset" value="0" min="-94" max="94"/>
+      <p class="hint">Price Shoes = 29. PDFs normales = 0.</p>
+    </div>
+    <div class="field">
+      <label>Tolerancia X (px)</label>
+      <input type="number" id="tolerancia_x" value="20" min="5" max="80"/>
+      <p class="hint">Aumentar si faltan datos en columnas.</p>
+    </div>
+  </div>
+
+  <!-- Modo prueba -->
+  <div class="section">Modo prueba</div>
+
+  <div class="toggle-row">
+    <input type="checkbox" id="modo_prueba" onchange="togglePrueba()"/>
+    <label for="modo_prueba">Activar modo prueba</label>
+  </div>
+  <div class="pages-wrap" id="pages_wrap">
+    <label>Páginas a procesar</label>
+    <input type="number" id="paginas_prueba" value="5" min="1" max="999"/>
+  </div>
+
+  <!-- Botones -->
+  <div class="btn-row">
+    <button class="btn-primary" onclick="generar()">Generar JSON</button>
+    <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+  </div>
+
+  <!-- Output -->
+  <div class="output-wrap" id="output_wrap">
+    <label>JSON generado — pégalo en tu archivo de configuración:</label>
+    <textarea id="json_text" readonly></textarea>
+    <button class="btn-copy" onclick="copiar()">📋 Copiar JSON</button>
+  </div>
+
+  <div class="cmd-wrap" id="cmd_wrap"></div>
+
+</div>
+
+<script>
+  function togglePrueba() {
+    const activo = document.getElementById('modo_prueba').checked;
+    document.getElementById('pages_wrap').style.display = activo ? 'block' : 'none';
+  }
+
+  function generar() {
+    const pdf_input      = document.getElementById('pdf_input').value.trim();
+    const excel_output   = document.getElementById('excel_output').value.trim();
+    const col_id         = document.getElementById('col_id').value.trim();
+    const col_precio     = document.getElementById('col_precio').value.trim();
+    const col_pag_raw    = document.getElementById('col_pag').value.trim();
+    const col_pag        = col_pag_raw || null;
+    const offset         = parseInt(document.getElementById('encoding_offset').value) || 0;
+    const tolerancia     = parseFloat(document.getElementById('tolerancia_x').value) || 20;
+    const modo_prueba    = document.getElementById('modo_prueba').checked;
+    const paginas_prueba = modo_prueba
+      ? parseInt(document.getElementById('paginas_prueba').value)
+      : false;
+
+    if (!pdf_input || !excel_output) {
+      alert('Completa los campos de PDF de entrada y Excel de salida.');
+      return;
+    }
+    if (!col_id || !col_precio) {
+      alert('Especifica el nombre de la columna ID y la columna de precio.');
+      return;
+    }
+
+    // Nombre del config deducido del PDF de entrada
+    const nombre_pdf    = pdf_input.split('/').pop().replace('.pdf', '');
+    const nombre_config = `config_${nombre_pdf}`;
+
+    const config = {
+      _comentario:     "Configuración Fase 1 — Extractor · books-label",
+      _uso:            `python3 scripts/extractor.py --config configs/fase1/${nombre_config}.json`,
+      pdf_input,
+      excel_output,
+      paginas_prueba,
+      encoding_offset: offset,
+      tolerancia_x:    tolerancia,
+      col_id,
+      col_precio,
+      col_pag
+    };
+
+    const json_str = JSON.stringify(config, null, 4);
+    document.getElementById('json_text').value  = json_str;
+    document.getElementById('output_wrap').style.display = 'block';
+
+    const cmd = `python3 scripts/extractor.py --config configs/fase1/${nombre_config}.json`;
+    const cmdEl = document.getElementById('cmd_wrap');
+    cmdEl.style.display = 'block';
+    cmdEl.textContent   = '$ ' + cmd;
+  }
+
+  function copiar() {
+    navigator.clipboard.writeText(document.getElementById('json_text').value).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copiado';
+      setTimeout(() => btn.textContent = orig, 1800);
+    });
+  }
+
+  function limpiar() {
+    ['pdf_input','excel_output','col_pag'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('col_id').value          = 'ID';
+    document.getElementById('col_precio').value      = 'Precio';
+    document.getElementById('encoding_offset').value = '0';
+    document.getElementById('tolerancia_x').value    = '20';
+    document.getElementById('modo_prueba').checked   = false;
+    document.getElementById('pages_wrap').style.display  = 'none';
+    document.getElementById('output_wrap').style.display = 'none';
+    document.getElementById('cmd_wrap').style.display    = 'none';
+  }
+</script>
+</body>
+</html>

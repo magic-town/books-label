@@ -8,7 +8,7 @@ QUIEN=$(cat ~/books-label/.quien 2>/dev/null || git config user.name 2>/dev/null
 # ── Archivos donde esta máquina siempre gana ──────────────────────────────────
 # Si eres Sonia, tu versión de tabla_precios.ods siempre tiene prioridad.
 # En la máquina de Gabriel este bloque no hace nada (QUIEN no coincide).
-ARCHIVOS_PROPIOS=("precios/tabla_precios.ods")
+ARCHIVOS_PROPIOS=("fase_2/precios/tabla_precios.ods")
 NOMBRE_SONIA="Sonia"   # debe coincidir con: git config user.name
 
 # ── Guardar versión local de archivos prioritarios ────────────────────────────

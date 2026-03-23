@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Boutique Zepeda — Configurador</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⚙️</text></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -628,7 +629,65 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
   <!-- ══ COLUMNA IZQUIERDA ══ -->
   <div class="left">
 
-    <!-- ① ARCHIVOS -->
+        <!-- ① PROVEEDOR Y RANGO DE IDs -->
+    <div class="card c-ids">
+      <div class="card-head">
+        <div class="card-icon">🏭</div>
+        <div><div class="card-title">Proveedor y formato de ID</div><div class="card-sub">El proveedor determina el patrón de búsqueda del OCR</div></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <div class="field-label">🏭 Proveedor</div>
+          <select id="id_proveedor" onchange="onProveedorChange()" style="border:1.5px solid var(--sky-l);background:var(--sky-bg);padding:0.5rem 0.85rem;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;border-radius:var(--r-sm);width:100%;color:var(--sky);outline:none;cursor:pointer;">
+            <option value="PS" selected>Price Shoes — ID xxxxxxx (dígitos, rango configurable)</option>
+            <option value="Pakar">Pakar — Código xxx-xxx (3 dígitos - 3 dígitos)</option>
+            <option value="Cklass">Cklass — xxx-xx (3 dígitos - 2 dígitos)</option>
+            <option value="Otro">Otro — alfanumérico (rango configurable)</option>
+          </select>
+          <div class="field-hint" id="proveedor_hint" style="font-weight:700;color:var(--sky);">🔑 Patrón: \d{4,8}</div>
+        </div>
+        <div id="rango_ids_wrap">
+          <div class="sec-divider" style="margin:0.5rem 0;"></div>
+          <div class="tog active-sky" id="tog-rango" style="border-color:var(--sky-l);background:var(--sky-bg);">
+            <div class="tog-info">
+              <div class="tog-name" style="color:var(--sky);">Rango de dígitos activo</div>
+              <div class="tog-desc">Solo para Price Shoes y Otro — bloqueado para Pakar y Cklass</div>
+            </div>
+            <label class="sw" style="pointer-events:none;opacity:0.5;" id="sw_rango_label">
+              <input type="checkbox" id="rango_activo" checked disabled/><span class="sw-track" style="background:var(--sky);"></span>
+            </label>
+          </div>
+          <div id="rango_sliders" style="margin-top:0.75rem;">
+            <div class="g2">
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span>
+                  <span class="spinbox sky" id="spn_idmin">
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',-1)">−</button>
+                    <input class="spinbox-input" id="si_idmin" type="number" step="1" value="4" onchange="sbSet('id_longitud_min',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',1)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
+                <div class="slider-hint">IDs más cortos se ignoran</div>
+              </div>
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">Máximo de dígitos</span>
+                  <span class="spinbox sky" id="spn_idmax">
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',-1)">−</button>
+                    <input class="spinbox-input" id="si_idmax" type="number" step="1" value="8" onchange="sbSet('id_longitud_max',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',1)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
+                <div class="slider-hint">IDs más largos se ignoran</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② ARCHIVOS -->
     <div class="card c-files">
       <div class="card-head">
         <div class="card-icon">📂</div>
@@ -662,7 +721,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
       </div>
     </div>
 
-    <!-- ② MODO PRUEBA -->
+    <!-- ③ MODO PRUEBA -->
     <div class="card c-prueba">
       <div class="card-head">
         <div class="card-icon">🧪</div>
@@ -799,8 +858,11 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <label class="sw sage"><input type="checkbox" id="logo_activo" checked oninput="upd()"/><span class="sw-track"></span></label>
         </div>
         <div class="field">
-          <div class="field-label">📁 Ruta del logo</div>
-          <input type="text" id="logo_path" value="imagenes/logos/logo_bz.png" oninput="upd()" style="border-color:var(--sage-l);"/>
+          <div class="field-label">📁 Nombre del logo</div>
+          <div style="display:flex;align-items:center;border:1.5px solid var(--sage-l);border-radius:var(--r-sm);overflow:hidden;background:var(--cream);">
+            <span style="padding:0.5rem 0.6rem;background:var(--sage-bg);font-family:'Courier New',monospace;font-size:11px;color:var(--sage);white-space:nowrap;border-right:1px solid var(--sage-l);">../imagenes/logos/</span>
+            <input type="text" id="logo_filename" value="logo_bz.png" oninput="upd()" style="border:none;background:transparent;padding:0.5rem 0.6rem;font-family:'Nunito',sans-serif;font-size:13px;color:var(--ink);outline:none;flex:1;min-width:0;"/>
+          </div>
           <div class="field-hint">Disponibles: <code style="background:var(--cream-d);padding:0 4px;border-radius:5px;font-size:10px;font-family:'Courier New'">logo_bz.png</code> · <code style="background:var(--cream-d);padding:0 4px;border-radius:5px;font-size:10px;font-family:'Courier New'">logo_ocean.png</code></div>
         </div>
         <div class="g2">
@@ -952,43 +1014,6 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </div>
         </div>
         <div class="slider-hint">Rojo retail = R:0.89 G:0.20 B:0.23 &nbsp;·&nbsp; Negro = R:0 G:0 B:0</div>
-      </div>
-    </div>
-
-    <!-- ⑥ RANGO DE IDs -->
-    <div class="card c-ids">
-      <div class="card-head">
-        <div class="card-icon">🔢</div>
-        <div><div class="card-title">Rango de IDs del proveedor</div><div class="card-sub">¿Cuántos dígitos tienen los códigos de producto?</div></div>
-      </div>
-      <div class="card-body">
-        <div class="g2">
-          <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span>
-              <span class="spinbox sky" id="spn_idmin">
-                <button class="spinbox-btn" onclick="sbStep('id_longitud_min',-1)">−</button>
-                <input class="spinbox-input" id="si_idmin" type="number" step="1" value="4" onchange="sbSet('id_longitud_min',this.value)"/>
-                <button class="spinbox-btn" onclick="sbStep('id_longitud_min',1)">+</button>
-              </span>
-            </div>
-            <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
-            <div class="slider-hint">IDs más cortos se ignoran</div>
-          </div>
-          <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Máximo de dígitos</span>
-              <span class="spinbox sky" id="spn_idmax">
-                <button class="spinbox-btn" onclick="sbStep('id_longitud_max',-1)">−</button>
-                <input class="spinbox-input" id="si_idmax" type="number" step="1" value="8" onchange="sbSet('id_longitud_max',this.value)"/>
-                <button class="spinbox-btn" onclick="sbStep('id_longitud_max',1)">+</button>
-              </span>
-            </div>
-            <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
-            <div class="slider-hint">IDs más largos se ignoran</div>
-          </div>
-        </div>
-        <div class="slider-hint" style="background:var(--sky-bg);border:1px solid var(--sky-l);border-radius:8px;padding:0.5rem 0.75rem;font-weight:600;color:var(--sky);">
-          💡 Si no sabes el rango, déjalo en 4–8. Cambia solo si el semáforo es rojo y el diagnóstico lo indica.
-        </div>
       </div>
     </div>
 
@@ -1238,14 +1263,42 @@ const DEFAULTS = {
   pdf_input_name:'nombre_catalogo.pdf', excel_input_name:'lista_catalogo.xlsx', pdf_output_name:'catalogo_precios.pdf',
   dpi:200, psm:6, contraste:2.5, nitidez:2.0,
   ocr_grayscale:true, ocr_invertir:false, ocr_doble_pasada:false,
-  id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
+  id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
   etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.89, cg:0.20, cb:0.23,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
   prueba_activa:false, paginas_prueba:1,
   portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
-  logo_activo:true, logo_path:'imagenes/logos/logo_bz.png',
+  logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.85
 };
+
+// ── Proveedor ────────────────────────────────────────────────────────────────
+const PROVEEDOR_INFO = {
+  'PS':     { hint:'🔑 Patrón: \\d{4,8} — solo dígitos, longitud configurable', rango:true  },
+  'Pakar':  { hint:'🔑 Patrón fijo: \\d{3}-\\d{3} — no se puede cambiar',        rango:false },
+  'Cklass': { hint:'🔑 Patrón fijo: \\d{3}-\\d{2} — no se puede cambiar',        rango:false },
+  'Otro':   { hint:'🔑 Patrón: alfanumérico, longitud configurable',              rango:true  },
+};
+
+function onProveedorChange() {
+  const p = sv('id_proveedor');
+  const info = PROVEEDOR_INFO[p] || PROVEEDOR_INFO['PS'];
+  $('proveedor_hint').textContent = info.hint;
+  const wrap = $('rango_sliders');
+  const togLabel = $('sw_rango_label');
+  if (info.rango) {
+    wrap.style.opacity = '1';
+    wrap.style.pointerEvents = 'auto';
+    togLabel.style.opacity = '1';
+    togLabel.style.pointerEvents = 'auto';
+  } else {
+    wrap.style.opacity = '0.3';
+    wrap.style.pointerEvents = 'none';
+    togLabel.style.opacity = '0.3';
+    togLabel.style.pointerEvents = 'none';
+  }
+  upd();
+}
 
 
 // ── Portadas helpers ─────────────────────────────────────────────────────────
@@ -1445,7 +1498,8 @@ function buildCfgStr() {
   const ox      = +fv('etiqueta_offset_x_pt').toFixed(2);
   const oy      = +fv('etiqueta_offset_y_pt').toFixed(2);
   const logo_a  = bv('logo_activo');
-  const logo_p  = sv('logo_path');
+  const logo_p  = '../imagenes/logos/' + sv('logo_filename');
+  const id_prov = sv('id_proveedor');
   const lx      = +fv('logo_x_pt');
   const ly      = +fv('logo_y_pt');
   const lw      = +fv('logo_ancho_pt');
@@ -1465,7 +1519,7 @@ function buildCfgStr() {
 
   return `{
     "_comentario": "Configuración para Catalogo — Boutique Zepeda",
-    "_uso": "python3 scripts/catalogo_base.py --config configs/<config_catalogo.json>",
+    "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
 
     "pdf_input":   ${v(pdf_in)},
     "excel_input": ${v(xls_in)},
@@ -1473,12 +1527,14 @@ function buildCfgStr() {
 
     "paginas_prueba": ${v(prueba)},
 
+    "id_proveedor": ${v(id_prov)},
+
     "presentaciones": [
-        {"path": "imagenes/logos/portada_01.pdf", "posicion": ${v(pPos(1))}},
-        {"path": "imagenes/logos/portada_02.pdf", "posicion": ${v(pPos(2))}},
-        {"path": "imagenes/logos/portada_03.pdf", "posicion": ${v(pPos(3))}},
-        {"path": "imagenes/logos/portada_04.pdf", "posicion": ${v(pPos(4))}},
-        {"path": "imagenes/logos/portada_05.pdf", "posicion": ${v(pPos(5))}}
+        {"path": "../imagenes/logos/portada_01.pdf", "posicion": ${v(pPos(1))}},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": ${v(pPos(2))}},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": ${v(pPos(3))}},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": ${v(pPos(4))}},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": ${v(pPos(5))}}
     ],
 
     "logo_activo":        ${logo_a},
@@ -1528,9 +1584,10 @@ function updJSON() {
 function resetear() {
   $('pdf_input_name').value=DEFAULTS.pdf_input_name; $('excel_input_name').value=DEFAULTS.excel_input_name; $('pdf_output_name').value=DEFAULTS.pdf_output_name;
   $('etiqueta_font').value=DEFAULTS.etiqueta_font;
+  $('id_proveedor').value=DEFAULTS.id_proveedor;
   $('dpi').value=DEFAULTS.dpi;
   $('psm').value=DEFAULTS.psm;
-  $('logo_path').value=DEFAULTS.logo_path;
+  $('logo_filename').value=DEFAULTS.logo_filename;
   ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','fuzzy_umbral',
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
@@ -1550,6 +1607,7 @@ function copiar() {
 }
 
 window.addEventListener('load',()=>{
+  onProveedorChange();
   upd();
   setTimeout(()=>{ $('dragHint').style.opacity='0'; },4000);
   window.addEventListener('resize',updSim);

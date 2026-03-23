@@ -97,6 +97,14 @@ class EtiquetadorCatalogo:
         self.excel_path  = os.path.join(base_dir, config["excel_input"])
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
+        # Proveedor — determina el formato de ID a buscar
+        # PS    → solo dígitos (configurable por longitud)
+        # Pakar → Código xxx-xxx  (dígitos-dígitos, guion fijo)
+        # Cklass → xxx-xx         (dígitos-dígitos, sin prefijo)
+        # Otro  → alfanumérico (configurable por longitud)
+        self.id_proveedor = config.get("id_proveedor", "PS").strip()
+        self._id_pattern, self._usa_guion = self._build_id_pattern()
+
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
@@ -328,6 +336,40 @@ class EtiquetadorCatalogo:
             self.logger.error("❌ Tesseract no encontrado. Instala con: sudo apt install tesseract-ocr tesseract-ocr-spa")
             raise
 
+    # ── Patrón de detección de ID por proveedor ───────────────────────────────
+
+    def _build_id_pattern(self):
+        """
+        Construye el patrón regex y la bandera usa_guion según el proveedor.
+
+        usa_guion=False → comportamiento original: strip de no-dígitos, validación por longitud.
+        usa_guion=True  → búsqueda directa del patrón en el texto (ID incluye guion).
+
+        Retorna (pattern_compilado, usa_guion)
+        """
+        p = self.id_proveedor.upper()
+
+        if p == "PAKAR":
+            # Código xxx-xxx  (3 dígitos, guion, 3 dígitos)
+            self.logger.info("🔑 Formato ID: Pakar  → \\d{3}-\\d{3}")
+            return re.compile(r'\d{3}-\d{3}'), True
+
+        elif p == "CKLASS":
+            # xxx-xx  (3 dígitos, guion, 2 dígitos)
+            self.logger.info("🔑 Formato ID: Cklass → \\d{3}-\\d{2}")
+            return re.compile(r'\d{3}-\d{2}'), True
+
+        else:
+            # PS y Otro: dígitos puros, longitud configurable
+            if p not in ("PS", "OTRO"):
+                self.logger.warning(
+                    f"⚠️  id_proveedor='{self.id_proveedor}' no reconocido — "
+                    f"se usará formato numérico (PS). Valores válidos: PS, Pakar, Cklass, Otro."
+                )
+            mn, mx = self.id_len_min, self.id_len_max
+            self.logger.info(f"🔑 Formato ID: {p} → \\d{{{mn},{mx}}}")
+            return re.compile(rf'\d{{{mn},{mx}}}'), False
+
     # ── Preprocesado de imagen ────────────────────────────────────────────────
 
     def _mejorar_imagen(self, img: Image.Image) -> Image.Image:
@@ -524,6 +566,7 @@ class EtiquetadorCatalogo:
         self.logger.info(f"🚀 Iniciando: {os.path.basename(self.pdf_path)}")
         self.logger.info(
             f"   DPI={self.dpi} | PSM={self.psm} | "
+            f"Proveedor={self.id_proveedor} | "
             f"Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | "
             f"IDs: {self.id_len_min}–{self.id_len_max} dígitos | "
             f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
@@ -607,15 +650,21 @@ class EtiquetadorCatalogo:
                     if not texto.strip():
                         continue
 
-                    id_detectado = re.sub(r"\D", "", texto)
-
-                    # Permitir hasta el doble del máximo para que tokens con
-                    # texto adyacente fusionado lleguen a _buscar_id y sean
-                    # recuperados por recorte por la derecha.
-                    if len(id_detectado) < self.id_len_min:
-                        continue
-                    if len(id_detectado) > self.id_len_max * 2:
-                        continue
+                    if self._usa_guion:
+                        # Pakar / Cklass: busca el patrón directamente en el texto
+                        m = self._id_pattern.search(texto)
+                        if not m:
+                            continue
+                        id_detectado = m.group()
+                    else:
+                        # PS / Otro: strip de no-dígitos, validación por longitud
+                        id_detectado = re.sub(r"\D", "", texto)
+                        # Permitir hasta el doble del máximo para que tokens con
+                        # texto adyacente fusionado lleguen a _buscar_id.
+                        if len(id_detectado) < self.id_len_min:
+                            continue
+                        if len(id_detectado) > self.id_len_max * 2:
+                            continue
 
                     precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
 
@@ -767,6 +816,7 @@ class EtiquetadorCatalogo:
         self.logger.info(f"[STAT] paginas_prueba={self.paginas_prueba}")
         self.logger.info(f"[STAT] tasa={tasa:.2f}")
         self.logger.info(f"[STAT] semaforo={semaforo_key}")
+        self.logger.info(f"[STAT] id_proveedor={self.id_proveedor}")
 
 
 # ─────────────────────────────────────────────
@@ -775,7 +825,7 @@ class EtiquetadorCatalogo:
 
 if __name__ == "__main__":
     args = parse_args()
-    BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    BASE = os.path.dirname(os.path.abspath(__file__))
 
     config_path = os.path.join(BASE, args.config)
     if not os.path.exists(config_path):
