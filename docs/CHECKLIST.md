@@ -10,73 +10,13 @@
 ## 🗺️ ¿En qué etapa estoy?
 
 ```
-FASE 1          FASE 2          FASE 3
-Preparar   →   Etiquetar   →   Publicar
-precios         catálogo        en WA
+FASE 1               FASE 2               FASE 3
+Extraer precios  →  Etiquetar       →   Publicar
+del proveedor        catálogo            al cliente
 ```
 
----
-
-## 📋 FASE 1 — Preparar los precios
-
-> **Objetivo:** contar con el archivo Excel validado antes de ejecutar cualquier script.
-
-### Descargar y verificar
-
-- [ ] Descargar el catálogo PDF y la lista de precios del proveedor.
-- [ ] Validar visualmente que ambos archivos correspondan al mismo proveedor y temporada: número de páginas, IDs y precios sugeridos deben coincidir.
-- [ ] Mover los archivos a sus directorios:
-  - Catálogo PDF → `~/boutique_zepeda/<proveedor>/catalogos`
-  - Lista de precios → `~/boutique_zepeda/<proveedor>/lista_precios`
-
-### Extracción de precios con asistente de IA *(solución vigente — se evalúa automatización con script)*
-
-- [ ] Abrir el prompt de extracción: 👉 [extraer_columnas_listas.md](../prompts/extraer_columnas_listas.md)
-- [ ] Seleccionar un modelo de lenguaje — NotebookLM, Claude, o ambos en paralelo — y adjuntar la lista cruda del proveedor.
-- [ ] Ejecutar el prompt y obtener la tabla extraída.
-- [ ] Validar el resultado: comparar la **lista cruda del proveedor** contra la **tabla extraída por el modelo**, verificando que no haya registros faltantes, precios en cero ni IDs con formato incorrecto.
-
-### Construcción de la tabla de precios en LibreOffice Calc
-
-> Se trabaja con LibreOffice Calc. Algunas fórmulas y atajos dependen de extensiones instaladas — si algo no responde como se describe, verifica que estén activas.
-
-- [ ] Abrir `~/books-label/precios/tabla_precios.ods`.
-- [ ] Agregar una hoja nueva y renombrarla como `<proveedor_categoria>`.
-- [ ] Pegar la tabla extraída en formato numérico.
-- [ ] Verificar la columna de redondeo — si no existe, agregarla:
-  ```
-  =ROUND(C2, -1)
-  ```
-- [ ] Agregar la columna `precio_venta` con fórmula VLOOKUP *(consultar hojas anteriores como referencia)*.
-- [ ] Agregar la columna de longitud `len`:
-  ```
-  =LEN(A2)
-  ```
-- [ ] Completar la tabla en su totalidad.
-
-### 🔎 Validación — paso obligatorio
-
-- [ ] Fijar encabezados: `Ver > Fijar filas y columnas > Fijar primera fila`
-- [ ] Activar filtros: `Datos > AutoFiltro` o `Ctrl+Shift+L`
-- [ ] Filtrar por la columna `len` y comparar los largos de ID contra el catálogo del proveedor.
-- [ ] Confirmar que no existan IDs con longitud incorrecta ni precios en cero.
-
-### ⚠️ Generación del archivo final — paso crítico
-
-- [ ] Retirar todos los filtros activos antes de copiar.
-- [ ] Copiar la columna `ID` y pegarla de forma normal.
-- [ ] Copiar la columna `precio_venta` y pegarla usando **Pegado especial > Solo números** (clic derecho).
-- [ ] La hoja debe contener dos tablas claramente diferenciadas:
-  - Tabla completa con todos los campos de trabajo.
-  - Tabla simplificada con únicamente `ID` y `precio_venta`.
-- [ ] Copiar la tabla simplificada a un archivo nuevo:
-  `Archivo > Nueva hoja de cálculo > Pegar`
-  *(En inglés: `File > New spreadsheet > Paste`)*
-- [ ] Guardar el archivo como:
-  ```
-  ~/books-label/precios/<lista_catalogo.xlsx>
-  ```
-  Si el sistema solicita confirmar el formato Excel, seleccionar **Aceptar**.
+> **Nota:** La Fase 1 está en desarrollo. Por ahora el proceso comienza en la Fase 2.
+> Cuando la Fase 1 esté lista, te avisaremos y actualizaremos esta guía.
 
 ---
 
@@ -84,149 +24,168 @@ precios         catálogo        en WA
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
 
+### Antes de empezar
+
+- [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
+- [ ] Verificar que tienes la lista de precios Excel en `fase_2/precios/`
+- [ ] Ejecutar sync para bajar los cambios más recientes:
+  ```bash
+  cd ~/books-label
+  ./sync.sh
+  ```
+- [ ] Activar el entorno:
+  ```bash
+  source venv_catalogo/bin/activate
+  ```
+
+---
+
 ### Preparar la configuración
 
-- [ ] Crear una copia de `configs/config_base.json`. Desde **VSC** o **Dolphin**: seleccionar el archivo, `Ctrl+C` seguido de `Ctrl+V` — el sistema genera la copia automáticamente.
-- [ ] Renombrar la copia con `F12` siguiendo la convención: `config_<proveedor>_<temporada>.json`
+- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V` — el sistema genera la copia automáticamente.
+- [ ] Renombrar la copia con `F12` siguiendo la convención:
+  `config_<proveedor>_<temporada>.json`
   — Ejemplo: `config_importados_26.json`
-- [ ] Abrir el configurador visual por cualquiera de estas vías:
 
-  - Desde terminal:
-    ```bash
-    source venv_catalogo/bin/activate
-    ```
-    ```bash
-    python3 abrir_configurador.py
-    ```
-  - Desde Dolphin: doble clic sobre `configurador.html`.
-  - Si ya está abierto en el navegador, no es necesario volver a lanzarlo.
+- [ ] Abrir el configurador haciendo doble clic sobre:
+  ```
+  fase_2/config/configurador.html
+  ```
 
-- [ ] Actualizar los tres campos de archivos en el configurador, o editarlos directamente en el JSON desde VSC:
+  En el configurador, lo primero que debes elegir es el **proveedor**:
 
-<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+  | Proveedor | Elige en el menú |
+  |-----------|-----------------|
+  | Price Shoes | PS |
+  | Pakar | Pakar |
+  | Cklass | Cklass |
+  | Otro | Otro |
+
+- [ ] Actualizar los tres campos de archivos en el configurador:
+
+<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Configurador" width="85%"/>
 
 ---
 
 ### Etapa 1 de pruebas — Posicionamiento visual
 
-> **Objetivo:** definir la posición correcta de la etiqueta de precio y del logo antes de iterar parámetros de lectura.
+> **Objetivo:** que la etiqueta de precio aparezca junto al ID del producto.
 
-- [ ] Activar el modo prueba con un valor de **20 páginas** para agilizar el ciclo de validación.
-- [ ] Mantener las páginas insertadas (carátulas) en `false` durante esta etapa — no afectan el resultado de las etiquetas y pueden ajustarse al final.
-- [ ] Ejecutar el script y abrir el PDF generado en `salidas/`.
-- [ ] Validar visualmente que la etiqueta de precio y el logo aparezcan en la posición esperada:
-  - ¿El precio se ubica junto al ID del producto?
-  - ¿El logo aparece en el cuadrante correcto de la portada?
-- [ ] Ajustar los controles de posición en el configurador hasta obtener el resultado deseado. Copiar el JSON y pegarlo en el archivo de configuración.
+- [ ] Activar modo prueba con **20 páginas**.
+- [ ] Mantener las carátulas en `false` durante esta etapa.
+- [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
+- [ ] Ejecutar el script:
+  ```bash
+  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
+  ```
+- [ ] Abrir el PDF generado en `fase_2/salidas/` y verificar visualmente:
+  - ¿El precio aparece junto al ID del producto?
+  - ¿El logo aparece en el lugar correcto?
+- [ ] Ajustar posición en el configurador hasta que se vea bien. Copiar JSON y pegar.
 
 ---
 
-### Etapa 2 de pruebas — Optimización de parámetros de lectura
+### Etapa 2 de pruebas — Optimización de lectura
 
-> **Objetivo:** identificar la combinación de parámetros que maximiza el número de etiquetas insertadas.
+> **Objetivo:** encontrar la combinación de parámetros que detecta más IDs.
 
-- [ ] Mantener el modo prueba activo. Usar entre **30 y 40 páginas** — esta muestra es suficiente para evaluar el comportamiento del catálogo sin extender el tiempo de cada corrida.
-- [ ] Desactivar la doble pasada (`ocr_doble_pasada: false`) durante esta etapa. La doble pasada se reserva para la corrida final.
-- [ ] Ejecutar entre **4 y 8 combinaciones** de parámetros. La siguiente tabla presenta las combinaciones estándar de referencia:
+- [ ] Mantener modo prueba activo. Usar entre **30 y 40 páginas**.
+- [ ] Desactivar doble pasada durante esta etapa.
+- [ ] Probar entre 4 y 8 combinaciones. Tabla de referencia:
 
-| # | 📸 DPI | 🔍 PSM | 🔄 Doble pasada | 🔃 Invertir | Cuándo usarla |
-|---|:------:|:------:|:--------------:|:-----------:|---------------|
-| 1 | 200 | 6 | ❌ | ❌ | Punto de partida — catálogo limpio, texto negro sobre blanco |
-| 2 | 200 | 11 | ❌ | ❌ | IDs dispersos o con fotos de página completa |
-| 3 | 200 | 4 | ❌ | ❌ | Catálogo organizado en columnas de texto bien definidas |
-| 4 | 200 | 6 | ❌ | ❌ | Repetir combinación 1 con nitidez o contraste ajustados |
-| 5 | 250 | 6 | ❌ | ❌ | PDF de baja resolución o IDs pequeños |
-| 6 | 250 | 11 | ❌ | ❌ | IDs dispersos con mayor resolución |
-| 7 | 300 | 11 | ❌ | ❌ | Máxima resolución — catálogos complejos sin mejora previa |
-| 8 | 250 | 11 | ❌ | ✅ | IDs en texto blanco sobre fondo oscuro en todo el catálogo |
+| # | DPI | PSM | Doble pasada | Invertir | Cuándo usarla |
+|---|:---:|:---:|:------------:|:--------:|---------------|
+| 1 | 200 | 6 | ❌ | ❌ | Punto de partida — catálogo limpio |
+| 2 | 200 | 11 | ❌ | ❌ | IDs dispersos o fotos de página completa |
+| 3 | 200 | 4 | ❌ | ❌ | Catálogo en columnas de texto |
+| 4 | 250 | 6 | ❌ | ❌ | PDF de baja resolución |
+| 5 | 250 | 11 | ❌ | ❌ | IDs dispersos con más resolución |
+| 6 | 300 | 11 | ❌ | ❌ | Máxima resolución |
+| 7 | 250 | 11 | ❌ | ✅ | IDs en texto blanco sobre fondo oscuro |
 
-- [ ] El dato crítico de cada corrida es **Etiquetas** — no la tasa porcentual, que es relativa al Excel completo. Con el mismo número de páginas de prueba, la combinación que produce el mayor número de etiquetas es la ganadora.
+- [ ] El dato clave de cada corrida es **Etiquetas** — no el porcentaje.
 
-<img src="../imagenes/asset_repo/modo_prueba.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/modo_prueba.png" alt="Modo prueba" width="100%"/>
 
-- [ ] Registrar los resultados de cada corrida para comparar. Los outputs se conservan en `diagnosticos/` con nombre y timestamp.
+- [ ] Registrar los resultados. Los logs se guardan en `fase_2/diagnosticos/`.
 
-<img src="../imagenes/asset_repo/copy_json.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
+<img src="../imagenes/asset_repo/copy_json.png" alt="Copiar JSON" width="65%"/>
 
 ---
 
 ### Etiquetado final
 
-> **Objetivo:** procesar el catálogo completo con la configuración ganadora y las páginas institucionales insertadas.
+> **Objetivo:** procesar el catálogo completo con la configuración ganadora.
 
-- [ ] Seleccionar la combinación de parámetros con mayor número de etiquetas de la etapa anterior.
-- [ ] Configurar las páginas insertadas con sus posiciones definitivas:
+- [ ] Configurar las carátulas con sus posiciones definitivas:
 
 ```json
 "presentaciones": [
-    {"path": "imagenes/logos/portada_01.pdf", "posicion": 2},
-    {"path": "imagenes/logos/portada_02.pdf", "posicion": 25},
-    {"path": "imagenes/logos/portada_03.pdf", "posicion": 150},
-    {"path": "imagenes/logos/portada_04.pdf", "posicion": false},
-    {"path": "imagenes/logos/portada_05.pdf", "posicion": -1}
+    {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
+    {"path": "../imagenes/logos/portada_02.pdf", "posicion": 25},
+    {"path": "../imagenes/logos/portada_03.pdf", "posicion": 150},
+    {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
+    {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
 ]
 ```
 
-> Las posiciones `2` y `-1` son fijas — corresponden a la segunda y última página del PDF final. Las posiciones intermedias pueden ajustarse libremente; `false` desactiva una carátula sin eliminarla del archivo.
+> Posición `2` = segunda página · `-1` = última página · `false` = desactivada
 
-- [ ] Activar la doble pasada y desactivar el modo prueba:
-  ```json
-  "paginas_prueba": false,
-  "ocr_doble_pasada": true
-  ```
-- [ ] Copiar el JSON generado por el configurador y pegarlo en el archivo de configuración.
+- [ ] Desactivar modo prueba y activar doble pasada:
+```json
+"paginas_prueba": false,
+"ocr_doble_pasada": true
+```
+
+- [ ] Copiar JSON del configurador y pegar en el archivo de configuración.
 - [ ] Ejecutar el script:
   ```bash
-  python3 scripts/catalogo_base.py --config configs/<nombre_config>.json
+  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
   ```
 
-### Leer el semáforo
+---
 
-Al concluir el proceso, el sistema mostrará el resultado en consola:
+### Leer el semáforo
 
 | Resultado | Acción |
 |-----------|--------|
 | 🟢 **VERDE** — 85% o más | Revisar el PDF visualmente y continuar a Fase 3 |
-| 🟡 **AMARILLO** — 65% a 84% | Revisar el PDF y evaluar si se requiere un ajuste adicional |
-| 🔴 **ROJO** — menos de 65% | No publicar — consultar la sección siguiente |
+| 🟡 **AMARILLO** — 65% a 84% | Revisar el PDF y evaluar si se requiere un ajuste |
+| 🔴 **ROJO** — menos de 65% | No publicar — ver sección siguiente |
 
-- [ ] Independientemente del semáforo, ejecutar el diagnóstico al finalizar el etiquetado completo:
+- [ ] Ejecutar el diagnóstico al terminar:
   ```bash
-  python3 scripts/diagnostico.py
+  python3 fase_2/diagnostico.py
   ```
-  Copiar el output y compartirlo con el colaborador del proyecto para obtener el visto bueno final antes de publicar. Este paso no es bloqueante, pero es parte del proceso de calidad.
-
-### Si el semáforo no es verde
-
-Seleccionar el camino según lo que se observa en el PDF:
-
-**Camino A — Ajuste autónomo de parámetros**
-- [ ] Abrir el configurador, revisar los sliders, ajustar la combinación de parámetros y copiar el JSON actualizado al archivo de configuración.
-- [ ] Ejecutar nuevamente el script y comparar el resultado.
-
-**Camino B — Diagnóstico automático con soporte de Claude**
-- [ ] Ejecutar el diagnóstico:
-  ```bash
-  python3 scripts/diagnostico.py
-  ```
-- [ ] Copiar el output completo y pegarlo en Claude con la consulta: *"Este es el diagnóstico de mi script de etiquetado, ¿qué parámetros recomiendas ajustar?"*
-
-**Camino C — Escalamiento al colaborador del proyecto**
-- [ ] Este camino aplica cuando los caminos A y B no logran superar el 70% de efectividad.
-- [ ] Capturar el PDF con el problema y el output de consola.
-- [ ] Compartir con el colaborador describiendo el contexto: tipo de catálogo, combinaciones ya probadas y resultado obtenido.
-
-> Tu responsabilidad como analista concluye al ejecutar el diagnóstico y completar las iteraciones de parámetros. Si después de ese proceso la tasa permanece por debajo del 70%, el caso se escala al colaborador técnico del proyecto.
+  Copiar el output y compartirlo con Gabriel si el semáforo no es verde.
 
 ---
 
-## 📲 FASE 3 — Publicar en WhatsApp Business
+### Si el semáforo no es verde
 
-> **Objetivo:** entregar el catálogo etiquetado al cliente a través del canal oficial.
+**Camino A — Ajuste autónomo**
+- [ ] Abrir el configurador, ajustar parámetros, copiar JSON y ejecutar de nuevo.
+
+**Camino B — Diagnóstico con Claude**
+- [ ] Ejecutar `python3 fase_2/diagnostico.py`
+- [ ] Pegar el output en Claude: *"Este es el diagnóstico de mi script, ¿qué parámetros recomiendas?"*
+
+**Camino C — Escalar a Gabriel**
+- [ ] Aplica cuando A y B no superan el 70%.
+- [ ] Compartir el PDF, el log de consola y las combinaciones ya probadas.
+
+> Tu responsabilidad concluye al ejecutar el diagnóstico y completar las iteraciones. Si después de ese proceso la tasa sigue por debajo del 70%, se escala.
+
+---
+
+## 📲 FASE 3 — Publicar al cliente
+
+> **Estado:** canal actual es Dropbox + WhatsApp Business.
+> Se evalúa migrar a GitHub Pages o portal web para visualización directa.
 
 ### Mover el archivo
 
-- [ ] Copiar el PDF final desde `salidas/` al directorio correspondiente:
+- [ ] Copiar el PDF final desde `fase_2/salidas/` al directorio de la marca:
   ```
   ~/boutique_zepeda/<marca>/catalogos_etiquetados/
   ```
@@ -234,51 +193,48 @@ Seleccionar el camino según lo que se observa en el PDF:
 ### Subir a Dropbox
 
 - [ ] Subir a 🗳️ Dropbox: `Inicio > <marca> > catalogos`
-- [ ] Copiar el enlace generado por Dropbox.
-- [ ] Pegar el enlace en VSC, en el archivo `~/books-label/prompts/notas_operativas.md`.
-- [ ] Cambiar el último carácter del enlace: `0` → `1` *(esto convierte el enlace de previsualización en enlace de descarga directa)*.
+- [ ] Copiar el enlace generado.
+- [ ] Pegar en VSC en el archivo `~/books-label/prompts/notas_operativas.md`
+- [ ] Cambiar el último carácter del enlace: `0` → `1`
 
-<img src="../imagenes/asset_repo/link.png" alt="Boutique Zepeda — Taller de Etiquetado" width="95%"/>
+<img src="../imagenes/asset_repo/link.png" alt="Enlace Dropbox" width="95%"/>
 
 ### Comprimir el enlace
 
-- [ ] Acceder a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace modificado desde VSC.
+- [ ] Entrar a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace modificado.
 
-<img src="../imagenes/asset_repo/bitly.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+<img src="../imagenes/asset_repo/bitly.png" alt="Bitly" width="85%"/>
 
-> 🥺 Bitly tiene un límite mensual de enlaces. Contamos con 3 cuentas para distribuir la carga — si se agotan, se utiliza el enlace largo directamente en WhatsApp Business.
+> 🥺 Bitly tiene límite mensual. Contamos con 3 cuentas — si se agotan, usar el enlace largo directamente.
 
-- [ ] Copiar el enlace corto generado por Bitly.
-- [ ] Pegarlo en el mismo bloque de VSC: `~/books-label/prompts/notas_operativas.md`.
+- [ ] Copiar el enlace corto y pegarlo en `notas_operativas.md`.
 
 ### Crear el artículo en WhatsApp Business
 
-- [ ] Utilizando 🔥 **Flameshot**, capturar 10 recortes representativos del catálogo etiquetado, incluyendo la portada. Guardar en `~/boutique_zepeda/<marca>/carrusel` con nombres secuenciales — ejemplo: `1.png, 2.png, ..., 10.png`.
+- [ ] Capturar 10 recortes del catálogo con **Flameshot**. Guardar en:
+  `~/boutique_zepeda/<marca>/carrusel` con nombres `1.png, 2.png, ..., 10.png`
 
-- [ ] Desde **WhatsApp Business Desktop** navegar a `Herramientas` > `Catálogo` > `Añadir un artículo nuevo`:
+- [ ] Desde **WhatsApp Business Desktop**: `Herramientas > Catálogo > Añadir artículo nuevo`
 
-<img src="../imagenes/asset_repo/WB.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+<img src="../imagenes/asset_repo/WB.png" alt="WhatsApp Business" width="85%"/>
 
----
-
-> **Nota — cuando la aplicación de escritorio no está disponible**
->
-> En caso de fallo en la funcionalidad de catálogo en la versión de escritorio, utilizar el dispositivo móvil Android. Las imágenes compartidas por WhatsApp se almacenan en:
-> ```
-> Almacenamiento interno > Android > media > com.whatsapp > WhatsApp > Media > WhatsApp Images > Sent
-> ```
-> Mover las imágenes a una carpeta accesible — por ejemplo `Pictures > carrusel` — para que WhatsApp las detecte al momento de seleccionarlas.
-
----
-
-- [ ] En `Añadir imágenes`, cargar las 10 capturas desde `~/boutique_zepeda/<marca>/carrusel`.
-- [ ] Completar los campos requeridos:
-  - **Nombre:** nombre del catálogo o proveedor.
-  - **Descripción:** pegar el siguiente texto:
+- [ ] Cargar las 10 capturas.
+- [ ] Completar los campos:
+  - **Nombre:** nombre del catálogo o proveedor
+  - **Descripción:**
     ```
     Da clic en el enlace 👇 para descargar el catálogo, espera o confirma la descarga. ✅️ Revisa tu carpeta de descargas.
     ```
-- [ ] En el campo **Enlace**: pegar el link de Bitly → **Guardar**.
+  - **Enlace:** pegar el link de Bitly → **Guardar**
+
+---
+
+> **Nota — WhatsApp Business en móvil**
+>
+> Si la aplicación de escritorio falla, usar el dispositivo Android. Las imágenes están en:
+> ```
+> Almacenamiento interno > Android > media > com.whatsapp > WhatsApp > Media > WhatsApp Images > Sent
+> ```
 
 ---
 
@@ -288,14 +244,28 @@ Seleccionar el camino según lo que se observa en el PDF:
 ¿El semáforo fue amarillo o rojo?
         ↓
 Revisar el PDF — ¿el problema es visible?
-   ↙                      ↘
-  Sí                        No
-  ↓                          ↓
-Ajustar parámetros       Ejecutar diagnostico.py
-en el configurador       y compartir output con Claude
+   ↙                        ↘
+  Sí                          No
+  ↓                            ↓
+Ajustar parámetros         Ejecutar diagnostico.py
+en el configurador         y compartir output con Claude
 ```
 
-> El proceso está diseñado para acompañarte en cada paso. Cualquier duda es válida — consultar siempre es la decisión correcta.
+> El proceso está diseñado para acompañarte en cada paso.
+> Cualquier duda es válida — consultar siempre es la decisión correcta.
+
+---
+
+## 🔄 Sincronización con Gabriel
+
+Siempre ejecutar sync **antes de empezar** y **al terminar** el trabajo del día:
+
+```bash
+cd ~/books-label
+./sync.sh
+```
+
+El script protege automáticamente tu versión de `tabla_precios.ods` — tu archivo siempre tiene prioridad.
 
 ---
 
