@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extractor.py — Fase 1: Extracción de lista de precios desde PDF de proveedor
-Boutique Zepeda · books-label
+extractor.py — Extractor de campos de listas de precios
+Boutique Zepeda · books-label · Fase 1
 
 Uso:
-    python3 scripts/extractor.py --config configs/fase1/config_ella_spring26.json
+    python3 fase_1/extractor.py --config fase_1/config/config_ps_pv26.json
+
+Proveedores soportados:
+    PS     → Price Shoes  (encoding propietario, extracción espacial)
+    Pakar  → Pakar        (texto limpio, extracción tabular)
+    Cklass → Cklass       (texto limpio, precios con $ y decimales)
+    Otro   → genérico     (texto limpio, offset configurable)
 
 Dependencias Python (requirements.txt):
-    pdfplumber, pandas, openpyxl, odfpy
+    pdfplumber, pandas, openpyxl
 """
 
-import argparse
-import json
-import logging
 import os
 import re
 import sys
+import json
+import logging
+import argparse
 from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 import pdfplumber
@@ -30,315 +35,416 @@ import pdfplumber
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Extractor Fase 1 — books-label · Boutique Zepeda"
+        description="Extractor de campos de listas de precios — Boutique Zepeda"
     )
     parser.add_argument(
         "--config",
         required=True,
-        help="Ruta al archivo de configuración JSON (ej: configs/fase1/config_ella_spring26.json)"
+        help="Ruta al archivo de configuración JSON"
     )
     return parser.parse_args()
 
 
 # ─────────────────────────────────────────────
-#  Logging
+#  Logger
 # ─────────────────────────────────────────────
 
-def setup_logging(base_dir: str, nombre_config: str) -> str:
-    timestamp    = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"{nombre_config}_{timestamp}.log"
-    log_path     = os.path.join(base_dir, "diagnosticos", log_filename)
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+def setup_logger(nombre_config: str, base_dir: str) -> logging.Logger:
+    ts      = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_dir = os.path.join(base_dir, "diagnosticos")
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, f"{nombre_config}_{ts}.log")
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler(log_path, encoding="utf-8"),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return log_path
+    logger = logging.getLogger("extractor")
+    logger.setLevel(logging.DEBUG)
+
+    fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+    fh = logging.FileHandler(log_path, encoding="utf-8")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(fmt)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    logger.info(f"📝 Log guardado en: {log_path}")
+    return logger
+
+
+# ─────────────────────────────────────────────
+#  Decodificador Price Shoes
+# ─────────────────────────────────────────────
+
+def _limpiar_cid(texto: str) -> str:
+    """Elimina tokens (cid:N) que genera pdfplumber en PDFs con encoding roto."""
+    return re.sub(r'\(cid:\d+\)', '', texto)
+
+
+def _aplicar_offset(texto: str, offset: int) -> str:
+    """
+    Desplaza cada carácter ASCII imprimible según el offset.
+    Price Shoes: offset = 29  →  chr(ord(c) + 29)
+    PDF limpio:  offset = 0   →  sin cambio
+    """
+    if offset == 0:
+        return texto
+    resultado = []
+    for c in texto:
+        o = ord(c)
+        if 32 <= o <= 126:
+            nuevo = o + offset
+            if 32 <= nuevo <= 126:
+                resultado.append(chr(nuevo))
+            else:
+                resultado.append(c)
+        else:
+            resultado.append(c)
+    return ''.join(resultado)
+
+
+def _decodificar(texto: str, offset: int) -> str:
+    texto = _limpiar_cid(texto)
+    return _aplicar_offset(texto, offset)
+
+
+# ─────────────────────────────────────────────
+#  Limpieza de precio
+# ─────────────────────────────────────────────
+
+def _limpiar_precio(valor: str) -> str | None:
+    """
+    Normaliza el precio a string numérico sin símbolo ni decimales:
+    '$699.00' → '699'   |   '1579' → '1579'   |   texto libre → None
+    """
+    if not valor:
+        return None
+    limpio = re.sub(r'[$,\s]', '', str(valor))
+    limpio = re.sub(r'\.0+$', '', limpio)
+    if re.match(r'^\d+(\.\d+)?$', limpio):
+        return limpio.split('.')[0]
+    return None
+
+
+# ─────────────────────────────────────────────
+#  Extractor — Price Shoes (espacial)
+# ─────────────────────────────────────────────
+
+class ExtractorPS:
+    """
+    Price Shoes usa fuente con encoding propietario.
+    Estrategia: decodificar con offset y luego agrupar tokens por coordenadas X.
+    """
+
+    def __init__(self, config: dict, logger: logging.Logger):
+        self.logger     = logger
+        self.offset     = config.get("encoding_offset", 29)
+        self.tol_x      = config.get("tolerancia_x", 20.0)
+        self.col_pag    = config.get("col_pag",    "Pag")
+        self.col_id     = config.get("col_id",     "ID")
+        self.col_precio = config.get("col_precio", "Sug_credito")
+
+    def extraer(self, pdf_path: str) -> pd.DataFrame:
+        registros = []
+
+        with pdfplumber.open(pdf_path) as pdf:
+            total = len(pdf.pages)
+            self.logger.info(f"📄 Total páginas: {total}")
+
+            for i, page in enumerate(pdf.pages, 1):
+                words = page.extract_words(
+                    x_tolerance=self.tol_x,
+                    y_tolerance=5,
+                    keep_blank_chars=False,
+                )
+                if not words:
+                    continue
+
+                decoded = [{**w, "text": _decodificar(w["text"], self.offset)} for w in words]
+
+                header_y = self._detectar_encabezado(decoded)
+                if header_y is None:
+                    self.logger.debug(f"  Página {i}: sin encabezado")
+                    continue
+
+                col_x = self._mapear_columnas(decoded, header_y)
+                if len(col_x) < 2:
+                    continue
+
+                filas = self._agrupar_filas(decoded, header_y, col_x)
+                for fila in filas:
+                    registros.append({
+                        "pag":         fila.get("pag", ""),
+                        "id":          fila.get("id",  ""),
+                        "precio_base": _limpiar_precio(fila.get("precio", "")),
+                    })
+
+                self.logger.debug(f"  Página {i}: {len(filas)} filas")
+
+        return self._filtrar(pd.DataFrame(registros))
+
+    def _detectar_encabezado(self, words):
+        for w in words:
+            if w["text"].strip() == self.col_pag:
+                return w["top"]
+        return None
+
+    def _mapear_columnas(self, words, header_y):
+        col_x  = {}
+        tol_y  = 8
+        mapa   = {self.col_pag: "pag", self.col_id: "id", self.col_precio: "precio"}
+        for w in words:
+            if abs(w["top"] - header_y) < tol_y:
+                txt = w["text"].strip()
+                if txt in mapa:
+                    col_x[mapa[txt]] = w["x0"]
+        return col_x
+
+    def _agrupar_filas(self, words, header_y, col_x):
+        filas   = {}
+        aliases = list(col_x.keys())
+        xs      = list(col_x.values())
+
+        for w in words:
+            if w["top"] <= header_y + 5:
+                continue
+            y_key = round(w["top"])
+            token = w["text"].strip()
+            if not token:
+                continue
+
+            idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
+            col = aliases[idx]
+
+            if y_key not in filas:
+                filas[y_key] = {}
+            prev = filas[y_key].get(col, "")
+            filas[y_key][col] = (prev + " " + token).strip()
+
+        return list(filas.values())
+
+    def _filtrar(self, df):
+        if df.empty:
+            return df
+        df = df[df["id"].astype(str).str.match(r'^\d{4,8}$')].copy()
+        df = df[df["precio_base"].notna()].copy()
+        return df.reset_index(drop=True)
+
+
+# ─────────────────────────────────────────────
+#  Extractor — Texto limpio (Pakar / Cklass / Otro)
+# ─────────────────────────────────────────────
+
+class ExtractorTexto:
+    """
+    Para PDFs con texto seleccionable y estructura tabular.
+    Detecta encabezado por nombre de columna, mapea coordenadas X
+    y extrae filas agrupando tokens por proximidad.
+
+    Casos especiales manejados:
+    - Precios con '$' y decimales  (Cklass: '$699.00')
+    - IDs compuestos               (Cklass: 'Combo 039')
+    - Filas de texto libre         (excluidas por ausencia de precio numérico)
+    """
+
+    def __init__(self, config: dict, logger: logging.Logger):
+        self.logger     = logger
+        self.tol_x      = config.get("tolerancia_x", 20.0)
+        self.col_pag    = config.get("col_pag",    "PÁG.")
+        self.col_id     = config.get("col_id",     "CÓDIGO")
+        self.col_precio = config.get("col_precio", "2 PAGOS")
+        self.offset     = config.get("encoding_offset", 0)
+
+    def extraer(self, pdf_path: str) -> pd.DataFrame:
+        registros = []
+        col_x     = None
+
+        with pdfplumber.open(pdf_path) as pdf:
+            total = len(pdf.pages)
+            self.logger.info(f"📄 Total páginas: {total}")
+
+            for i, page in enumerate(pdf.pages, 1):
+                words = page.extract_words(
+                    x_tolerance=self.tol_x,
+                    y_tolerance=5,
+                    keep_blank_chars=False,
+                )
+                if not words:
+                    continue
+
+                if self.offset:
+                    words = [{**w, "text": _decodificar(w["text"], self.offset)} for w in words]
+
+                header_y = self._detectar_encabezado(words)
+                if header_y is not None:
+                    col_x = self._mapear_columnas(words, header_y)
+
+                if not col_x:
+                    continue
+
+                hy = header_y if header_y is not None else -1
+                filas = self._agrupar_filas(words, hy, col_x)
+                for fila in filas:
+                    registros.append({
+                        "pag":         fila.get("pag", ""),
+                        "id":          fila.get("id",  "").strip(),
+                        "precio_base": _limpiar_precio(fila.get("precio", "")),
+                    })
+
+                self.logger.debug(f"  Página {i}: {len(filas)} filas")
+
+        return self._filtrar(pd.DataFrame(registros))
+
+    def _detectar_encabezado(self, words):
+        for w in words:
+            txt = w["text"].strip()
+            if txt == self.col_pag or self.col_pag in txt:
+                return w["top"]
+        return None
+
+    def _mapear_columnas(self, words, header_y):
+        col_x  = {}
+        tol_y  = 10
+        mapa   = {self.col_pag: "pag", self.col_id: "id", self.col_precio: "precio"}
+        for w in words:
+            if abs(w["top"] - header_y) < tol_y:
+                txt = w["text"].strip()
+                for nombre, alias in mapa.items():
+                    if txt == nombre or nombre in txt:
+                        col_x[alias] = w["x0"]
+        return col_x
+
+    def _agrupar_filas(self, words, header_y, col_x):
+        filas   = {}
+        aliases = list(col_x.keys())
+        xs      = list(col_x.values())
+
+        for w in words:
+            if w["top"] <= header_y + 5:
+                continue
+            y_key = round(w["top"])
+            token = w["text"].strip()
+            if not token:
+                continue
+
+            idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
+            col = aliases[idx]
+
+            if y_key not in filas:
+                filas[y_key] = {}
+            prev = filas[y_key].get(col, "")
+            filas[y_key][col] = (prev + " " + token).strip()
+
+        return list(filas.values())
+
+    def _filtrar(self, df):
+        if df.empty:
+            return df
+        df = df[df["precio_base"].notna()].copy()
+        df = df[df["id"].str.strip() != ""].copy()
+        # Excluir filas de precio libre (texto libre → no numérico)
+        df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
+        return df.reset_index(drop=True)
 
 
 # ─────────────────────────────────────────────
 #  Clase principal
 # ─────────────────────────────────────────────
 
-class ExtractorLista:
-    """
-    Extrae ID y precio sugerido desde el PDF crudo de un proveedor.
-    Todos los parámetros ajustables vienen del archivo de configuración JSON.
-    Salida: Excel con columnas id, precio, pag (si está configurada), len.
-    """
+class ExtractorCatalogo:
 
     def __init__(self, config: dict, base_dir: str):
-        self.config   = config
-        self.base_dir = base_dir
-        self.logger   = logging.getLogger(__name__)
+        nombre = os.path.splitext(
+            os.path.basename(config.get("_config_path", "extractor"))
+        )[0]
+        self.logger    = setup_logger(nombre, base_dir)
+        self.config    = config
+        self.base_dir  = base_dir
+        self.proveedor = config.get("proveedor", "PS").strip()
 
-        # Rutas
-        self.pdf_path    = os.path.join(base_dir, config["pdf_input"])
-        self.excel_output = os.path.join(base_dir, config["excel_output"])
+        self.pdf_path   = os.path.join(base_dir, config.get("pdf_input",    ""))
+        self.excel_path = os.path.join(base_dir, config.get("excel_output", ""))
 
-        # Encoding — offset de desplazamiento ASCII del PDF
-        # Price Shoes usa 29. PDFs sin encoding roto usan 0.
-        self.encoding_offset = config.get("encoding_offset", 0)
+        os.makedirs(os.path.dirname(self.excel_path), exist_ok=True)
 
-        # Nombres de columnas en el PDF (tal como aparecen en el encabezado)
-        self.col_id     = config.get("col_id",     "ID")
-        self.col_precio = config.get("col_precio",  "Precio")
-        self.col_pag    = config.get("col_pag",     None)   # None = no extraer
+        self.logger.info(f"🏭 Proveedor:       {self.proveedor}")
+        self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
+        self.logger.info(f"📊 Excel de salida: {self.excel_path}")
 
-        # Tolerancia en puntos para asignar palabras a su columna
-        self.tolerancia_x = config.get("tolerancia_x", 20.0)
+    def _factory(self):
+        p = self.proveedor.upper()
+        if p == "PS":
+            self.logger.info("🔧 Modo: Price Shoes (decodificador + extracción espacial)")
+            return ExtractorPS(self.config, self.logger)
+        elif p in ("PAKAR", "CKLASS", "OTRO"):
+            self.logger.info(f"🔧 Modo: texto limpio ({self.proveedor})")
+            return ExtractorTexto(self.config, self.logger)
+        else:
+            self.logger.warning(f"⚠️  Proveedor '{self.proveedor}' no reconocido — usando extractor genérico")
+            return ExtractorTexto(self.config, self.logger)
 
-        # Modo prueba
-        paginas_prueba_raw  = config.get("paginas_prueba", False)
-        self.paginas_prueba = False if paginas_prueba_raw is False else int(paginas_prueba_raw)
-
-    # ── Decodificador de encoding propietario ─────────────────────────────────
-
-    def _decode_cid(self, texto: str) -> str:
-        """Reemplaza secuencias (cid:N) por el carácter Unicode correspondiente."""
-        return re.sub(r'\(cid:(\d+)\)', lambda m: chr(int(m.group(1))), texto)
-
-    def _decode_offset(self, texto: str) -> str:
-        """Aplica desplazamiento ASCII fijo. offset=0 devuelve el texto sin cambios."""
-        if self.encoding_offset == 0:
-            return texto
-        resultado = []
-        for c in texto:
-            code = ord(c)
-            if 32 < code < 127:
-                nuevo = code + self.encoding_offset
-                resultado.append(chr(nuevo) if 32 <= nuevo < 127 else c)
-            else:
-                resultado.append(c)
-        return ''.join(resultado)
-
-    def decodificar(self, texto: str) -> str:
-        if not texto:
-            return ''
-        return self._decode_offset(self._decode_cid(texto))
-
-    # ── Reconstrucción espacial de tabla ──────────────────────────────────────
-
-    def _agrupar_filas(self, palabras: list, tolerancia_y: float = 3.0) -> list:
-        """Agrupa palabras en filas por proximidad vertical."""
-        if not palabras:
-            return []
-        filas      = []
-        fila_actual = [palabras[0]]
-        y_actual    = palabras[0]['top']
-
-        for palabra in palabras[1:]:
-            if abs(palabra['top'] - y_actual) <= tolerancia_y:
-                fila_actual.append(palabra)
-            else:
-                filas.append(sorted(fila_actual, key=lambda w: w['x0']))
-                fila_actual = [palabra]
-                y_actual    = palabra['top']
-
-        filas.append(sorted(fila_actual, key=lambda w: w['x0']))
-        return filas
-
-    def _detectar_mapa_columnas(self, filas: list) -> dict | None:
-        """
-        Busca la fila de encabezado y retorna {campo: x0} para cada columna configurada.
-        Retorna None si no se encuentra el encabezado.
-        """
-        columnas_buscar = {
-            "id":     self.col_id,
-            "precio": self.col_precio,
-        }
-        if self.col_pag:
-            columnas_buscar["pag"] = self.col_pag
-
-        for fila in filas:
-            textos = {self.decodificar(w['text']): w['x0'] for w in fila}
-            fila_str = ' '.join(textos.keys())
-
-            if self.col_id in fila_str:
-                mapa = {}
-                for campo, nombre_col in columnas_buscar.items():
-                    for texto, x0 in textos.items():
-                        if nombre_col.lower() in texto.lower():
-                            mapa[campo] = x0
-                            break
-                if "id" in mapa and "precio" in mapa:
-                    return mapa
-
-        return None
-
-    def _celda_mas_cercana(self, fila: list, x0_objetivo: float) -> str:
-        """Devuelve el texto decodificado de la palabra más cercana a x0_objetivo."""
-        candidatos = [
-            w for w in fila
-            if abs(w['x0'] - x0_objetivo) <= self.tolerancia_x
-        ]
-        if not candidatos:
-            return ''
-        mejor = min(candidatos, key=lambda w: abs(w['x0'] - x0_objetivo))
-        return self.decodificar(mejor['text'])
-
-    # ── Líneas a saltar ───────────────────────────────────────────────────────
-
-    _SKIP_PATTERNS = [
-        'PRECIOS SUJETOS', 'Estimado Socio', 'Lista de Precios',
-        'Listas Vigentes', 'SUCURSAL', 'TELEMARKETING'
-    ]
-
-    def _es_fila_datos(self, fila: list) -> bool:
-        """True si la fila contiene datos de producto (no es encabezado ni pie)."""
-        texto = ' '.join(self.decodificar(w['text']) for w in fila)
-        if not texto.strip():
-            return False
-        for patron in self._SKIP_PATTERNS:
-            if patron in texto:
-                return False
-        return True
-
-    # ── Extracción ────────────────────────────────────────────────────────────
-
-    def extraer(self) -> pd.DataFrame:
-        if not os.path.exists(self.pdf_path):
+    def ejecutar(self):
+        if not os.path.isfile(self.pdf_path):
             self.logger.error(f"❌ PDF no encontrado: {self.pdf_path}")
-            sys.exit(1)
+            raise FileNotFoundError(self.pdf_path)
 
-        mapa_columnas  = None
-        todos_registros = []
+        extractor = self._factory()
 
-        with pdfplumber.open(self.pdf_path) as pdf:
-            paginas = pdf.pages
-            if self.paginas_prueba:
-                paginas = paginas[:self.paginas_prueba]
-                self.logger.info(f"🧪 MODO PRUEBA — {self.paginas_prueba} páginas")
+        self.logger.info("🚀 Iniciando extracción...")
+        df = extractor.extraer(self.pdf_path)
 
-            total = len(paginas)
-            for i, page in enumerate(paginas):
-                print(f"  Procesando página {i+1}/{total}", end="\r", flush=True)
+        if df.empty:
+            self.logger.warning("⚠️  No se extrajeron registros — revisar col_pag / col_id / col_precio en el config")
+            self.logger.error("🔴 EXTRACCIÓN FALLIDA")
+        else:
+            df["len"] = df["id"].astype(str).str.len()
+            df.to_excel(self.excel_path, index=False)
 
-                palabras_raw = page.extract_words()
-                filas        = self._agrupar_filas(palabras_raw)
+            n = len(df)
+            u = df["id"].nunique()
+            pmin = df["precio_base"].min()
+            pmax = df["precio_base"].max()
 
-                # Detectar encabezado (puede aparecer en cada página)
-                mapa_pagina = self._detectar_mapa_columnas(filas)
-                if mapa_pagina:
-                    mapa_columnas = mapa_pagina
-                    self.logger.info(f"  ✅ Header en pág {i+1}: {mapa_columnas}")
+            self.logger.info(f"✅ Excel generado:  {self.excel_path}")
+            self.logger.info(f"   Registros:       {n}")
+            self.logger.info(f"   IDs únicos:      {u}")
+            self.logger.info(f"   Rango precios:   {pmin} – {pmax}")
 
-                if not mapa_columnas:
-                    continue
+            if n >= 100:
+                self.logger.info("🟢 EXTRACCIÓN EXITOSA — Validar Excel antes de usar como input de Fase 2")
+            elif n >= 20:
+                self.logger.warning("🟡 EXTRACCIÓN PARCIAL — Revisar columnas en el config")
+            else:
+                self.logger.error("🔴 EXTRACCIÓN INSUFICIENTE — Muy pocos registros, revisar PDF y config")
 
-                registros_pagina = 0
-                for fila in filas:
-                    if not self._es_fila_datos(fila):
-                        continue
-
-                    id_val = self._celda_mas_cercana(fila, mapa_columnas["id"])
-                    if not id_val.strip():
-                        continue
-
-                    precio_val = self._celda_mas_cercana(fila, mapa_columnas["precio"])
-
-                    registro = {"id": id_val.strip(), "precio": precio_val.strip()}
-
-                    if "pag" in mapa_columnas:
-                        registro["pag"] = self._celda_mas_cercana(fila, mapa_columnas["pag"])
-
-                    todos_registros.append(registro)
-                    registros_pagina += 1
-
-                self.logger.info(f"  Página {i+1}: {registros_pagina} registros")
-
-        print(" " * 50, end="\r")
-
-        if not todos_registros:
-            self.logger.warning("⚠️  No se extrajeron registros. Revisa col_id, col_precio y encoding_offset.")
-            sys.exit(1)
-
-        df = pd.DataFrame(todos_registros)
-
-        # Limpiar precio → float
-        df['precio'] = (
-            df['precio']
-            .str.replace(r'[\$,\s]', '', regex=True)
-            .pipe(pd.to_numeric, errors='coerce')
-        )
-
-        # Columna de auditoría: longitud del ID
-        df['len'] = df['id'].str.len()
-
-        return df
-
-    # ── Exportación ───────────────────────────────────────────────────────────
-
-    def exportar(self, df: pd.DataFrame):
-        Path(self.excel_output).parent.mkdir(parents=True, exist_ok=True)
-
-        # Orden de columnas
-        cols = [c for c in ['pag', 'id', 'precio', 'len'] if c in df.columns]
-        df   = df[cols]
-
-        engine = 'odf' if self.excel_output.endswith('.ods') else 'openpyxl'
-        df.to_excel(self.excel_output, index=False, engine=engine)
-
-        SEP  = "─" * 50
-        SEP2 = "═" * 50
-        sin_precio = df['precio'].isna().sum()
-        longitudes = sorted(df['len'].unique().tolist())
-
-        self.logger.info("")
-        self.logger.info(SEP2)
-        self.logger.info("  ✅  EXTRACCIÓN TERMINADA")
-        self.logger.info(SEP)
-        self.logger.info(f"  📋  Total registros : {len(df)}")
-        self.logger.info(f"  🔑  IDs únicos      : {df['id'].nunique()}")
-        self.logger.info(f"  ⚠️   Sin precio       : {sin_precio}")
-        self.logger.info(f"  📏  Longitudes de ID : {longitudes}")
-        self.logger.info(SEP)
-        self.logger.info(f"  📂  {self.excel_output}")
-        self.logger.info(SEP2)
-
-        # Métricas parseables
-        self.logger.info(f"[STAT] total={len(df)}")
-        self.logger.info(f"[STAT] ids_unicos={df['id'].nunique()}")
-        self.logger.info(f"[STAT] sin_precio={sin_precio}")
-        self.logger.info(f"[STAT] longitudes={longitudes}")
-        self.logger.info(f"[STAT] paginas_prueba={self.paginas_prueba}")
+        self.logger.info(f"[STAT] proveedor={self.proveedor}")
+        self.logger.info(f"[STAT] registros={len(df)}")
+        self.logger.info(f"[STAT] ids_unicos={df['id'].nunique() if not df.empty else 0}")
 
 
 # ─────────────────────────────────────────────
-#  Entry point
+#  Punto de entrada
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    args = parse_args()
-    BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    args        = parse_args()
+    config_path = os.path.abspath(args.config)
+    BASE        = os.path.dirname(os.path.abspath(__file__))
 
-    config_path = os.path.join(BASE, args.config)
-    if not os.path.exists(config_path):
-        print(f"❌ Config no encontrado: {config_path}")
+    if not os.path.isfile(config_path):
+        print(f"❌ Archivo de configuración no encontrado: {config_path}")
         sys.exit(1)
 
     with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
-    nombre_config = os.path.splitext(os.path.basename(config_path))[0]
-    log_path      = setup_logging(BASE, nombre_config)
-    logger        = logging.getLogger(__name__)
-    logger.info(f"📁 Config : {args.config}")
-    logger.info(f"📄 PDF    : {config['pdf_input']}")
-    logger.info(f"📊 Output : {config['excel_output']}")
-    logger.info(f"📝 Log    : {log_path}")
+    config["_config_path"] = config_path
 
     try:
-        app = ExtractorLista(config, BASE)
-        df  = app.extraer()
-        app.exportar(df)
-    except KeyboardInterrupt:
-        logger.warning("\n⚠️  Interrumpido por el usuario")
+        app = ExtractorCatalogo(config, BASE)
+        app.ejecutar()
     except Exception as e:
-        logger.error(f"🔥 Error crítico: {e}", exc_info=True)
+        logging.getLogger("extractor").error(f"🔥 Error crítico: {e}", exc_info=True)
         sys.exit(1)

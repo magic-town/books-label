@@ -15,24 +15,24 @@ Extraer precios  →  Etiquetar       →   Publicar
 del proveedor        catálogo            al cliente
 ```
 
-> **Nota:** La Fase 1 está en desarrollo. Por ahora el proceso comienza en la Fase 2.
-> Cuando la Fase 1 esté lista, te avisaremos y actualizaremos esta guía.
+> La Fase 1 produce el Excel de precios que alimenta la Fase 2.
+> La calidad de ese Excel determina la calidad del catálogo final.
 
 ---
 
-## 🏷️ FASE 2 — Etiquetar el catálogo
+## 📥 FASE 1 — Extraer precios del proveedor
 
-> **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
+> **Objetivo:** obtener un Excel limpio con tres columnas — página, ID y precio base —
+> listo para ser validado y usado como input de Fase 2.
 
-### Antes de empezar ya dentro de VSC
+### Antes de empezar
 
-- [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
-- [ ] Verificar que tienes la lista de precios Excel en `fase_2/precios/`
+- [ ] Verificar que tienes la lista de precios PDF del proveedor en `fase_1/lista_cruda/`
 - [ ] Ejecutar sync para bajar los cambios más recientes.
   Desde **Tilix** o la terminal integrada de VSC:
-```bash
+  ```bash
   cd ~/books-label && ./sync.sh
-```
+  ```
 - [ ] Activar el entorno:
   ```bash
   source venv_catalogo/bin/activate
@@ -42,28 +42,114 @@ del proveedor        catálogo            al cliente
 
 ### Preparar la configuración
 
-- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin** o **VSC**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V` — el sistema genera la copia automáticamente.
+- [ ] Crear una copia de `fase_1/config/config_base_extractor.json`. Desde **Dolphin**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V`.
 - [ ] Renombrar la copia con `F12` siguiendo la convención:
   `config_<proveedor>_<temporada>.json`
-  — Ejemplo: `config_importados_26.json`
+  — Ejemplo: `config_ps_pv26.json`
 
-- [ ] Abrir el configurador haciendo doble clic sobre 👇:
+- [ ] Abrir el panel haciendo doble clic sobre:
+  ```
+  fase_1/config/panel_extraer_campos.html
+  ```
+
+  En el panel, elige primero el **proveedor**. Los campos a extraer se configuran automáticamente:
+
+  | Proveedor | Página | ID / Código | Precio base |
+  |-----------|--------|-------------|-------------|
+  | Price Shoes | `Pag` | `ID` | `Sug_credito` |
+  | Pakar | `PÁG.` | `CÓDIGO` | `2 PAGOS` |
+  | Cklass | `PÁGINA` | `MODELO` | `CRÉDITO` |
+  | Otro | libre | libre | libre |
+
+- [ ] Completar los campos de archivo en el panel:
+  - **PDF de entrada:** nombre del archivo en `lista_cruda/`
+  - **Output Excel:** nombre del archivo que se generará en `salida/`
+
+- [ ] Copiar el JSON generado y pegarlo en tu archivo de configuración en VSC.
+
+---
+
+### Ejecutar la extracción
+
+- [ ] Ejecutar el script:
+  ```bash
+  python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json
+  ```
+- [ ] Leer el resultado en consola:
+
+  | Resultado | Acción |
+  |-----------|--------|
+  | 🟢 **EXTRACCIÓN EXITOSA** | Abrir el Excel y continuar a validación |
+  | 🟡 **EXTRACCIÓN PARCIAL** | Revisar columnas en el config y volver a intentar |
+  | 🔴 **EXTRACCIÓN FALLIDA** | Ver sección "Si la extracción falla" |
+
+---
+
+### Validar el Excel
+
+> Esta es la etapa más importante de la Fase 1.
+> Un precio incorrecto o un ID mal extraído genera un catálogo con errores.
+
+- [ ] Abrir el Excel generado en `fase_1/salida/` con LibreOffice Calc.
+- [ ] Verificar que las columnas son correctas: `pag`, `id`, `precio_base`.
+- [ ] Revisar una muestra de registros contra el PDF original — al menos 10 filas al azar.
+- [ ] Verificar que no haya precios vacíos ni IDs con caracteres extraños.
+- [ ] Si todo se ve bien, **este Excel es el input de Fase 2**. Copiarlo a:
+  ```
+  fase_2/precios/<nombre>.xlsx
+  ```
+
+---
+
+### Si la extracción falla
+
+**Camino A — Ajuste de configuración**
+- [ ] Revisar que los nombres de columna en el config coinciden exactamente con los del PDF.
+- [ ] Aumentar `tolerancia_x` de 20 a 30 o 40 si las columnas no se detectan.
+- [ ] Para Price Shoes: verificar que `encoding_offset` es 29.
+
+**Camino B — Escalar a Gabriel**
+- [ ] Compartir el output de consola, el PDF y los valores del config que usaste.
+
+> Tu responsabilidad en Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
+
+---
+
+## 🏷️ FASE 2 — Etiquetar el catálogo
+
+> **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
+
+### Antes de empezar
+
+- [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
+- [ ] Verificar que tienes el Excel validado en `fase_2/precios/`
+- [ ] Ejecutar sync.
+  Desde **Tilix** o la terminal integrada de VSC:
+  ```bash
+  cd ~/books-label && ./sync.sh
+  ```
+- [ ] Activar el entorno:
+  ```bash
+  source venv_catalogo/bin/activate
+  ```
+
+---
+
+### Preparar la configuración
+
+- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin**: `Ctrl+C` → `Ctrl+V`.
+- [ ] Renombrar la copia con `F12`:
+  `config_<proveedor>_<temporada>.json`
+
+- [ ] Abrir el configurador haciendo doble clic sobre:
   ```
   fase_2/config/configurador.html
   ```
 
-  En el configurador, lo primero que debes elegir es el **proveedor**:
+  Elige el **proveedor** primero — determina el patrón de búsqueda del OCR.
 
-  | Proveedor | Elige en el menú |
-  |-----------|-----------------|
-  | Price Shoes | PS |
-  | Pakar | Pakar |
-  | Cklass | Cklass |
-  | Otro | Otro |
-
-- [ ] Actualizar tus I/O (inputs/outputs) en el configurador:
-
-<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Configurador" width="85%"/>
+- [ ] Completar los tres campos de archivos.
+- [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
 
 ---
 
@@ -73,15 +159,12 @@ del proveedor        catálogo            al cliente
 
 - [ ] Activar modo prueba con **20 páginas**.
 - [ ] Mantener las carátulas en `false` durante esta etapa.
-- [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
 - [ ] Ejecutar el script:
   ```bash
   python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
   ```
-- [ ] Abrir el PDF generado en `fase_2/salidas/` y verificar visualmente:
-  - ¿El precio aparece junto al ID del producto?
-  - ¿El logo aparece en el lugar correcto?
-- [ ] Ajustar posición en el configurador hasta que se vea bien. Copiar JSON y pegar.
+- [ ] Abrir el PDF en `fase_2/salidas/` y verificar visualmente.
+- [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar.
 
 ---
 
@@ -103,13 +186,8 @@ del proveedor        catálogo            al cliente
 | 6 | 300 | 11 | ❌ | ❌ | Máxima resolución |
 | 7 | 250 | 11 | ❌ | ✅ | IDs en texto blanco sobre fondo oscuro |
 
-- [ ] El dato ❗ **crítico** de cada corrida es **Etiquetas** — no el porcentaje. 
-
-<img src="../imagenes/asset_repo/modo_prueba.png" alt="Modo prueba" width="100%"/>
-
+- [ ] El dato clave de cada corrida es **Etiquetas** — no el porcentaje.
 - [ ] Registrar los resultados. Los logs se guardan en `fase_2/diagnosticos/`.
-
-<img src="../imagenes/asset_repo/copy_json.png" alt="Copiar JSON" width="65%"/>
 
 ---
 
@@ -174,7 +252,8 @@ del proveedor        catálogo            al cliente
 - [ ] Aplica cuando A y B no superan el 70%.
 - [ ] Compartir el PDF, el log de consola y las combinaciones ya probadas.
 
-> Tu responsabilidad concluye al ejecutar el diagnóstico y completar las iteraciones. Si después de ese proceso la tasa sigue por debajo del 70%, se escala.
+> Tu responsabilidad concluye al ejecutar el diagnóstico y completar las iteraciones.
+> Si después de ese proceso la tasa sigue por debajo del 70%, se escala.
 
 ---
 
@@ -197,13 +276,9 @@ del proveedor        catálogo            al cliente
 - [ ] Pegar en VSC en el archivo `~/books-label/prompts/notas_operativas.md`
 - [ ] Cambiar el último carácter del enlace: `0` → `1`
 
-<img src="../imagenes/asset_repo/link.png" alt="Enlace Dropbox" width="95%"/>
-
 ### Comprimir el enlace
 
 - [ ] Entrar a [bitly.com](https://bitly.com) → `Create new` → pegar el enlace modificado.
-
-<img src="../imagenes/asset_repo/bitly.png" alt="Bitly" width="85%"/>
 
 > 🥺 Bitly tiene límite mensual. Contamos con 3 cuentas — si se agotan, usar el enlace largo directamente.
 
@@ -215,9 +290,6 @@ del proveedor        catálogo            al cliente
   `~/boutique_zepeda/<marca>/carrusel` con nombres `1.png, 2.png, ..., 10.png`
 
 - [ ] Desde **WhatsApp Business Desktop**: `Herramientas > Catálogo > Añadir artículo nuevo`
-
-<img src="../imagenes/asset_repo/WB.png" alt="WhatsApp Business" width="85%"/>
-
 - [ ] Cargar las 10 capturas.
 - [ ] Completar los campos:
   - **Nombre:** nombre del catálogo o proveedor
@@ -226,8 +298,6 @@ del proveedor        catálogo            al cliente
     Da clic en el enlace 👇 para descargar el catálogo, espera o confirma la descarga. ✅️ Revisa tu carpeta de descargas.
     ```
   - **Enlace:** pegar el link de Bitly → **Guardar**
-
----
 
 > **Nota — WhatsApp Business en móvil**
 >
@@ -241,14 +311,14 @@ del proveedor        catálogo            al cliente
 ## 🆘 Árbol de decisión ante resultados adversos
 
 ```
-¿El semáforo fue amarillo o rojo?
-        ↓
-Revisar el PDF — ¿el problema es visible?
-   ↙                        ↘
-  Sí                          No
-  ↓                            ↓
-Ajustar parámetros         Ejecutar diagnostico.py
-en el configurador         y compartir output con Claude
+¿La extracción o el semáforo no son verdes?
+              ↓
+  Revisar el output en consola — ¿el error es claro?
+       ↙                              ↘
+      Sí                               No
+      ↓                                 ↓
+  Ajustar config               Ejecutar diagnostico.py
+  y volver a intentar          y compartir con Claude
 ```
 
 > El proceso está diseñado para acompañarte en cada paso.
@@ -258,11 +328,11 @@ en el configurador         y compartir output con Claude
 
 ## 🔄 Sincronización con Gabriel
 
-Siempre ejecutar sync **antes de empezar** y **al terminar** el trabajo del día:
+Siempre ejecutar sync **antes de empezar** y **al terminar** el trabajo del día.
+Desde **Tilix** o la terminal integrada de VSC:
 
 ```bash
-cd ~/books-label
-./sync.sh
+cd ~/books-label && ./sync.sh
 ```
 
 El script protege automáticamente tu versión de `tabla_precios.ods` — tu archivo siempre tiene prioridad.

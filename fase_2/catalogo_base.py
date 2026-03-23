@@ -103,7 +103,6 @@ class EtiquetadorCatalogo:
         # Cklass → xxx-xx         (dígitos-dígitos, sin prefijo)
         # Otro  → alfanumérico (configurable por longitud)
         self.id_proveedor = config.get("id_proveedor", "PS").strip()
-        self._id_pattern, self._usa_guion = self._build_id_pattern()
 
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
@@ -113,6 +112,7 @@ class EtiquetadorCatalogo:
         self.id_len_min     = config.get("id_longitud_min", 4)
         self.id_len_max     = config.get("id_longitud_max", 8)
         self.ocr_grayscale  = config.get("ocr_grayscale", True)
+        self._id_pattern, self._usa_guion = self._build_id_pattern()
         self.ocr_invertir   = config.get("ocr_invertir", False)
 
         # Doble pasada OCR — resuelve catálogos con fondo mixto
@@ -827,7 +827,7 @@ if __name__ == "__main__":
     args = parse_args()
     BASE = os.path.dirname(os.path.abspath(__file__))
 
-    config_path = os.path.join(BASE, args.config)
+    config_path = os.path.abspath(args.config)
     if not os.path.exists(config_path):
         print(f"❌ Archivo de configuración no encontrado: {config_path}")
         sys.exit(1)

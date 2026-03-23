@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Panel de Extracción — books-label</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📊</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0D0F14;
+  --surface:  #13161D;
+  --surface2: #1A1E28;
+  --border:   #232836;
+  --border2:  #2E3548;
+  --accent:   #C9A96E;
+  --accent2:  #E8D5B0;
+  --muted:    #4A5270;
+  --text:     #D8DCE8;
+  --text2:    #8B93AD;
+  --green:    #4CAF7D;
+  --green-bg: rgba(76,175,125,0.08);
+  --red:      #E05C5C;
+  --mono:     'DM Mono', monospace;
+  --sans:     'DM Sans', sans-serif;
+  --serif:    'Playfair Display', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.h-left { display: flex; align-items: center; gap: 1.25rem; }
+
+.h-logo-wrap {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #8A6430);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 20px rgba(201,169,110,0.2);
+  flex-shrink: 0;
+}
+
+.h-brand { display: flex; flex-direction: column; gap: 1px; }
+.h-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+.h-name  { font-family: var(--serif); font-size: 1.05rem; color: var(--text); font-weight: 500; letter-spacing: 0.01em; }
+
+.h-right { display: flex; align-items: center; gap: 0.75rem; }
+
+.badge-version {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+
+.btn-limpiar {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-limpiar:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LAYOUT ── */
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-inner { padding: 1.5rem; }
+
+/* ── PROVEEDOR SELECTOR ── */
+.proveedor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.prov-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 1rem 0.75rem;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text2);
+  font-family: var(--sans);
+}
+.prov-btn:hover { border-color: var(--accent); color: var(--text); }
+.prov-btn.active {
+  background: rgba(201,169,110,0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.prov-icon { font-size: 22px; }
+.prov-name { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-align: center; }
+.prov-hint { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; }
+
+/* ── FIELD ── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.field-hint { font-size: 11px; color: var(--muted); }
+
+.input-prefixed {
+  display: flex;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.input-prefixed:focus-within { border-color: var(--accent); }
+
+.prefix {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(201,169,110,0.06);
+  padding: 0 12px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.input-prefixed input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 12px;
+  height: 40px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  min-width: 0;
+}
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+/* ── CAMPOS A EXTRAER ── */
+.campos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.campo-card {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+
+.campo-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.campo-valor {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent2);
+  margin-bottom: 0.35rem;
+}
+
+.campo-alias {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.campo-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s;
+  margin-top: 0.5rem;
+}
+.campo-input:focus { border-color: var(--accent); }
+.campo-input::placeholder { color: var(--muted); }
+
+/* ── ENCODING ── */
+.encoding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+}
+
+.encoding-info { display: flex; flex-direction: column; gap: 3px; }
+.encoding-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.encoding-desc { font-size: 11px; color: var(--muted); }
+
+.encoding-badge {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.badge-active   { background: rgba(201,169,110,0.12); color: var(--accent); border: 1px solid rgba(201,169,110,0.3); }
+.badge-inactive { background: rgba(76,175,125,0.08);  color: var(--green);  border: 1px solid rgba(76,175,125,0.2); }
+
+.offset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.offset-input {
+  width: 80px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  outline: none;
+  text-align: center;
+  transition: border-color .2s;
+}
+.offset-input:focus { border-color: var(--accent); }
+.offset-label { font-size: 12px; color: var(--muted); }
+
+/* ── JSON OUTPUT ── */
+.json-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.json-head {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.json-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.json-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.btn-copy {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 5px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-copy:hover { border-color: var(--green); color: var(--green); }
+.btn-copy.ok    { border-color: var(--green); color: var(--green); }
+
+.json-pre {
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 2;
+  color: var(--text2);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.jk { color: #7B93C8; }
+.jv { color: #C9A96E; }
+.jn { color: #7ECFA0; }
+.jb { color: #C87BAA; }
+
+/* ── CMD BAR ── */
+.cmd-bar {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.cmd-bar::before { content: '$'; color: var(--muted); }
+
+/* ── ALERT ── */
+.alert {
+  background: rgba(224,92,92,0.08);
+  border: 1px solid rgba(224,92,92,0.25);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 12px;
+  color: var(--red);
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-left">
+    <div class="h-logo-wrap">👗</div>
+    <div class="h-brand">
+      <span class="h-label">Boutique Zepeda · books-label</span>
+      <span class="h-name">Panel de Extracción de Campos</span>
+    </div>
+  </div>
+  <div class="h-right">
+    <span class="badge-version">fase_1 · v1.0</span>
+    <button class="btn-limpiar" onclick="limpiar()">↺ Limpiar</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ① PROVEEDOR -->
+  <div>
+    <div class="section-label">① Proveedor</div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="proveedor-grid">
+          <button class="prov-btn active" onclick="setProveedor('PS')" id="btn-PS">
+            <span class="prov-icon">👟</span>
+            <span class="prov-name">Price Shoes</span>
+            <span class="prov-hint">ID xxxxxxx</span>
+          </button>
+          <button class="prov-btn" onclick="setProveedor('Pakar')" id="btn-Pakar">
+            <span class="prov-icon">👡</span>
+            <span class="prov-name">Pakar</span>
+            <span class="prov-hint">CÓDIGO xxx-xxx</span>
+          </button>
+          <button class="prov-btn" onclick="setProveedor('Cklass')" id="btn-Cklass">
+            <span class="prov-icon">👢</span>
+            <span class="prov-name">Cklass</span>
+            <span class="prov-hint">MODELO xxx-xx</span>
+          </button>
+          <button class="prov-btn" onclick="setProveedor('Otro')" id="btn-Otro">
+            <span class="prov-icon">📋</span>
+            <span class="prov-name">Otro</span>
+            <span class="prov-hint">campos libres</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② ARCHIVOS I/O -->
+  <div>
+    <div class="section-label">② Archivos</div>
+    <div class="card">
+      <div class="card-inner g2">
+        <div class="field">
+          <div class="field-label">PDF de entrada</div>
+          <div class="input-prefixed">
+            <span class="prefix">lista_cruda/</span>
+            <input type="text" id="pdf_input" placeholder="lista_proveedor.pdf" oninput="upd()"/>
+          </div>
+          <div class="field-hint">Nombre del archivo PDF crudo del proveedor</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Output Excel</div>
+          <div class="input-prefixed">
+            <span class="prefix">salida/</span>
+            <input type="text" id="excel_output" placeholder="lista_proveedor.xlsx" oninput="upd()"/>
+          </div>
+          <div class="field-hint">Archivo Excel generado por el extractor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ CAMPOS A EXTRAER -->
+  <div>
+    <div class="section-label">③ Campos a extraer</div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="campos-grid">
+
+          <!-- PÁGINA -->
+          <div class="campo-card">
+            <div class="campo-tag">Campo 1</div>
+            <div class="campo-valor" id="campo-pag-val">Pag</div>
+            <div class="campo-alias">→ columna <code style="color:var(--green);font-family:var(--mono);font-size:11px;">pag</code></div>
+            <input class="campo-input" id="campo-pag-input" placeholder="nombre exacto en el PDF" oninput="upd()" style="display:none"/>
+          </div>
+
+          <!-- ID / CÓDIGO -->
+          <div class="campo-card">
+            <div class="campo-tag">Campo 2 — ID / Código</div>
+            <div class="campo-valor" id="campo-id-val">ID</div>
+            <div class="campo-alias">→ columna <code style="color:var(--green);font-family:var(--mono);font-size:11px;">id</code></div>
+            <input class="campo-input" id="campo-id-input" placeholder="nombre exacto en el PDF" oninput="upd()" style="display:none"/>
+          </div>
+
+          <!-- PRECIO BASE -->
+          <div class="campo-card">
+            <div class="campo-tag">Campo 3 — Precio base</div>
+            <div class="campo-valor" id="campo-precio-val">Sug_credito</div>
+            <div class="campo-alias">→ columna <code style="color:var(--green);font-family:var(--mono);font-size:11px;">precio_base</code></div>
+            <input class="campo-input" id="campo-precio-input" placeholder="nombre exacto en el PDF" oninput="upd()" style="display:none"/>
+          </div>
+
+        </div>
+
+        <div id="otro-hint" style="display:none;margin-top:1rem;padding:0.75rem 1rem;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.15);border-radius:8px;font-size:12px;color:var(--text2);">
+          💡 Escribe el nombre exacto de cada columna tal como aparece en el encabezado del PDF.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ ENCODING -->
+  <div>
+    <div class="section-label">④ Configuración de lectura</div>
+    <div class="card">
+      <div class="card-inner" style="display:flex;flex-direction:column;gap:0.85rem;">
+
+        <div class="encoding-row" id="enc-row-offset">
+          <div class="encoding-info">
+            <div class="encoding-name">Decodificador de encoding</div>
+            <div class="encoding-desc" id="enc-desc">Price Shoes usa fuente propietaria — offset 29 aplicado automáticamente</div>
+          </div>
+          <div id="enc-badge" class="encoding-badge badge-active">offset 29</div>
+        </div>
+
+        <div class="encoding-row" id="enc-row-otro" style="display:none;">
+          <div class="encoding-info">
+            <div class="encoding-name">Offset de encoding (OTRO)</div>
+            <div class="encoding-desc">0 = PDF limpio · 29 = Price Shoes · ajustar si el texto aparece como símbolos</div>
+          </div>
+          <div class="offset-row">
+            <input class="offset-input" id="encoding_offset" type="number" value="0" min="0" max="94" oninput="upd()"/>
+            <span class="offset-label">offset ASCII</span>
+          </div>
+        </div>
+
+        <div class="encoding-row">
+          <div class="encoding-info">
+            <div class="encoding-name">Tolerancia de columna X</div>
+            <div class="encoding-desc">Margen en puntos para asignar palabras a su columna — aumentar si faltan datos</div>
+          </div>
+          <div class="offset-row">
+            <input class="offset-input" id="tolerancia_x" type="number" value="20" min="5" max="80" oninput="upd()"/>
+            <span class="offset-label">px</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTA -->
+  <div class="alert" id="alerta">
+    ⚠️ Completa el PDF de entrada y el Output Excel antes de copiar el JSON.
+  </div>
+
+  <!-- ⑤ JSON OUTPUT -->
+  <div>
+    <div class="section-label">⑤ Configuración generada</div>
+    <div class="json-card">
+      <div class="json-head">
+        <div class="json-title">
+          <div class="json-dot"></div>
+          config_extractor.json
+        </div>
+        <button class="btn-copy" id="btnCopy" onclick="copiar()">Copiar JSON</button>
+      </div>
+      <div class="json-pre" id="jsonPre"></div>
+    </div>
+    <div class="cmd-bar" id="cmdBar" style="margin-top:0.75rem;display:none;"></div>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const sv = id => $(id).value.trim();
+
+const PROVEEDORES = {
+  PS: {
+    nombre:   'Price Shoes',
+    pag:      'Pag',
+    id:       'ID',
+    precio:   'Sug_credito',
+    offset:   29,
+    enc_desc: 'Price Shoes usa fuente propietaria — offset 29 aplicado automáticamente',
+    enc_badge:'offset 29',
+    enc_tipo: 'active',
+    libre:    false,
+  },
+  Pakar: {
+    nombre:   'Pakar',
+    pag:      'PÁG.',
+    id:       'CÓDIGO',
+    precio:   '2 PAGOS',
+    offset:   0,
+    enc_desc: 'PDF limpio — extracción directa sin decodificador',
+    enc_badge:'sin encoding',
+    enc_tipo: 'inactive',
+    libre:    false,
+  },
+  Cklass: {
+    nombre:   'Cklass',
+    pag:      'PÁGINA',
+    id:       'MODELO',
+    precio:   'CRÉDITO',
+    offset:   0,
+    enc_desc: 'PDF limpio — extracción directa sin decodificador',
+    enc_badge:'sin encoding',
+    enc_tipo: 'inactive',
+    libre:    false,
+  },
+  Otro: {
+    nombre:   'Otro',
+    pag:      '',
+    id:       '',
+    precio:   '',
+    offset:   0,
+    enc_desc: 'Configura el offset según el proveedor — 0 para PDF limpio',
+    enc_badge:'configurable',
+    enc_tipo: 'active',
+    libre:    true,
+  },
+};
+
+let proveedor = 'PS';
+
+function setProveedor(p) {
+  proveedor = p;
+  Object.keys(PROVEEDORES).forEach(k => {
+    $('btn-'+k).classList.toggle('active', k === p);
+  });
+
+  const info = PROVEEDORES[p];
+
+  // Campos — estáticos vs libres
+  ['pag','id','precio'].forEach(campo => {
+    const key = campo === 'id' ? 'id' : campo === 'precio' ? 'precio' : 'pag';
+    const valEl   = $('campo-'+campo+'-val');
+    const inpEl   = $('campo-'+campo+'-input');
+    if (info.libre) {
+      valEl.style.display = 'none';
+      inpEl.style.display = '';
+    } else {
+      valEl.style.display = '';
+      inpEl.style.display = 'none';
+      valEl.textContent = info[key];
+    }
+  });
+
+  $('otro-hint').style.display = info.libre ? '' : 'none';
+
+  // Encoding
+  $('enc-desc').textContent = info.enc_desc;
+  $('enc-badge').textContent = info.enc_badge;
+  $('enc-badge').className = 'encoding-badge badge-' + info.enc_tipo;
+  $('enc-row-offset').style.display = info.libre ? 'none' : '';
+  $('enc-row-otro').style.display   = info.libre ? '' : 'none';
+
+  upd();
+}
+
+function getCampo(campo) {
+  const info = PROVEEDORES[proveedor];
+  if (info.libre) {
+    return sv('campo-'+campo+'-input');
+  }
+  const key = campo === 'id' ? 'id' : campo === 'precio' ? 'precio' : 'pag';
+  return info[key];
+}
+
+function getOffset() {
+  if (PROVEEDORES[proveedor].libre) return parseInt(sv('encoding_offset')) || 0;
+  return PROVEEDORES[proveedor].offset;
+}
+
+function buildConfig() {
+  const pdf_in  = 'lista_cruda/' + sv('pdf_input');
+  const xls_out = 'salida/'      + sv('excel_output');
+  const pag     = getCampo('pag');
+  const id_col  = getCampo('id');
+  const precio  = getCampo('precio');
+  const offset  = getOffset();
+  const tolX    = parseInt(sv('tolerancia_x')) || 20;
+
+  return {
+    _comentario:     'Configuración Fase 1 — Extracción de campos · books-label',
+    _uso:            'python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json',
+    proveedor:       proveedor,
+    pdf_input:       pdf_in,
+    excel_output:    xls_out,
+    encoding_offset: offset,
+    tolerancia_x:    tolX,
+    col_pag:         pag,
+    col_id:          id_col,
+    col_precio:      precio,
+  };
+}
+
+function buildCfgStr() {
+  const c = buildConfig();
+  return `{
+    "_comentario":     ${JSON.stringify(c._comentario)},
+    "_uso":            ${JSON.stringify(c._uso)},
+
+    "proveedor":       ${JSON.stringify(c.proveedor)},
+
+    "pdf_input":       ${JSON.stringify(c.pdf_input)},
+    "excel_output":    ${JSON.stringify(c.excel_output)},
+
+    "encoding_offset": ${c.encoding_offset},
+    "tolerancia_x":    ${c.tolerancia_x},
+
+    "col_pag":         ${JSON.stringify(c.col_pag)},
+    "col_id":          ${JSON.stringify(c.col_id)},
+    "col_precio":      ${JSON.stringify(c.col_precio)}
+}`;
+}
+
+function upd() {
+  const raw  = buildCfgStr();
+  const html = raw.split('\n').map(l =>
+    l.replace(/"([^"]+)":/g, '<span class="jk">"$1"</span>:')
+     .replace(/:\s*(true|false)/g,  ': <span class="jb">$1</span>')
+     .replace(/:\s*"([^"]*)"/g,     ': <span class="jv">"$1"</span>')
+     .replace(/:\s*(-?[\d.]+)/g,    ': <span class="jn">$1</span>')
+  ).join('\n');
+  $('jsonPre').innerHTML = html;
+
+  // CMD
+  const pdf = sv('pdf_input');
+  const xls = sv('excel_output');
+  if (pdf && xls) {
+    const nombre = pdf.replace('.pdf','').replace(/\s+/g,'_');
+    $('cmdBar').textContent = `python3 fase_1/extractor.py --config fase_1/config/config_${nombre}.json`;
+    $('cmdBar').style.display = '';
+    $('alerta').style.display = 'none';
+  } else {
+    $('cmdBar').style.display = 'none';
+  }
+}
+
+function copiar() {
+  const pdf = sv('pdf_input');
+  const xls = sv('excel_output');
+  if (!pdf || !xls) {
+    $('alerta').style.display = '';
+    setTimeout(() => $('alerta').style.display = 'none', 3000);
+    return;
+  }
+  navigator.clipboard.writeText(buildCfgStr()).then(() => {
+    const btn = $('btnCopy');
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar JSON'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function limpiar() {
+  $('pdf_input').value = '';
+  $('excel_output').value = '';
+  $('encoding_offset').value = '0';
+  $('tolerancia_x').value = '20';
+  ['pag','id','precio'].forEach(c => $('campo-'+c+'-input').value = '');
+  setProveedor('PS');
+  upd();
+}
+
+// Init
+setProveedor('PS');
+upd();
+</script>
+</body>
+</html>

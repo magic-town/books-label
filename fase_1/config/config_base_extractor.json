@@ -1,16 +1,16 @@
 {
-    "_comentario": "Plantilla base — Extractor Fase 1 · books-label",
-    "_uso": "python3 scripts/extractor.py --config configs/fase1/<nombre_config>.json",
+    "_comentario": "Configuración base Fase 1 — Extracción de campos · Boutique Zepeda",
+    "_uso": "python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json",
 
-    "pdf_input":    "libros/<lista_proveedor.pdf>",
-    "excel_output": "precios/<lista_proveedor.xlsx>",
+    "proveedor": "PS",
 
-    "paginas_prueba": false,
+    "pdf_input":    "lista_cruda/<lista_proveedor.pdf>",
+    "excel_output": "salida/<lista_proveedor.xlsx>",
 
-    "encoding_offset": 0,
+    "encoding_offset": 29,
     "tolerancia_x":    20.0,
 
+    "col_pag":    "Pag",
     "col_id":     "ID",
-    "col_precio": "Precio",
-    "col_pag":    null
+    "col_precio": "Sug_credito"
 }

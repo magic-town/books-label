@@ -4,21 +4,21 @@
 
     "id_proveedor": "PS",
 
-    "pdf_input":   "libros/<nombre_catalogo.pdf>",
-    "excel_input": "precios/<lista_catalogo.xlsx>",
-    "pdf_output":  "salidas/<catalogo_precios.pdf>",
+    "pdf_input":   "libros/confort_26.pdf",
+    "excel_input": "precios/lista_confort.xlsx",
+    "pdf_output":  "salidas/test.pdf>",
 
-    "paginas_prueba": false,
+    "paginas_prueba": 5,
 
     "presentaciones": [
-        {"path": "../imagenes/logos/portada_01.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
         {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
         {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
 
-    "logo_activo":        false,
+    "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
     "logo_x_pt":          351,
     "logo_y_pt":          677,
