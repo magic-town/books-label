@@ -1,16 +1,16 @@
 {
-    "_comentario": "Configuración base Fase 1 — Extracción de campos · Boutique Zepeda",
-    "_uso": "python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json",
+    "_comentario": "Configuración Fase 1 — Extracción de campos · books-label",
+    "_uso": "python3 fase_1/extractor.py --config fase_1/config/config_botas_ex.json",
 
     "proveedor": "PS",
 
-    "pdf_input":    "lista_cruda/<lista_proveedor.pdf>",
-    "excel_output": "salida/<lista_proveedor.xlsx>",
+    "pdf_input":    "lista_cruda/botas_25_26.pdf",
+    "excel_output": "salida/lista_botas.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    20.0,
 
-    "col_pag":    "Pag",
-    "col_id":     "ID",
-    "col_precio": "Sug_credito"
+    "col_pag":    "m~g",
+    "col_id":     "fa",
+    "col_precio": "pug|credito"
 }
