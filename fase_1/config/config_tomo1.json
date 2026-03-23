@@ -1,0 +1,16 @@
+{
+    "_comentario":     "Configuración Fase 1 — Extracción de campos · books-label",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
+
+    "proveedor":       "Pakar",
+
+    "pdf_input":       "lista_cruda/listapakar_MEN_1.pdf",
+    "excel_output":    "salida/lista_tomo1.xlsx",
+
+    "encoding_offset": 0,
+    "tolerancia_x":    17,
+
+    "col_pag":         "PÁG.",
+    "col_id":          "CÓDIGO",
+    "col_precio":      "2 PAGOS"
+}
