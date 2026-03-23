@@ -68,6 +68,52 @@ del proveedor        catálogo            al cliente
 - [ ] Copiar el JSON generado y pegarlo en tu archivo de configuración en VSC.
 
 ---
+### Ejecutar la extracción
+
+- [ ] Ejecutar el script:
+  ```bash
+  python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json
+  ```
+- [ ] Leer el resultado en consola:
+
+  | Resultado | Acción |
+  |-----------|--------|
+  | 🟢 **EXTRACCIÓN EXITOSA** | Abrir el Excel y continuar a validación |
+  | 🟡 **EXTRACCIÓN PARCIAL** | Revisar columnas en el config y volver a intentar |
+  | 🔴 **EXTRACCIÓN FALLIDA** | Ver sección "Si la extracción falla" |
+
+---
+
+### Validar el Excel
+
+> Esta es la etapa más importante de la Fase 1.
+> Un precio incorrecto o un ID mal extraído genera un catálogo con errores.
+
+- [ ] Abrir el Excel generado en `fase_1/salida/` con LibreOffice Calc.
+- [ ] Verificar que las columnas son correctas: `pag`, `id`, `precio_base`.
+- [ ] Revisar una muestra de registros contra el PDF original — al menos 10 filas al azar.
+- [ ] Verificar que no haya precios vacíos ni IDs con caracteres extraños.
+- [ ] Si todo se ve bien, **este Excel es el input de Fase 2**. Copiarlo a:
+  ```
+  fase_2/precios/<nombre>.xlsx
+  ```
+
+---
+
+### Si la extracción falla
+
+**Camino A — Ajuste de configuración**
+- [ ] Revisar que los nombres de columna en el config coinciden exactamente con los del PDF.
+- [ ] Aumentar `tolerancia_x` de 20 a 30 o 40 si las columnas no se detectan.
+- [ ] Para Price Shoes: verificar que `encoding_offset` es 29.
+
+**Camino B — Escalar a Gabriel**
+- [ ] Compartir el output de consola, el PDF y los valores del config que usaste.
+
+> Tu responsabilidad en Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
+
+
+---
 ### El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM
 
 #### Prompt para Price Shoes
@@ -119,7 +165,7 @@ La tabla que generaste es correcta en:
 Es incorrecta la columna_X. Corrígela por los datos correctos: "columna_X": "Sug_credito".
 IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
-#### Para Pakar
+#### Prompt para Pakar
 
 ## Paso 1 — Extracción inicial
 
@@ -138,49 +184,6 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-### Ejecutar la extracción
-
-- [ ] Ejecutar el script:
-  ```bash
-  python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json
-  ```
-- [ ] Leer el resultado en consola:
-
-  | Resultado | Acción |
-  |-----------|--------|
-  | 🟢 **EXTRACCIÓN EXITOSA** | Abrir el Excel y continuar a validación |
-  | 🟡 **EXTRACCIÓN PARCIAL** | Revisar columnas en el config y volver a intentar |
-  | 🔴 **EXTRACCIÓN FALLIDA** | Ver sección "Si la extracción falla" |
-
----
-
-### Validar el Excel
-
-> Esta es la etapa más importante de la Fase 1.
-> Un precio incorrecto o un ID mal extraído genera un catálogo con errores.
-
-- [ ] Abrir el Excel generado en `fase_1/salida/` con LibreOffice Calc.
-- [ ] Verificar que las columnas son correctas: `pag`, `id`, `precio_base`.
-- [ ] Revisar una muestra de registros contra el PDF original — al menos 10 filas al azar.
-- [ ] Verificar que no haya precios vacíos ni IDs con caracteres extraños.
-- [ ] Si todo se ve bien, **este Excel es el input de Fase 2**. Copiarlo a:
-  ```
-  fase_2/precios/<nombre>.xlsx
-  ```
-
----
-
-### Si la extracción falla
-
-**Camino A — Ajuste de configuración**
-- [ ] Revisar que los nombres de columna en el config coinciden exactamente con los del PDF.
-- [ ] Aumentar `tolerancia_x` de 20 a 30 o 40 si las columnas no se detectan.
-- [ ] Para Price Shoes: verificar que `encoding_offset` es 29.
-
-**Camino B — Escalar a Gabriel**
-- [ ] Compartir el output de consola, el PDF y los valores del config que usaste.
-
-> Tu responsabilidad en Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
 
 ---
 
