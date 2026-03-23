@@ -4,17 +4,16 @@
 extractor.py — Extractor de campos de listas de precios
 Boutique Zepeda · books-label · Fase 1
 
-Uso:
-    python3 fase_1/extractor.py --config fase_1/config/config_ps_pv26.json
-
-Proveedores soportados:
-    PS     → Price Shoes  (encoding propietario, extracción espacial)
-    Pakar  → Pakar        (texto limpio, extracción tabular)
-    Cklass → Cklass       (texto limpio, precios con $ y decimales)
-    Otro   → genérico     (texto limpio, offset configurable)
-
-Dependencias Python (requirements.txt):
-    pdfplumber, pandas, openpyxl
+Notas de implementación:
+    - El PDF de Price Shoes tiene cada carácter desplazado +29 en ASCII.
+      El extractor resta 29 para recuperar el texto real.
+    - col_pag / col_id / col_precio se escriben con los nombres reales
+      del encabezado (ej. "Pag", "ID", "Sug_credito").
+    - _detectar_encabezado y _mapear_columnas usan startswith para tolerar
+      tokens fusionados cuando dos columnas están muy próximas en el PDF.
+    - tolerancia_asign controla el margen máximo (px) para asignar un token
+      de datos a una columna. Permite separar tokenización (tolerancia_x baja)
+      de asignación (tolerancia_asign más generosa).
 """
 
 import os
@@ -29,25 +28,13 @@ import pandas as pd
 import pdfplumber
 
 
-# ─────────────────────────────────────────────
-#  Argumentos de entrada
-# ─────────────────────────────────────────────
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Extractor de campos de listas de precios — Boutique Zepeda"
     )
-    parser.add_argument(
-        "--config",
-        required=True,
-        help="Ruta al archivo de configuración JSON"
-    )
+    parser.add_argument("--config", required=True, help="Ruta al archivo de configuración JSON")
     return parser.parse_args()
 
-
-# ─────────────────────────────────────────────
-#  Logger
-# ─────────────────────────────────────────────
 
 def setup_logger(nombre_config: str, base_dir: str) -> logging.Logger:
     ts      = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -57,7 +44,6 @@ def setup_logger(nombre_config: str, base_dir: str) -> logging.Logger:
 
     logger = logging.getLogger("extractor")
     logger.setLevel(logging.DEBUG)
-
     fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
     fh = logging.FileHandler(log_path, encoding="utf-8")
@@ -74,20 +60,15 @@ def setup_logger(nombre_config: str, base_dir: str) -> logging.Logger:
     return logger
 
 
-# ─────────────────────────────────────────────
-#  Decodificador Price Shoes
-# ─────────────────────────────────────────────
-
 def _limpiar_cid(texto: str) -> str:
-    """Elimina tokens (cid:N) que genera pdfplumber en PDFs con encoding roto."""
     return re.sub(r'\(cid:\d+\)', '', texto)
 
 
 def _aplicar_offset(texto: str, offset: int) -> str:
     """
-    Desplaza cada carácter ASCII imprimible según el offset.
-    Price Shoes: offset = 29  →  chr(ord(c) + 29)
-    PDF limpio:  offset = 0   →  sin cambio
+    Revierte el encoding de Price Shoes restando el offset.
+    El PDF almacena cada carácter con +offset; restar recupera el original.
+    offset=29 → Price Shoes | offset=0 → PDF limpio
     """
     if offset == 0:
         return texto
@@ -95,7 +76,7 @@ def _aplicar_offset(texto: str, offset: int) -> str:
     for c in texto:
         o = ord(c)
         if 32 <= o <= 126:
-            nuevo = o + offset
+            nuevo = o - offset
             if 32 <= nuevo <= 126:
                 resultado.append(chr(nuevo))
             else:
@@ -110,15 +91,7 @@ def _decodificar(texto: str, offset: int) -> str:
     return _aplicar_offset(texto, offset)
 
 
-# ─────────────────────────────────────────────
-#  Limpieza de precio
-# ─────────────────────────────────────────────
-
 def _limpiar_precio(valor: str) -> str | None:
-    """
-    Normaliza el precio a string numérico sin símbolo ni decimales:
-    '$699.00' → '699'   |   '1579' → '1579'   |   texto libre → None
-    """
     if not valor:
         return None
     limpio = re.sub(r'[$,\s]', '', str(valor))
@@ -128,20 +101,18 @@ def _limpiar_precio(valor: str) -> str | None:
     return None
 
 
-# ─────────────────────────────────────────────
-#  Extractor — Price Shoes (espacial)
-# ─────────────────────────────────────────────
-
 class ExtractorPS:
     """
-    Price Shoes usa fuente con encoding propietario.
-    Estrategia: decodificar con offset y luego agrupar tokens por coordenadas X.
+    Price Shoes — encoding propietario (+29 ASCII).
+    Tokeniza con tolerancia_x baja para separar columnas,
+    asigna datos con tolerancia_asign generosa para cubrir offsets de alineación.
     """
 
     def __init__(self, config: dict, logger: logging.Logger):
         self.logger     = logger
         self.offset     = config.get("encoding_offset", 29)
-        self.tol_x      = config.get("tolerancia_x", 20.0)
+        self.tol_x      = config.get("tolerancia_x",    5.0)
+        self.tol_asign  = config.get("tolerancia_asign", 20.0)
         self.col_pag    = config.get("col_pag",    "Pag")
         self.col_id     = config.get("col_id",     "ID")
         self.col_precio = config.get("col_precio", "Sug_credito")
@@ -171,6 +142,7 @@ class ExtractorPS:
 
                 col_x = self._mapear_columnas(decoded, header_y)
                 if len(col_x) < 2:
+                    self.logger.debug(f"  Página {i}: columnas insuficientes {col_x}")
                     continue
 
                 filas = self._agrupar_filas(decoded, header_y, col_x)
@@ -187,19 +159,24 @@ class ExtractorPS:
 
     def _detectar_encabezado(self, words):
         for w in words:
-            if w["text"].strip() == self.col_pag:
+            if w["text"].strip().startswith(self.col_pag):
                 return w["top"]
         return None
 
     def _mapear_columnas(self, words, header_y):
-        col_x  = {}
-        tol_y  = 8
-        mapa   = {self.col_pag: "pag", self.col_id: "id", self.col_precio: "precio"}
+        col_x = {}
+        tol_y = 8
+        mapa  = {
+            self.col_pag:    "pag",
+            self.col_id:     "id",
+            self.col_precio: "precio",
+        }
         for w in words:
             if abs(w["top"] - header_y) < tol_y:
                 txt = w["text"].strip()
-                if txt in mapa:
-                    col_x[mapa[txt]] = w["x0"]
+                for nombre, alias in mapa.items():
+                    if txt.startswith(nombre):
+                        col_x[alias] = w["x0"]
         return col_x
 
     def _agrupar_filas(self, words, header_y, col_x):
@@ -215,9 +192,12 @@ class ExtractorPS:
             if not token:
                 continue
 
-            idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
-            col = aliases[idx]
+            dists = [abs(w["x0"] - xs[k]) for k in range(len(xs))]
+            idx   = min(range(len(xs)), key=lambda k: dists[k])
+            if dists[idx] > self.tol_asign:
+                continue
 
+            col  = aliases[idx]
             if y_key not in filas:
                 filas[y_key] = {}
             prev = filas[y_key].get(col, "")
@@ -233,20 +213,9 @@ class ExtractorPS:
         return df.reset_index(drop=True)
 
 
-# ─────────────────────────────────────────────
-#  Extractor — Texto limpio (Pakar / Cklass / Otro)
-# ─────────────────────────────────────────────
-
 class ExtractorTexto:
     """
-    Para PDFs con texto seleccionable y estructura tabular.
-    Detecta encabezado por nombre de columna, mapea coordenadas X
-    y extrae filas agrupando tokens por proximidad.
-
-    Casos especiales manejados:
-    - Precios con '$' y decimales  (Cklass: '$699.00')
-    - IDs compuestos               (Cklass: 'Combo 039')
-    - Filas de texto libre         (excluidas por ausencia de precio numérico)
+    Pakar / Cklass / Otro — texto limpio, estructura tabular.
     """
 
     def __init__(self, config: dict, logger: logging.Logger):
@@ -314,6 +283,8 @@ class ExtractorTexto:
                 for nombre, alias in mapa.items():
                     if txt == nombre or nombre in txt:
                         col_x[alias] = w["x0"]
+                        if alias == "pag" and self.col_id in txt:
+                            col_x["id"] = w["x0"]
         return col_x
 
     def _agrupar_filas(self, words, header_y, col_x):
@@ -344,14 +315,10 @@ class ExtractorTexto:
             return df
         df = df[df["precio_base"].notna()].copy()
         df = df[df["id"].str.strip() != ""].copy()
-        # Excluir filas de precio libre (texto libre → no numérico)
+        df = df[df["id"].str.match(r'^\d{4,8}(-\d+)?$')].copy()
         df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
         return df.reset_index(drop=True)
 
-
-# ─────────────────────────────────────────────
-#  Clase principal
-# ─────────────────────────────────────────────
 
 class ExtractorCatalogo:
 
@@ -402,8 +369,8 @@ class ExtractorCatalogo:
             df["len"] = df["id"].astype(str).str.len()
             df.to_excel(self.excel_path, index=False)
 
-            n = len(df)
-            u = df["id"].nunique()
+            n    = len(df)
+            u    = df["id"].nunique()
             pmin = df["precio_base"].min()
             pmax = df["precio_base"].max()
 
@@ -423,10 +390,6 @@ class ExtractorCatalogo:
         self.logger.info(f"[STAT] registros={len(df)}")
         self.logger.info(f"[STAT] ids_unicos={df['id'].nunique() if not df.empty else 0}")
 
-
-# ─────────────────────────────────────────────
-#  Punto de entrada
-# ─────────────────────────────────────────────
 
 if __name__ == "__main__":
     args        = parse_args()

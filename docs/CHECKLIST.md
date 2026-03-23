@@ -68,6 +68,75 @@ del proveedor        catálogo            al cliente
 - [ ] Copiar el JSON generado y pegarlo en tu archivo de configuración en VSC.
 
 ---
+### El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM
+
+#### Prompt para Price Shoes
+
+## Paso 1 — Extracción inicial
+
+```
+Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
+
+{
+  "columna_1":  "Pag",
+  "columna_4":  "ID",
+  "columna_12": "Sug_credito"
+}
+
+Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
+IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
+```
+
+---
+
+## Paso 2 — Si se equivoca de columna
+
+```
+Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
+
+{
+  "columna_1":  "Pag",
+  "columna_4":  "ID",
+  "columna_13": "Sug_credito"
+}
+
+Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
+IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
+```
+
+---
+
+## Paso 3 — Si vuelve a equivocarse
+
+```
+La tabla que generaste es correcta en:
+
+{
+  "columna_1": "Pag",
+  "columna_4": "ID"
+}
+
+Es incorrecta la columna_X. Corrígela por los datos correctos: "columna_X": "Sug_credito".
+IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
+```
+#### Para Pakar
+
+## Paso 1 — Extracción inicial
+
+```
+Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
+
+{
+  "columna_1":  "PÁG.",
+  "columna_4":  "CÓDIGO",
+  "columna_12": "2 PAGOS"
+}
+
+Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
+IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
+```
+
+---
 
 ### Ejecutar la extracción
 
