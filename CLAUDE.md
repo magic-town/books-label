@@ -20,7 +20,7 @@ El proyecto está estructurado en tres fases en distintos estados de madurez:
 Módulo en desarrollo. Toma las listas de precios crudas de cada proveedor (PDF con encoding propietario, estructura tabular inconsistente) y extrae automáticamente los campos `ID` y `precio_sugerido` en un Excel limpio. Elimina la extracción manual que hoy depende de asistentes de IA y validación visual.
 
 **Fase 2 — Etiquetado del catálogo**
-Módulo funcional en producción. Toma el catálogo PDF del proveedor y la lista de precios validada, detecta los IDs de producto mediante OCR y estampa el precio de venta de la boutique sobre cada artículo. El resultado es un PDF listo para distribuir. Soporta actualmente Price Shoes, con Pakar y Cklass en integración.
+Módulo funcional en producción. Toma el catálogo PDF del proveedor y la lista de precios validada, detecta los IDs de producto mediante OCR y estampa el precio de venta de la boutique sobre cada artículo. El resultado es un PDF listo para distribuir. Soporta actualmente Price Shoes, Pakar y Cklass en integración.
 
 **Fase 3 — Distribución y canal de venta**
 Módulo en definición. Hoy la distribución opera a través de Dropbox y WhatsApp Business mediante enlaces de descarga. El objetivo es reemplazar ese flujo por una plataforma web donde el cliente navegue los catálogos directamente — sin descargas, sin fricción. Las opciones evaluadas son GitHub Pages para una solución inmediata y Vercel para un portal con mayor alcance y presencia a largo plazo.
