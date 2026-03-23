@@ -24,15 +24,15 @@ del proveedor        catálogo            al cliente
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
 
-### Antes de empezar
+### Antes de empezar ya dentro de VSC
 
 - [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
 - [ ] Verificar que tienes la lista de precios Excel en `fase_2/precios/`
-- [ ] Ejecutar sync para bajar los cambios más recientes:
-  ```bash
-  cd ~/books-label
-  ./sync.sh
-  ```
+- [ ] Ejecutar sync para bajar los cambios más recientes.
+  Desde **Tilix** o la terminal integrada de VSC:
+```bash
+  cd ~/books-label && ./sync.sh
+```
 - [ ] Activar el entorno:
   ```bash
   source venv_catalogo/bin/activate
@@ -42,12 +42,12 @@ del proveedor        catálogo            al cliente
 
 ### Preparar la configuración
 
-- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V` — el sistema genera la copia automáticamente.
+- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin** o **VSC**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V` — el sistema genera la copia automáticamente.
 - [ ] Renombrar la copia con `F12` siguiendo la convención:
   `config_<proveedor>_<temporada>.json`
   — Ejemplo: `config_importados_26.json`
 
-- [ ] Abrir el configurador haciendo doble clic sobre:
+- [ ] Abrir el configurador haciendo doble clic sobre 👇:
   ```
   fase_2/config/configurador.html
   ```
@@ -61,7 +61,7 @@ del proveedor        catálogo            al cliente
   | Cklass | Cklass |
   | Otro | Otro |
 
-- [ ] Actualizar los tres campos de archivos en el configurador:
+- [ ] Actualizar tus I/O (inputs/outputs) en el configurador:
 
 <img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Configurador" width="85%"/>
 
@@ -103,7 +103,7 @@ del proveedor        catálogo            al cliente
 | 6 | 300 | 11 | ❌ | ❌ | Máxima resolución |
 | 7 | 250 | 11 | ❌ | ✅ | IDs en texto blanco sobre fondo oscuro |
 
-- [ ] El dato clave de cada corrida es **Etiquetas** — no el porcentaje.
+- [ ] El dato ❗ **crítico** de cada corrida es **Etiquetas** — no el porcentaje. 
 
 <img src="../imagenes/asset_repo/modo_prueba.png" alt="Modo prueba" width="100%"/>
 
