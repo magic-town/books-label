@@ -1,106 +1,80 @@
-# books-label — Guía del MVP
+# books-label — Alcance y visión del proyecto
 
-**Versión 1.1 — Marzo 2026**
-
----
-
-## 1. Contexto general
-
-`books-label` es un proyecto de etiquetado de catálogos de proveedores con precios propios de Novedades Zepeda. El sistema cuenta con un borrador funcional que cubre el flujo completo, pero presenta inconsistencias críticas que deben corregirse antes de escalar. Este documento define las tres fases del proyecto, sus deficiencias actuales y las soluciones planteadas, con el objetivo de establecer un MVP real y sostenible.
-
-El equipo está formado por dos personas: Gabriel (desarrollador principal) y Sonia (analista sin perfil técnico en TI). La arquitectura y los flujos de trabajo deben reflejar esta realidad: Sonia opera exclusivamente mediante paneles HTML que escriben archivos JSON ejecutables desde consola.
+**Versión 1.2 — Marzo 2026**
 
 ---
 
-## 2. Fases del proyecto
+## 1. Propósito
 
-### 2.1 Fase 1 — Extracción de datos del proveedor
+`books-label` nace como una herramienta de automatización para Novedades Zepeda, una boutique familiar en Mineral de Angangueo, Michoacán. El negocio opera con catálogos físicos y digitales de múltiples proveedores, y el proceso de etiquetado de precios propios sobre esos catálogos consumía horas de trabajo manual cada temporada.
 
-**Estado actual**
-
-La extracción de datos crudos desde los catálogos del proveedor se realiza mediante LLM con resultados inconsistentes y alejados de la precisión requerida en producción.
-
-**Solución propuesta**
-
-Crear un módulo dedicado compuesto por tres archivos:
-
-- `script.py` — lógica de extracción precisa y reproducible.
-- `configurador.html` — panel de configuración para uso por parte de Sonia.
-- `config_lista_proveedor.json` — parámetros de extracción; sustituye el método actual.
-
-La interacción entre el panel y el archivo de configuración sigue el mismo patrón de Fase 2: no existe servidor, el panel incluye un botón `Copiar JSON` que transfiere los valores al archivo `config_lista_proveedor.json`. Este patrón debe mantenerse consistente en todas las fases.
+El primer objetivo del proyecto fue claro: automatizar ese proceso. El segundo, más ambicioso, es convertir ese esfuerzo en la base de una transformación digital completa — llevando los productos al canal en línea y construyendo una presencia comercial moderna.
 
 ---
 
-### 2.2 Fase 2 — Etiquetado del catálogo
+## 2. Alcance actual
 
-**Estado actual**
+El proyecto está estructurado en tres fases en distintos estados de madurez:
 
-Esta fase funciona, aunque de forma incompleta. Solo se han realizado pruebas con un proveedor (Price Shoes), con una tasa de etiquetado de entre 70% y 95%, suficiente para salir a producción. El problema principal es que el crecimiento del proyecto sin una arquitectura definida lo convierte en un sistema difícil de mantener.
+**Fase 1 — Extracción de datos del proveedor**
+Módulo en desarrollo. Toma las listas de precios crudas de cada proveedor (PDF con encoding propietario, estructura tabular inconsistente) y extrae automáticamente los campos `ID` y `precio_sugerido` en un Excel limpio. Elimina la extracción manual que hoy depende de asistentes de IA y validación visual.
 
-**Solución propuesta**
+**Fase 2 — Etiquetado del catálogo**
+Módulo funcional en producción. Toma el catálogo PDF del proveedor y la lista de precios validada, detecta los IDs de producto mediante OCR y estampa el precio de venta de la boutique sobre cada artículo. El resultado es un PDF listo para distribuir. Soporta actualmente Price Shoes, con Pakar y Cklass en integración.
 
-Actualmente se detectan tres formatos de identificador según el proveedor:
-
-| Proveedor   | Formato          | Descripción                                         |
-|-------------|------------------|-----------------------------------------------------|
-| Price Shoes | `ID xxxxxxx`     | Prefijo fijo `ID`, seguido de 4 a 8 dígitos         |
-| Pakar       | `Código xxx-xxx` | Prefijo fijo `Código`, dígitos separados por guion  |
-| Cklass      | `xxx-xx`         | Dígitos separados por guion, sin prefijo            |
-
-La solución óptima es declarar el formato de cada proveedor directamente en `config_base.json`, de modo que `catalogo_base.py` seleccione el patrón de detección sin lógica condicional dispersa en el código. Agregar un proveedor nuevo implicaría únicamente añadir su entrada en el JSON, sin tocar el script.
+**Fase 3 — Distribución y canal de venta**
+Módulo en definición. Hoy la distribución opera a través de Dropbox y WhatsApp Business mediante enlaces de descarga. El objetivo es reemplazar ese flujo por una plataforma web donde el cliente navegue los catálogos directamente — sin descargas, sin fricción. Las opciones evaluadas son GitHub Pages para una solución inmediata y Vercel para un portal con mayor alcance y presencia a largo plazo.
 
 ---
 
-### 2.3 Fase 3 — Distribución y visualización de catálogos
+## 3. Hacia dónde va
 
-**Estado actual**
+La automatización que construye `books-label` no es un fin en sí mismo — es el primer paso de una transformación más amplia.
 
-Se utilizan Dropbox y WhatsApp Business como canal de distribución mediante enlaces de descarga. El flujo es deficiente: el enlace no siempre se abre correctamente y, cuando funciona, el usuario no sabe qué hacer con el archivo descargado.
+El pipeline completo, cuando esté validado, elimina la intervención manual en la preparación de catálogos y los pone disponibles en línea de forma inmediata. Eso libera tiempo del equipo, reduce errores y abre un canal de venta que no existía.
 
-**Opción A — GitHub Pages**
+La plataforma web que se construya en Fase 3 no es una tienda en línea convencional — es un portal de presentación elegante que pone los productos frente al cliente con contexto, navegabilidad y una imagen de marca coherente. Para un negocio que hoy distribuye por mensajería instantánea, eso representa un salto cualitativo real.
 
-Publicar los catálogos directamente desde el repositorio mediante GitHub Pages. El usuario haría clic en un índice dentro de WhatsApp Business y visualizaría el catálogo PDF de inmediato, sin descargar ningún archivo. Esta solución reutiliza el flujo de sincronización existente (`sync.sh`), que ya contiene el `push` necesario.
-
-**Opción B — Portal web en Vercel**
-
-Crear un portal web sin costo, desplegado en Vercel, que permita navegar entre catálogos con una experiencia elegante. No es una tienda en línea, sino un espacio de presentación de productos diseñable con Lovable o con HTML/CSS propio. Tiene mayor alcance que la Opción A: permite agregar contexto, mejorar la navegación y construir una presencia web más sólida a futuro.
+La visión de largo plazo es que este modelo — automatización de catálogos más canal web — sea replicable. Lo que se construye para Novedades Zepeda es, en esencia, una plataforma que cualquier negocio con catálogos de proveedores podría adoptar. La transformación digital no requiere grandes presupuestos ni infraestructura compleja: requiere procesos bien diseñados, automatización progresiva y un equipo dispuesto a aprender.
 
 ---
 
-## 3. Archivos núcleo
+## 4. Principios de construcción
 
-| Archivo                      | Fase | Función                                          |
-|------------------------------|------|--------------------------------------------------|
-| `catalogo_base.py`           | 2    | Script principal; todo el sistema depende de él  |
-| `config_base.json`           | 2    | Configuración de proveedores y formatos          |
-| `configurador.html`          | 2    | Panel de control para Sonia                      |
-| `config_lista_proveedor.json`| 1    | Parámetros de extracción por proveedor           |
-| `CHECKLIST.md`               | —    | Bitácora del proyecto y tutorial de operación    |
-| `sync.sh`                    | —    | Sincronización Git entre Gabriel y Sonia         |
+El proyecto se construye con criterios deliberados:
 
----
+**Automatización correcta antes que automatización rápida.** Cada módulo se valida con pruebas reales antes de escalar. La tasa de etiquetado, el formato de extracción y la experiencia del usuario en el canal final son métricas concretas, no supuestos.
 
-## 4. Sincronización y trabajo en equipo
+**El analista como usuario real.** Sonia opera el sistema sin tocar código. Todo panel, configurador y guía está diseñado para que una persona sin perfil técnico pueda ejecutar el proceso completo de forma autónoma. Si algo requiere intervención de desarrollo, es una deficiencia del diseño, no del usuario.
 
-Sonia y Gabriel comparten una misma cuenta de GitHub y se sincronizan mediante convenciones que evitan conflictos de versiones. Este flujo está construido en `~/books-label/sync.sh`. Cualquier cambio en la arquitectura debe preservar este mecanismo.
+**Arquitectura modular.** Cada fase es un módulo independiente con su propia configuración, inputs, outputs y documentación. Un nuevo proveedor, un nuevo canal de distribución o un nuevo colaborador pueden incorporarse sin reescribir lo que ya funciona.
+
+**Documentación como parte del producto.** `CHECKLIST.md`, `README.md` y los paneles HTML no son complementos — son parte del sistema. Un proceso que no puede documentarse no puede mantenerse.
 
 ---
 
-## 5. Estructura de directorios
+## 5. Estado del equipo
 
-La estructura actual fue construida de forma improvisada. El primer paso antes de continuar con cualquier fase es establecer una organización lógica, limpia y estable. La estructura propuesta separa los módulos por fase, aísla la configuración de la ejecución y mantiene rutas predecibles para Sonia.
+El proyecto lo desarrollan dos personas:
 
-Cada fase tendrá su propia carpeta con un `README.md` breve: no una enciclopedia, sino una referencia operativa de tres secciones fijas — *qué hace*, *cómo se ejecuta* y *qué archivos toca*.
+| Persona | Rol |
+|---------|-----|
+| Gabriel | Desarrollo, arquitectura y mantenimiento técnico |
+| Sonia | Operación: extracción, etiquetado y distribución |
+
+La escala del equipo es una restricción consciente, no una limitación. La arquitectura modular y la documentación operativa están diseñadas precisamente para que el sistema funcione con este equipo y pueda crecer sin depender de ninguna persona en particular.
 
 ---
 
-## 6. Alcance del MVP
+## 6. Decisiones pendientes
 
-El MVP real de `books-label` se considera completo cuando:
+| Tema | Estado |
+|------|--------|
+| Validación del pipeline Fase 1 → Fase 2 | En pruebas — n corridas necesarias antes de automatizar |
+| Canal de distribución Fase 3 | En definición — GitHub Pages vs. Vercel |
+| Soporte Pakar y Cklass en Fase 2 | En integración |
+| Nuevos proveedores | Declarables en `config_base.json` sin modificar el script |
 
-- La extracción de datos del proveedor es precisa y reproducible (Fase 1 corregida).
-- El etiquetado soporta los tres formatos de identificador actuales y permite agregar nuevos desde `config_base.json` sin modificar el script (Fase 2 extendida).
-- El catálogo es visualizable de inmediato por el usuario final, sin descargas (Fase 3, vía GitHub Pages o Vercel).
-- La estructura de directorios está organizada y cada fase cuenta con su documentación operativa mínima.
-- El flujo completo es operable por Sonia sin intervención en el código.
+---
+
+*books-label · Novedades Zepeda · Angangueo, Michoacán · 2026*
