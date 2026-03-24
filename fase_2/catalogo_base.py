@@ -359,15 +359,25 @@ class EtiquetadorCatalogo:
             self.logger.info("🔑 Formato ID: Cklass → \\d{3}-\\d{2}")
             return re.compile(r'\d{3}-\d{2}'), True
 
-        else:
-            # PS y Otro: dígitos puros, longitud configurable
-            if p not in ("PS", "OTRO"):
-                self.logger.warning(
-                    f"⚠️  id_proveedor='{self.id_proveedor}' no reconocido — "
-                    f"se usará formato numérico (PS). Valores válidos: PS, Pakar, Cklass, Otro."
-                )
+        elif p == "PS":
+            # Solo dígitos, longitud configurable
             mn, mx = self.id_len_min, self.id_len_max
-            self.logger.info(f"🔑 Formato ID: {p} → \\d{{{mn},{mx}}}")
+            self.logger.info(f"🔑 Formato ID: PS     → \\d{{{mn},{mx}}}")
+            return re.compile(rf'\d{{{mn},{mx}}}'), False
+
+        elif p == "OTRO":
+            # Alfanumérico (letras y dígitos), longitud configurable
+            mn, mx = self.id_len_min, self.id_len_max
+            self.logger.info(f"🔑 Formato ID: Otro   → [A-Za-z0-9]{{{mn},{mx}}}")
+            return re.compile(rf'[A-Za-z0-9]{{{mn},{mx}}}'), False
+
+        else:
+            self.logger.warning(
+                f"⚠️  id_proveedor='{self.id_proveedor}' no reconocido — "
+                f"se usará formato numérico (PS). Valores válidos: PS, Pakar, Cklass, Otro."
+            )
+            mn, mx = self.id_len_min, self.id_len_max
+            self.logger.info(f"🔑 Formato ID: PS     → \\d{{{mn},{mx}}} (fallback)")
             return re.compile(rf'\d{{{mn},{mx}}}'), False
 
     # ── Preprocesado de imagen ────────────────────────────────────────────────
