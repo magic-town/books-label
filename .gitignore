@@ -172,3 +172,4 @@ venv.bak/
 venv/
 venv_catalogo/
 wheels/
+fase_2/libros/*_decrypt.pdf
