@@ -100,7 +100,6 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
----
 
 ## 🏷️ FASE 2 — Etiquetar el catálogo
 
