@@ -113,9 +113,9 @@ del proveedor        catálogo            al cliente
 
 
 ---
-### El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM
+#### ⚠️ El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM.
 
-#### Prompt para Price Shoes
+## Prompt para Price Shoes
 
 ## Paso 1 — Extracción inicial
 
@@ -164,7 +164,9 @@ La tabla que generaste es correcta en:
 Es incorrecta la columna_X. Corrígela por los datos correctos: "columna_X": "Sug_credito".
 IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
-#### Prompt para Pakar
+---
+
+## Prompt para Pakar
 
 ## Paso 1 — Extracción inicial
 
