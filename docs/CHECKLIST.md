@@ -185,9 +185,6 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-
----
-
 ## 🏷️ FASE 2 — Etiquetar el catálogo
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.

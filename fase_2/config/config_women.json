@@ -3,8 +3,8 @@
     "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
 
     "pdf_input":   "libros/pv26_women.pdf",
-    "excel_input": "precios/lista_woman.xlsx",
-    "pdf_output":  "salidas/woman_precios.pdf",
+    "excel_input": "precios/lista_women.xlsx",
+    "pdf_output":  "salidas/women_precios.pdf",
 
     "paginas_prueba": 23,
 
