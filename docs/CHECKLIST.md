@@ -113,11 +113,11 @@ del proveedor        catálogo            al cliente
 
 
 ---
-#### ⚠️ El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM.
+## ⚠️ El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM.
 
-## Prompt para Price Shoes
+### Prompt para Price Shoes
 
-## Paso 1 — Extracción inicial
+### Paso 1 — Extracción inicial
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
@@ -134,7 +134,7 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-## Paso 2 — Si se equivoca de columna
+#### Paso 2 — Si se equivoca de columna
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
@@ -151,7 +151,7 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-## Paso 3 — Si vuelve a equivocarse
+#### Paso 3 — Si vuelve a equivocarse
 
 ```
 La tabla que generaste es correcta en:
@@ -166,7 +166,7 @@ IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
 ---
 
-## Prompt para Pakar
+#### 🟦 Prompt para Pakar
 
 ## Paso 1 — Extracción inicial
 
@@ -221,7 +221,10 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
   Elige el **proveedor** primero — determina el patrón de búsqueda del OCR.
 
-- [ ] Completar los tres campos de archivos.
+- [ ] Completar los tres campos I/O (inputs / outputs).
+
+<img src="../imagenes/asset_repo/configurader.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+
 - [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
 
 ---
