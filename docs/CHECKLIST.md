@@ -1,4 +1,4 @@
-<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="95%"/>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
 
@@ -15,109 +15,22 @@ Extraer precios  →  Etiquetar       →   Publicar
 del proveedor        catálogo            al cliente
 ```
 
-> La Fase 1 produce el Excel de precios que alimenta la Fase 2.
-> La calidad de ese Excel determina la calidad del catálogo final.
+<img src="../imagenes/asset_repo/cover01.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
----
+## Modulo 1 - Fase 1.
 
-## 📥 FASE 1 — Extraer precios del proveedor
+La extracción por medio de LLM no es la que estamos buscando, pero ayudan a no frenarnos en nuestra ooperación, es decir, tenemos 1 proceso que medianamente funciona y otro en desarrollo.
 
-> **Objetivo:** obtener un Excel limpio con tres columnas — página, ID y precio base —
-> listo para ser validado y usado como input de Fase 2.
+### Primer método usando LLM (el que ya conoces)
 
-### Antes de empezar
+- [ ] Descargar tus fichero crudos; libro y lista.
+- [ ] Antes de iniciar valida que concidan los ID, páginas.
+- [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
+- [ ] Usa uno o varios de los siguietnes prompts:
 
-- [ ] Verificar que tienes la lista de precios PDF del proveedor en `fase_1/lista_cruda/`
-- [ ] Ejecutar sync para bajar los cambios más recientes.
-  Desde **Tilix** o la terminal integrada de VSC:
-  ```bash
-  cd ~/books-label && ./sync.sh
-  ```
-- [ ] Ya dentro de VSC activar el entorno, si no se activa automáteicamente:
-  ```bash
-  source venv_catalogo/bin/activate
-  ```
+#### 👒 Prompt para Price Shoes
 
----
-
-### Preparar la configuración
-
-- [ ] Crear una copia de `fase_1/config/config_base_extractor.json`. Desde **Dolphin** o **VSC**: seleccionar el archivo, `Ctrl+C` → `Ctrl+V`.
-- [ ] Renombrar la copia con `F12` siguiendo la convención:
-  `config_<proveedor_ex>.json`
-  — Ejemplo: `config_caballeros_ex.json`
-
-- [ ] Abrir el panel haciendo doble clic sobre 👇:
-  ```
-  fase_1/config/panel_extraer_campos.html
-  ```
-
-  En el panel, elige primero el **proveedor**. Los campos a extraer se configuran automáticamente:
-
-  | Proveedor | Página | ID / Código | Precio base |
-  |-----------|--------|-------------|-------------|
-  | Price Shoes | `Pag` | `ID` | `Sug_credito` |
-  | Pakar | `PÁG.` | `CÓDIGO` | `2 PAGOS` |
-  | Cklass | `PÁGINA` | `MODELO` | `CRÉDITO` |
-  | Otro | libre | libre | libre |
-
-- [ ] Completar los campos de archivo en el panel:
-  - **PDF de entrada:** nombre del archivo en `lista_cruda/`
-  - **Output Excel:** nombre del archivo que se generará en `salida/`
-
-- [ ] Copiar el JSON generado y pegarlo en tu archivo de configuración en VSC.
-
----
-### Ejecutar la extracción
-
-- [ ] Ejecutar el script:
-  ```bash
-  python3 fase_1/extractor.py --config fase_1/config/<nombre_config>.json
-  ```
-- [ ] Leer el resultado en consola:
-
-  | Resultado | Acción |
-  |-----------|--------|
-  | 🟢 **EXTRACCIÓN EXITOSA** | Abrir el Excel y continuar a validación |
-  | 🟡 **EXTRACCIÓN PARCIAL** | Revisar columnas en el config y volver a intentar |
-  | 🔴 **EXTRACCIÓN FALLIDA** | Ver sección "Si la extracción falla" |
-
----
-
-### Validar el Excel
-
-> Esta es la etapa más importante de la Fase 1.
-> Un precio incorrecto o un ID mal extraído genera un catálogo con errores.
-
-- [ ] Abrir el Excel generado en `fase_1/salida/` con LibreOffice Calc.
-- [ ] Verificar que las columnas son correctas: `pag`, `id`, `precio_base`.
-- [ ] Revisar una muestra de registros contra el PDF original — al menos 10 filas al azar.
-- [ ] Verificar que no haya precios vacíos ni IDs con caracteres extraños.
-- [ ] Si todo se ve bien, **este Excel es el input de Fase 2**. Copiarlo a:
-  ```
-  fase_2/precios/<nombre>.xlsx
-  ```
-
----
-
-### Si la extracción falla
-
-**Camino A — Ajuste de configuración**
-- [ ] Revisar que los nombres de columna en el config coinciden exactamente con los del PDF.
-- [ ] Aumentar `tolerancia_x` de 20 a 30 o 40 si las columnas no se detectan.
-- [ ] Para Price Shoes: verificar que `encoding_offset` es 29.
-
-**Camino B — Volver usar prompts con LLM**
-
-> La Fase 1 concluye cuando el Excel está validado y copiado a `fase_2/precios/`.
-
-
----
-## ⚠️ El módulo 1 está en desarrollo, de momento usaremos los prompt con algún LLM.
-
-### Prompt para Price Shoes
-
-### Paso 1 — Extracción inicial
+**Paso 1 — Extracción inicial**
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
@@ -134,7 +47,7 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-#### Paso 2 — Si se equivoca de columna
+**Paso 2 — Si se equivoca de columna**
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
@@ -151,7 +64,7 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 ---
 
-#### Paso 3 — Si vuelve a equivocarse
+**Paso 3 — Si vuelve a equivocarse (este es común para NotebookLM)**
 
 ```
 La tabla que generaste es correcta en:
@@ -161,14 +74,11 @@ La tabla que generaste es correcta en:
   "columna_4": "ID"
 }
 
-Es incorrecta la columna_X. Corrígela por los datos correctos: "columna_X": "Sug_credito".
+Es incorrecta la última columna. Corrígela por los datos correctos: "columna_X": "Sug_credito", es la siguiete columna de la que me estas dando en tus últimos outputs.
 IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
----
 
-#### 🟦 Prompt para Pakar
-
-## Paso 1 — Extracción inicial
+### 🟣 Extacción de Pakar
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
@@ -182,6 +92,13 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
 Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
 IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 ```
+
+- [ ] Valida que la tabla es la que necesitas Vs tu tabla cruda.
+- [ ] Copia tu tabla extraida en `~/books-label/fase_2/precios/precios_tabla.ods`
+- [ ] Aplica las transformaciones `REDONDEAR`, `precios_venta`, `LEN`
+- [ ] Copia las columnas `ID`, `precio_venta` en una tabla al costado de la transformada con `pegado especial`
+
+---
 
 ---
 
