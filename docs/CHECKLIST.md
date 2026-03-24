@@ -223,7 +223,7 @@ IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 
 - [ ] Completar los tres campos I/O (inputs / outputs).
 
-<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="100%"/>
+<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
 
 - [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
 
