@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_women.xlsx",
     "pdf_output":  "salidas/women_precios.pdf",
 
-    "paginas_prueba": 23,
+    "paginas_prueba": 10,
 
     "id_proveedor": "Pakar",
 

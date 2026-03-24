@@ -624,7 +624,7 @@ class EtiquetadorCatalogo:
                     first_page=i + 1,
                     last_page=i + 1,
                     dpi=self.dpi,
-                    grayscale=self.ocr_grayscale
+                    grayscale=True
                 )
 
                 img_base = images[0].convert("L")
