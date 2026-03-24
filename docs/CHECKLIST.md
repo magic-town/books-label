@@ -173,8 +173,8 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
 
 {
   "columna_1":  "PÁG.",
-  "columna_4":  "CÓDIGO",
-  "columna_12": "2 PAGOS"
+  "columna_2":  "CÓDIGO",
+  "columna_11": "2 PAGOS"
 }
 
 Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
