@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_women.xlsx",
     "pdf_output":  "salidas/women_precios.pdf",
 
-    "paginas_prueba": 10,
+    "paginas_prueba": 3,
 
     "id_proveedor": "Pakar",
 
@@ -42,7 +42,7 @@
 
     "contraste":     2.5,
     "nitidez":       2,
-    "ocr_grayscale": true,
+    "ocr_grayscale": false,
     "ocr_invertir":  false,
 
     "fuzzy_activo": false,
