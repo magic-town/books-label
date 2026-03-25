@@ -2,35 +2,35 @@
     "_comentario": "Configuración para Catalogo — Boutique Zepeda",
     "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
 
-    "pdf_input":   "libros/pv26_women.pdf",
+    "pdf_input":   "libros/catalogo_women.pdf",
     "excel_input": "precios/lista_women.xlsx",
     "pdf_output":  "salidas/women_precios.pdf",
 
-    "paginas_prueba": 3,
+    "paginas_prueba": 20,
 
     "id_proveedor": "Pakar",
 
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": 10},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
         {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
         {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
     ],
 
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          434,
-    "logo_y_pt":          582,
+    "logo_x_pt":          69,
+    "logo_y_pt":          447,
     "logo_ancho_pt":      80,
     "logo_alto_pt":       80,
     "logo_transparencia": 0.85,
 
     "etiqueta_font":        "Helvetica-BoldOblique",
-    "etiqueta_font_size":   12,
-    "etiqueta_color_rgb":   [0.89, 0.2, 0.23],
-    "etiqueta_offset_x_pt": 0,
-    "etiqueta_offset_y_pt": 0,
+    "etiqueta_font_size":   11,
+    "etiqueta_color_rgb":   [1, 0.2, 0.23],
+    "etiqueta_offset_x_pt": -24,
+    "etiqueta_offset_y_pt": -16.5,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -42,7 +42,7 @@
 
     "contraste":     2.5,
     "nitidez":       2,
-    "ocr_grayscale": false,
+    "ocr_grayscale": true,
     "ocr_invertir":  false,
 
     "fuzzy_activo": false,
