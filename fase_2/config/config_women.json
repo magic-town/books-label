@@ -2,9 +2,9 @@
     "_comentario": "Configuración para Catalogo — Boutique Zepeda",
     "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
 
-    "pdf_input":   "libros/catalogo_women.pdf",
+    "pdf_input":   "libros/catalogo_women_26.pdf",
     "excel_input": "precios/lista_women.xlsx",
-    "pdf_output":  "salidas/women_precios.pdf",
+    "pdf_output":  "salidas/women_prueba.pdf",
 
     "paginas_prueba": 20,
 
@@ -27,7 +27,7 @@
     "logo_transparencia": 0.85,
 
     "etiqueta_font":        "Helvetica-BoldOblique",
-    "etiqueta_font_size":   11,
+    "etiqueta_font_size":   9,
     "etiqueta_color_rgb":   [1, 0.2, 0.23],
     "etiqueta_offset_x_pt": -24,
     "etiqueta_offset_y_pt": -16.5,
