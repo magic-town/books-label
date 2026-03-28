@@ -40,6 +40,34 @@ for entrada in "${ARCHIVOS_OWNER[@]}"; do
   fi
 done
 
+# ── Preparar working tree para pull limpio ───────────────────────────────────
+# Problema: git pull aborta si hay cambios sin commitear en archivos que el
+# remoto quiere modificar, incluso antes de que corra cualquier lógica nuestra.
+#
+# Solución en dos pasos:
+#   1. Archivos donde soy owner → git checkout (descarta working copy; ya
+#      tenemos el backup, la lógica de restauración lo devuelve después).
+#   2. Resto de archivos sucios → stash temporal, se recupera tras el pull.
+
+for entrada in "${ARCHIVOS_OWNER[@]}"; do
+  owner="${entrada%%:*}"
+  archivo="${entrada#*:}"
+  if es_owner "$owner" && [ -f "$archivo" ]; then
+    if ! git diff --quiet -- "$archivo" 2>/dev/null; then
+      git checkout -- "$archivo"
+      echo "🧹  $archivo — copia de trabajo descartada antes del pull (owner: $owner, backup guardado)"
+    fi
+  fi
+done
+
+STASHED=false
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  STASH_MSG="sync-auto-$(date +%Y%m%d-%H%M%S)"
+  git stash push -m "$STASH_MSG"
+  STASHED=true
+  echo "📦  Cambios locales (no-owner) guardados en stash: $STASH_MSG"
+fi
+
 # ── Bajar cambios ─────────────────────────────────────────────────────────────
 echo "⬇️  Bajando cambios... (máquina: $QUIEN)"
 git pull --rebase=false --no-edit
@@ -102,6 +130,19 @@ if git diff --name-only --diff-filter=U | grep -q .; then
   echo "❌  Quedaron conflictos sin resolver. No se puede continuar."
   git diff --name-only --diff-filter=U | sed 's/^/   · /'
   exit 1
+fi
+
+# ── Restaurar stash (archivos no-owner) ──────────────────────────────────────
+if [ "$STASHED" = true ]; then
+  git stash pop
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "⚠️  Conflicto al restaurar cambios locales del stash."
+    echo "   Revisa con: git stash show -p"
+    echo "   Resuelve los conflictos y vuelve a ejecutar ./sync.sh"
+    exit 1
+  fi
+  echo "📤  Cambios locales (no-owner) restaurados desde stash."
 fi
 
 # ── Subir cambios locales ─────────────────────────────────────────────────────
