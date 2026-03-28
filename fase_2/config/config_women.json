@@ -2,7 +2,7 @@
     "_comentario": "Configuración para Catalogo — Boutique Zepeda",
     "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
 
-    "pdf_input":   "libros/catalogo_women26.pdf",
+    "pdf_input":   "libros/catalogo_women26_rgb.pdf",
     "excel_input": "precios/lista_women.xlsx",
     "pdf_output":  "salidas/women_prueba.pdf",
 

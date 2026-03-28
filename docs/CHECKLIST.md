@@ -89,8 +89,7 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
   "columna_11": "2 PAGOS"
 }
 
-Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
-IMPORTANTE: el tipo de datos para "CÓDIGO" debe ser texto, para "2 PAGO" debe ser en formato número, tu output tiene que ser una tabla lista para copiar y pegar.
+IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle formula posteriormente. Tu output tiene que ser una tabla lista para copiar y pegar.
 ```
 
 - [ ] Valida que la tabla es la que necesitas Vs tu tabla cruda.
