@@ -569,6 +569,65 @@ class EtiquetadorCatalogo:
         packet.seek(0)
         return packet
 
+    # ── Aplanado de formularios AcroForm ─────────────────────────────────────
+
+    def _aplanar_pdf(self, pdf_path: str) -> str:
+        """
+        Detecta si el PDF tiene AcroForm. Si es así, lo aplana con Ghostscript
+        y devuelve la ruta al PDF temporal aplanado. Si no, devuelve la ruta
+        original sin tocarla.
+
+        El aplanado elimina los campos de formulario interactivos y los convierte
+        en contenido de página estándar, lo que garantiza:
+          - Colores preservados al hacer merge_page()
+          - Compatibilidad con cualquier visor (Android, iOS, navegador)
+          - Permisos de impresión sin restricciones
+        """
+        try:
+            reader_check = PdfReader(pdf_path)
+            root = reader_check.trailer.get("/Root", {})
+            tiene_acroform = "/AcroForm" in root
+        except Exception:
+            tiene_acroform = False
+
+        if not tiene_acroform:
+            return pdf_path
+
+        self.logger.info("   📋  AcroForm detectado — aplanando con Ghostscript...")
+
+        tmp_path = pdf_path.replace(".pdf", "_flat.pdf")
+        if not tmp_path.endswith("_flat.pdf"):
+            tmp_path = pdf_path + "_flat.pdf"
+
+        try:
+            result = subprocess.run(
+                [
+                    "gs",
+                    "-dBATCH", "-dNOPAUSE", "-dQUIET",
+                    "-sDEVICE=pdfwrite",
+                    "-dCompatibilityLevel=1.4",
+                    "-dPrinted=false",
+                    f"-sOutputFile={tmp_path}",
+                    pdf_path
+                ],
+                capture_output=True, text=True, timeout=120
+            )
+            if result.returncode != 0:
+                self.logger.warning(f"   ⚠️  Ghostscript error: {result.stderr[:200]} — usando PDF original.")
+                return pdf_path
+
+            self.logger.info("   ✅  Aplanado listo — colores y permisos preservados.")
+            self._pdf_tmp_flat = tmp_path  # guardar ruta para limpiar al final
+            return tmp_path
+
+        except FileNotFoundError:
+            self.logger.warning("   ⚠️  Ghostscript no encontrado (gs). Instalar con: sudo apt install ghostscript")
+            self.logger.warning("   ⚠️  Continuando con PDF original — colores pueden verse afectados.")
+            return pdf_path
+        except subprocess.TimeoutExpired:
+            self.logger.warning("   ⚠️  Ghostscript tardó demasiado — usando PDF original.")
+            return pdf_path
+
     # ── Proceso principal ─────────────────────────────────────────────────────
 
     def marcar(self):
@@ -585,10 +644,14 @@ class EtiquetadorCatalogo:
         self.logger.info(f"   📸  DPI            {self.dpi}")
         self.logger.info(f"   🔍  PSM            {self.psm}")
 
+        self._pdf_tmp_flat = None  # se asigna en _aplanar_pdf si aplica
+
+        pdf_path_proc = self._aplanar_pdf(self.pdf_path)
+
         try:
-            reader_pdf = PdfReader(self.pdf_path)
+            reader_pdf = PdfReader(pdf_path_proc)
         except FileNotFoundError:
-            self.logger.error(f"❌ PDF no encontrado: {self.pdf_path}")
+            self.logger.error(f"❌ PDF no encontrado: {pdf_path_proc}")
             raise
         except Exception as e:
             self.logger.error(f"❌ Error al abrir PDF: {e}")
@@ -827,6 +890,13 @@ class EtiquetadorCatalogo:
         self.logger.info(f"[STAT] tasa={tasa:.2f}")
         self.logger.info(f"[STAT] semaforo={semaforo_key}")
         self.logger.info(f"[STAT] id_proveedor={self.id_proveedor}")
+
+        # ── Limpiar PDF temporal de aplanado si se generó ────────────────────
+        if self._pdf_tmp_flat and os.path.exists(self._pdf_tmp_flat):
+            try:
+                os.remove(self._pdf_tmp_flat)
+            except Exception:
+                pass
 
 
 # ─────────────────────────────────────────────
