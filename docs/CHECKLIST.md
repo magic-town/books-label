@@ -17,18 +17,18 @@ del proveedor        catálogo            al cliente
 
 <img src="../imagenes/asset_repo/cover01.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
-## Modulo 1 - Fase 1.
+## Modulo 1 - Fase 1
 
-La extracción por medio de LLM no es la que estamos buscando, pero ayudan a no frenarnos en nuestra ooperación, es decir, tenemos 1 proceso que medianamente funciona y otro en desarrollo.
+La extracción por medio de LLM no es la que estamos buscando, pero ayudan a no frenarnos en nuestra operación, es decir, tenemos un proceso que medianamente funciona y otro en desarrollo.
 
 ### Primer método usando LLM (el que ya conoces)
 
-- [ ] Descargar tus fichero crudos; libro y lista.
-- [ ] Antes de iniciar valida que concidan los ID, páginas.
+- [ ] 📥 Descargar tus fichero crudos; libro y lista.
+- [ ] Antes de iniciar valida que concidan los _ID_`, _páginas_.
 - [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
 - [ ] Usa uno o varios de los siguietnes prompts:
 
-#### 👒 Prompt para Price Shoes
+#### 🛍️ Prompt para Price Shoes
 
 **Paso 1 — Extracción inicial**
 
@@ -58,6 +58,8 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
   "columna_13": "Sug_credito"
 }
 
+
+La columa "Sug_credito" es la siguiete de la que me estas dando en tu último output.
 Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
 IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
 ```
@@ -89,7 +91,7 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
   "columna_11": "2 PAGOS"
 }
 
-IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle formula posteriormente. Tu output tiene que ser una tabla lista para copiar y pegar.
+IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle fórmula en Calc. Tu output tiene que ser una tabla lista para copiar y pegar.
 ```
 
 - [ ] Valida que la tabla es la que necesitas Vs tu tabla cruda.
