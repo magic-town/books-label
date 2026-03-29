@@ -4,9 +4,9 @@
 
     "pdf_input":   "libros/catalogo_women26_rgb.pdf",
     "excel_input": "precios/lista_women.xlsx",
-    "pdf_output":  "salidas/women_prueba.pdf",
+    "pdf_output":  "salidas/women_precios.pdf",
 
-    "paginas_prueba": 10,
+    "paginas_prueba": 14,
 
     "id_proveedor": "Pakar",
 
@@ -20,17 +20,17 @@
 
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          81,
-    "logo_y_pt":          527,
-    "logo_ancho_pt":      80,
-    "logo_alto_pt":       80,
+    "logo_x_pt":          93,
+    "logo_y_pt":          667,
+    "logo_ancho_pt":      85,
+    "logo_alto_pt":       85,
     "logo_transparencia": 0.85,
 
     "etiqueta_font":        "Helvetica-BoldOblique",
-    "etiqueta_font_size":   10,
-    "etiqueta_color_rgb":   [0.58, 0.2, 0.23],
-    "etiqueta_offset_x_pt": -16.5,
-    "etiqueta_offset_y_pt": -24,
+    "etiqueta_font_size":   12,
+    "etiqueta_color_rgb":   [0.89, 0.2, 0.23],
+    "etiqueta_offset_x_pt": 0,
+    "etiqueta_offset_y_pt": 0,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -38,7 +38,7 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
 
     "contraste":     2.5,
     "nitidez":       2,
