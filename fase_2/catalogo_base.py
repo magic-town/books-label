@@ -730,8 +730,14 @@ class EtiquetadorCatalogo:
                             continue
                         id_detectado = m.group()
                     else:
-                        # PS / Otro: strip de no-dígitos, validación por longitud
-                        id_detectado = re.sub(r"\D", "", texto)
+                        # PS / Otro: strip de no-dígitos, validación por longitud.
+                        # Recorte previo: si Tesseract lee el prefijo "ID" pegado al número
+                        # (ej: "ID1231420", "IDI231468") se elimina antes del strip.
+                        # \D* cubre el carácter basura entre "ID" y los dígitos (ej: la "I"
+                        # de "IDI231468"). Si el token no empieza con "ID", texto_ps == texto
+                        # y el flujo existente (ventana deslizante, fuzzy) opera sin cambios.
+                        texto_ps = re.sub(r"^ID\D*", "", texto, flags=re.IGNORECASE)
+                        id_detectado = re.sub(r"\D", "", texto_ps if texto_ps.strip() else texto)
                         # Permitir hasta el doble del máximo para que tokens con
                         # texto adyacente fusionado lleguen a _buscar_id.
                         if len(id_detectado) < self.id_len_min:
