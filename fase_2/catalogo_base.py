@@ -402,7 +402,7 @@ class EtiquetadorCatalogo:
         destruyen los bordes del texto blanco sobre gris antes de invertir.
         Preprocesado fijo — no usa parámetros del config.
         """
-        img = ImageEnhance.Contrast(img).enhance(2.5)
+        img = ImageEnhance.Contrast(img).enhance(3.0)
         img = Image.eval(img, lambda px: 255 - px)
         return img
 
@@ -730,14 +730,18 @@ class EtiquetadorCatalogo:
                             continue
                         id_detectado = m.group()
                     else:
-                        # PS / Otro: strip de no-dígitos, validación por longitud.
-                        # Recorte previo: si Tesseract lee el prefijo "ID" pegado al número
-                        # (ej: "ID1231420", "IDI231468") se elimina antes del strip.
-                        # \D* cubre el carácter basura entre "ID" y los dígitos (ej: la "I"
-                        # de "IDI231468"). Si el token no empieza con "ID", texto_ps == texto
-                        # y el flujo existente (ventana deslizante, fuzzy) opera sin cambios.
-                        texto_ps = re.sub(r"^ID\D*", "", texto, flags=re.IGNORECASE)
-                        id_detectado = re.sub(r"\D", "", texto_ps if texto_ps.strip() else texto)
+                        # PS: recorte previo del prefijo "ID" pegado al número.
+                        # Cubre: "ID1231420", "IDI231468", "1D1266688"
+                        # (Tesseract confunde I con 1 — patrón [I1]D\D*).
+                        # Si el token no empieza con ese prefijo, re.sub
+                        # no modifica nada y el flujo normal continúa.
+                        # Otro: alfanumérico sin prefijo especial.
+                        if self.id_proveedor.upper() == "PS":
+                            fuente = re.sub(r"^[I1]D\D*", "", texto, flags=re.IGNORECASE)
+                            fuente = fuente if fuente.strip() else texto
+                        else:
+                            fuente = texto
+                        id_detectado = re.sub(r"\D", "", fuente) if self.id_proveedor.upper() == "PS" else re.sub(r"[^A-Za-z0-9]", "", fuente)
                         # Permitir hasta el doble del máximo para que tokens con
                         # texto adyacente fusionado lleguen a _buscar_id.
                         if len(id_detectado) < self.id_len_min:
