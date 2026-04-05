@@ -1,0 +1,162 @@
+============================================================
+  DIAGNÓSTICO PDF — botas_26_pag.pdf
+  Offset aplicado: 29   |   Primeras páginas: 3
+============================================================
+
+📄 Total de páginas en el PDF: 5
+
+──────────────────────────────────────────────────
+  PÁGINA 1
+──────────────────────────────────────────────────
+
+  [CRUDO — sin offset]  primeros 30 tokens:
+
+      y=  45  |  /LVWD(cid:3)GH(cid:3)3UHFLRV(cid:3)(cid:11)9$//(-2(cid:12)
+      y=  56  |  %27$6(cid:3)_(cid:3)(cid:21)(cid:24)(cid:16)(cid:21)(cid:25)(cid:3)_(cid:3)(cid:21)((cid:3)(cid:20)(cid:21)(cid:18)(cid:21)(cid:24)(cid:3)
+      y=  75  |  68&856$/(cid:3)9$//(-2
+      y=  86  |  1WH(cid:17)(cid:3)(cid:23)(cid:24)(cid:3)(cid:6)(cid:3)(cid:20)(cid:19)(cid:26)(cid:26)(cid:3)&RO(cid:17)(cid:3),QG(cid:17)(cid:3)9DOOHMR
+      y=  97  |  7(/6(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)(cid:3)(cid:3)(cid:3)(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)
+      y= 107  |  7(/(0$5.(7,1*(cid:3)(cid:19)(cid:20)(cid:27)(cid:19)(cid:19)(cid:16)(cid:19)(cid:23)(cid:24)(cid:19)(cid:23)(cid:24)(cid:19)
+      y= 117  |  /LVWDV(cid:3)9LJHQWHV(cid:3)GHO(cid:3)(cid:20)(cid:25)(cid:3)DO(cid:3)(cid:22)(cid:20)(cid:3)GH(cid:3)0DU]R(cid:3)GHO(cid:3)(cid:21)(cid:19)(cid:21)(cid:25)
+  >>> y= 130  |  &ODYHV
+  >>> y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+  >>> y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+      y= 143  |  -&(cid:3)0&&2<  (cid:21)(cid:21)(cid:17)(cid:19)(cid:16)(cid:21)(cid:26)(cid:17)(cid:19)  &$5$0(  (cid:27)(cid:21)(cid:20)(cid:20)(cid:24)
+      y= 144  |  3,(/  7(;7,/  3,(/  ([F(cid:3)(cid:21)(cid:21)(cid:17)(cid:24)(cid:15)(cid:21)(cid:25)(cid:17)(cid:24)(cid:15)(cid:21)(cid:26)(cid:17)(cid:19)
+      y= 145  |  (cid:20)36(cid:24)(cid:23)(cid:28)
+      y= 146  |  (cid:20)(cid:20)(cid:27)(cid:20)(cid:28)(cid:22)(cid:22)
+      y= 147  |  (cid:23)  (cid:20)(cid:19)  (cid:7)(cid:21)(cid:15)(cid:20)(cid:22)(cid:28)(cid:17)(cid:19)(cid:19)
+
+  [DECODIFICADO — offset=29]  primeros tokens:
+
+      y=  45  |  ListadePreciosVALLEJO
+  >>> y=  56  |  BOTAS||E
+  >>> y=  75  |  SUCURSALVALLEJO
+      y=  86  |  NteColIndVallejo
+  >>> y=  97  |  TELS
+  >>> y= 107  |  TELEMARKETING
+      y= 117  |  ListasVigentesdelaldeMarzodel
+      y= 130  |  Claves
+      y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+      y= 132  |  Marca  Corte  Sug_contado  Sug_credito
+  >>> y= 143  |  JCMCCOY    CARAME  
+  >>> y= 144  |  PIEL  TEXTIL  PIEL  Exc
+      y= 145  |  PS
+      y= 146  |  
+      y= 147  |      
+
+  [CANDIDATOS A ENCABEZADO — texto crudo]
+
+       y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+       y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+       y= 377  |  )H  F  KD
+
+  [CANDIDATOS A ENCABEZADO — decodificados]
+
+       y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+       y= 132  |  Marca  Corte  Sug_contado  Sug_credito
+       y= 377  |  Fe  c  ha
+
+──────────────────────────────────────────────────
+  PÁGINA 2
+──────────────────────────────────────────────────
+
+  [CRUDO — sin offset]  primeros 30 tokens:
+
+      y=  45  |  /LVWD(cid:3)GH(cid:3)3UHFLRV(cid:3)(cid:11)9$//(-2(cid:12)
+      y=  56  |  %27$6(cid:3)_(cid:3)(cid:21)(cid:24)(cid:16)(cid:21)(cid:25)(cid:3)_(cid:3)(cid:21)((cid:3)(cid:20)(cid:21)(cid:18)(cid:21)(cid:24)(cid:3)
+      y=  75  |  68&856$/(cid:3)9$//(-2
+      y=  86  |  1WH(cid:17)(cid:3)(cid:23)(cid:24)(cid:3)(cid:6)(cid:3)(cid:20)(cid:19)(cid:26)(cid:26)(cid:3)&RO(cid:17)(cid:3),QG(cid:17)(cid:3)9DOOHMR
+      y=  96  |  7(/6(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)(cid:3)(cid:3)(cid:3)(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)
+      y= 107  |  7(/(0$5.(7,1*(cid:3)(cid:19)(cid:20)(cid:27)(cid:19)(cid:19)(cid:16)(cid:19)(cid:23)(cid:24)(cid:19)(cid:23)(cid:24)(cid:19)
+      y= 117  |  /LVWDV(cid:3)9LJHQWHV(cid:3)GHO(cid:3)(cid:20)(cid:25)(cid:3)DO(cid:3)(cid:22)(cid:20)(cid:3)GH(cid:3)0DU]R(cid:3)GHO(cid:3)(cid:21)(cid:19)(cid:21)(cid:25)
+  >>> y= 130  |  &ODYHV
+  >>> y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+  >>> y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+      y= 143  |  7+$/,$(cid:3)62',  (cid:21)(cid:22)(cid:17)(cid:19)(cid:16)(cid:21)(cid:26)(cid:17)(cid:19)  1(*52  7+(cid:16)(cid:19)(cid:20)(cid:19)(cid:25)
+      y= 144  |  6,17(7  7(;7,/6,17(7
+      y= 145  |  (cid:27)36(cid:21)(cid:28)
+      y= 146  |  (cid:20)(cid:21)(cid:25)(cid:26)(cid:24)(cid:19)(cid:25)
+      y= 147  |  (cid:21)(cid:21)  (cid:20)(cid:25)  (cid:7)(cid:20)(cid:15)(cid:20)(cid:27)(cid:28)(cid:17)(cid:19)(cid:19)
+
+  [DECODIFICADO — offset=29]  primeros tokens:
+
+      y=  45  |  ListadePreciosVALLEJO
+  >>> y=  56  |  BOTAS||E
+  >>> y=  75  |  SUCURSALVALLEJO
+      y=  86  |  NteColIndVallejo
+  >>> y=  96  |  TELS
+  >>> y= 107  |  TELEMARKETING
+      y= 117  |  ListasVigentesdelaldeMarzodel
+      y= 130  |  Claves
+      y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+      y= 132  |  Marca  Corte  Sug_contado  Sug_credito
+  >>> y= 143  |  THALIASODI    NEGRO  TH
+  >>> y= 144  |  SINTET  TEXTILSINTET
+      y= 145  |  PS
+      y= 146  |  
+      y= 147  |      
+
+  [CANDIDATOS A ENCABEZADO — texto crudo]
+
+       y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+       y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+       y= 579  |  )H  F  KD  (cid:21)(cid:21)  (cid:17)  (cid:19)  (cid:15)  (cid:21)(cid:22)(cid:17)(cid:19)(cid:15)(cid:21)(cid:26)(cid:17)(cid:19)
+       y= 669  |  )H  F  KD
+
+  [CANDIDATOS A ENCABEZADO — decodificados]
+
+       y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+       y= 132  |  Marca  Corte  Sug_contado  Sug_credito
+       y= 579  |  Fe  c  ha          
+       y= 669  |  Fe  c  ha
+
+──────────────────────────────────────────────────
+  PÁGINA 3
+──────────────────────────────────────────────────
+
+  [CRUDO — sin offset]  primeros 30 tokens:
+
+      y=  45  |  /LVWD(cid:3)GH(cid:3)3UHFLRV(cid:3)(cid:11)9$//(-2(cid:12)
+      y=  56  |  %27$6(cid:3)_(cid:3)(cid:21)(cid:24)(cid:16)(cid:21)(cid:25)(cid:3)_(cid:3)(cid:21)((cid:3)(cid:20)(cid:21)(cid:18)(cid:21)(cid:24)(cid:3)
+      y=  75  |  68&856$/(cid:3)9$//(-2
+      y=  86  |  1WH(cid:17)(cid:3)(cid:23)(cid:24)(cid:3)(cid:6)(cid:3)(cid:20)(cid:19)(cid:26)(cid:26)(cid:3)&RO(cid:17)(cid:3),QG(cid:17)(cid:3)9DOOHMR
+      y=  96  |  7(/6(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)(cid:3)(cid:3)(cid:3)(cid:3)(cid:24)(cid:19)(cid:26)(cid:27)(cid:20)(cid:19)(cid:21)(cid:19)
+      y= 107  |  7(/(0$5.(7,1*(cid:3)(cid:19)(cid:20)(cid:27)(cid:19)(cid:19)(cid:16)(cid:19)(cid:23)(cid:24)(cid:19)(cid:23)(cid:24)(cid:19)
+      y= 117  |  /LVWDV(cid:3)9LJHQWHV(cid:3)GHO(cid:3)(cid:20)(cid:25)(cid:3)DO(cid:3)(cid:22)(cid:20)(cid:3)GH(cid:3)0DU]R(cid:3)GHO(cid:3)(cid:21)(cid:19)(cid:21)(cid:25)
+  >>> y= 130  |  &ODYHV
+  >>> y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+  >>> y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+      y= 143  |  <$(/,(cid:3)(cid:22)(  (cid:21)(cid:22)(cid:17)(cid:19)(cid:16)(cid:21)(cid:26)(cid:17)(cid:19)  9,12  (cid:20)(cid:24)(cid:27)$
+      y= 144  |  7(;7,/  7(;7,/6,17(7
+      y= 145  |  (cid:23)36(cid:28)(cid:28)
+      y= 146  |  (cid:20)(cid:21)(cid:24)(cid:24)(cid:28)(cid:28)(cid:25)
+      y= 147  |  (cid:23)(cid:23)  (cid:21)(cid:19)  (cid:7)(cid:25)(cid:27)(cid:28)(cid:17)(cid:19)(cid:19)  (cid:7)(cid:26)(cid:21)(cid:28)(cid:17)(cid:19)(cid:19)
+
+  [DECODIFICADO — offset=29]  primeros tokens:
+
+      y=  45  |  ListadePreciosVALLEJO
+  >>> y=  56  |  BOTAS||E
+  >>> y=  75  |  SUCURSALVALLEJO
+      y=  86  |  NteColIndVallejo
+  >>> y=  96  |  TELS
+  >>> y= 107  |  TELEMARKETING
+      y= 117  |  ListasVigentesdelaldeMarzodel
+      y= 130  |  Claves
+      y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+      y= 132  |  Marca  Corte  Sug_contado  Sug_credito
+  >>> y= 143  |  YAELIE    VINO  A
+  >>> y= 144  |  TEXTIL  TEXTILSINTET
+      y= 145  |  PS
+      y= 146  |  
+      y= 147  |        
+
+  [CANDIDATOS A ENCABEZADO — texto crudo]
+
+       y= 131  |  3DJ  3DVLOOR  ,'  &RUULGD  &RORUHV  )RUUR3ODQWLOOD  0RGHOR  )HFKDV2EVHUYDFLRQ
+       y= 132  |  0DUFD  &RUWH  6XJBFRQWDGR  6XJBFUHGLWR
+
+  [CANDIDATOS A ENCABEZADO — decodificados]
+
+       y= 131  |  Pag  Pasillo  ID  Corrida  Colores  ForroPlantilla  Modelo  FechasObservacion
+       y= 132  |  Marca  Corte  Sug_contado  Sug_credito

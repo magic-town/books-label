@@ -1,0 +1,11 @@
+{
+    "proveedor":        "Pakar",
+    "pdf_input":        "lista_cruda/sandalia_26.pdf",
+    "excel_output":     "salida/sandalia_26_precios.xlsx",
+    "col_pag":          "PÁG.",
+    "col_id":           "CÓDIGO",
+    "col_precio":       "2 PAGOS",
+    "tolerancia_x":     3,
+    "tol_col":          12,
+    "encoding_offset":  0
+}

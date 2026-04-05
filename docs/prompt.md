@@ -13,8 +13,6 @@ Elige el prompt según el público al que esté dirigido el producto:
 
 Una vez seleccionado el prompt adecuado, utilízalo junto con la imagen de la prenda, logo (opcional) para generar una publicación visual atractiva y enfocada en la venta.
 
-
-
 ```text
 Visualización de producto en ultra alta calidad de la prenda que te comparto, centrada y dominante en la composición.
 
