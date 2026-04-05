@@ -1,0 +1,19 @@
+{
+    "_comentario": "Configuración Price Shoes — Extracción Fase 1 · Boutique Zepeda",
+    "_uso": "python3 fase_1/extractor.py --config fase_1/config/config_price.json",
+
+    "proveedor": "PS",
+
+    "pdf_input":    "lista_cruda/lista_kids.pdf",
+    "excel_output": "salida/lista_kids.xlsx",
+
+    "encoding_offset": 29,
+    "tolerancia_x":    15.0,
+
+    "col_pag":    "Pag",
+    "col_id":     "ID",
+    "col_precio": "Sug_credito",
+
+    "_nota_encoding": "encoding_offset=29 para PDFs con fuente propietaria (cid:). Para PDFs con texto limpio el extractor ignora el offset automaticamente.",
+    "_nota_tolerancia": "tolerancia_x=15 evita capturar 'MESA' y 'R.COLGADA' del column Pasillo (x~35) en la columna Pag (x~14)."
+}

@@ -685,16 +685,28 @@ header::after {
           </div>
         </div>
 
+        <!-- Tolerancia de columna tol_col — Pakar / Cklass / Otro (ExtractorTexto) -->
+        <div class="encoding-row" id="enc-row-tol-col" style="display:none;">
+          <div class="encoding-info">
+            <div class="encoding-name">Tolerancia de asignación a columna <code style="font-family:var(--mono);font-size:10px;color:var(--navy-mid);">tol_col</code></div>
+            <div class="encoding-desc">Margen en px para descartar tokens demasiado lejos de su columna · 0 = sin filtro (acepta todo)</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
+            <input class="offset-input" id="tol_col" type="number" value="12" min="0" max="80" oninput="upd()"/>
+            <span class="offset-label">px</span>
+          </div>
+        </div>
+
         <!-- Tolerancia X dinámica -->
         <div class="encoding-row" style="flex-direction:column;align-items:stretch;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
             <div class="encoding-info">
               <div class="encoding-name">Tolerancia de columna X</div>
-              <div class="encoding-desc">Margen en puntos para asignar palabras a su columna — ajustado al catálogo seleccionado</div>
+              <div class="encoding-desc">Price Shoes: margen de asignación X a columna · Pakar/Cklass/Otro: x_tolerance de pdfplumber para fusión de caracteres</div>
             </div>
             <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
               <span class="tol-range-badge" id="tol-range-badge">15 – 25 px</span>
-              <input class="offset-input" id="tolerancia_x" type="number" value="20" min="15" max="25" oninput="validarTol()"/>
+              <input class="offset-input" id="tolerancia_x" type="number" value="15" min="15" max="25" oninput="validarTol()"/>
               <span class="offset-label">px</span>
             </div>
           </div>
@@ -710,12 +722,12 @@ header::after {
       <div class="tol-range-row" id="range-row-PS">
         <span class="tol-range-prov">Price Shoes</span>
         <span class="tol-range-val">15 – 25 px</span>
-        <span style="color:var(--muted);font-size:10px;">(defecto 20 · encoding propietario, tokens muy fragmentados)</span>
+        <span style="color:var(--muted);font-size:10px;">(defecto 15 · asignación de coordenada X a columna, tokens muy fragmentados)</span>
       </div>
       <div class="tol-range-row" id="range-row-Pakar">
         <span class="tol-range-prov">Pakar</span>
-        <span class="tol-range-val">15 – 20 px</span>
-        <span style="color:var(--muted);font-size:10px;">(defecto 17 · tabular limpio, columnas bien definidas)</span>
+        <span class="tol-range-val">1 – 10 px</span>
+        <span style="color:var(--muted);font-size:10px;">(defecto 3 · x_tolerance pdfplumber, PDF tabular limpio · tol_col=12 para asignación de columna)</span>
       </div>
       <div class="tol-range-row" id="range-row-Cklass">
         <span class="tol-range-prov">Cklass</span>
@@ -759,60 +771,77 @@ const sv = id => $(id).value.trim();
 
 const PROVEEDORES = {
   PS: {
-    nombre:      'Price Shoes',
-    pag:         'Pag',
-    id:          'ID',
-    precio:      'Sug_credito',
-    offset:      29,
-    enc_desc:    'Price Shoes usa fuente propietaria — offset 29 aplicado automáticamente',
-    enc_badge:   'offset 29',
-    enc_tipo:    'active',
-    libre:       false,
-    tol_min:     15,
-    tol_max:     25,
-    tol_default: 20,
+    nombre:          'Price Shoes',
+    comentario:      'Configuración Price Shoes — Extracción Fase 1 · Boutique Zepeda',
+    pag:             'Pag',
+    id:              'ID',
+    precio:          'Sug_credito',
+    offset:          29,
+    enc_desc:        'Price Shoes usa fuente propietaria — offset 29 aplicado automáticamente',
+    enc_badge:       'offset 29',
+    enc_tipo:        'active',
+    libre:           false,
+    tol_min:         15,
+    tol_max:         25,
+    tol_default:     15,        // tolerancia_x = asignación de coordenada X a columna
+    has_tol_col:     false,     // ExtractorPS no usa tol_col
   },
   Pakar: {
-    nombre:      'Pakar',
-    pag:         'PÁG.',
-    id:          'CÓDIGO',
-    precio:      '2 PAGOS',
-    offset:      0,
-    enc_desc:    'PDF limpio — extracción directa sin decodificador',
-    enc_badge:   'sin encoding',
-    enc_tipo:    'inactive',
-    libre:       false,
-    tol_min:     15,
-    tol_max:     20,
-    tol_default: 17,
+    nombre:          'Pakar',
+    comentario:      'Configuración Pakar — Extracción Fase 1 · Boutique Zepeda',
+    pag:             'PÁG.',
+    id:              'CÓDIGO',
+    precio:          '2 PAGOS',
+    offset:          0,
+    enc_desc:        'PDF limpio — extracción directa sin decodificador',
+    enc_badge:       'sin encoding',
+    enc_tipo:        'inactive',
+    libre:           false,
+    tol_min:         1,
+    tol_max:         10,
+    tol_default:     3,         // tolerancia_x = x_tolerance de pdfplumber (fusión de caracteres)
+    has_tol_col:     true,      // ExtractorTexto usa tol_col para asignación a columna
+    tol_col_default: 12,
+    tol_col_min:     0,
+    tol_col_max:     40,
   },
   Cklass: {
-    nombre:      'Cklass',
-    pag:         'PÁGINA',
-    id:          'MODELO',
-    precio:      'CRÉDITO',
-    offset:      0,
-    enc_desc:    'PDF limpio — extracción directa sin decodificador',
-    enc_badge:   'sin encoding',
-    enc_tipo:    'inactive',
-    libre:       false,
-    tol_min:     10,
-    tol_max:     15,
-    tol_default: 12,
+    nombre:          'Cklass',
+    comentario:      'Configuración Cklass — Extracción Fase 1 · Boutique Zepeda',
+    pag:             'PÁGINA',
+    id:              'MODELO',
+    precio:          'CRÉDITO',
+    offset:          0,
+    enc_desc:        'PDF limpio — extracción directa sin decodificador',
+    enc_badge:       'sin encoding',
+    enc_tipo:        'inactive',
+    libre:           false,
+    tol_min:         10,
+    tol_max:         15,
+    tol_default:     12,        // tolerancia_x = x_tolerance de pdfplumber
+    has_tol_col:     true,
+    tol_col_default: 0,         // 0 = sin filtro de columna (disabled)
+    tol_col_min:     0,
+    tol_col_max:     40,
   },
   Otro: {
-    nombre:      'Otro',
-    pag:         '',
-    id:          '',
-    precio:      '',
-    offset:      0,
-    enc_desc:    'Configura el offset según el proveedor — 0 para PDF limpio',
-    enc_badge:   'configurable',
-    enc_tipo:    'active',
-    libre:       true,
-    tol_min:     5,
-    tol_max:     80,
-    tol_default: 20,
+    nombre:          'Otro',
+    comentario:      'Configuración — Extracción Fase 1 · Boutique Zepeda',
+    pag:             '',
+    id:              '',
+    precio:          '',
+    offset:          0,
+    enc_desc:        'Configura el offset según el proveedor — 0 para PDF limpio',
+    enc_badge:       'configurable',
+    enc_tipo:        'active',
+    libre:           true,
+    tol_min:         5,
+    tol_max:         80,
+    tol_default:     20,        // tolerancia_x = x_tolerance de pdfplumber
+    has_tol_col:     true,
+    tol_col_default: 0,
+    tol_col_min:     0,
+    tol_col_max:     80,
   },
 };
 
@@ -857,6 +886,18 @@ function setProveedor(p) {
   tolInp.value = info.tol_default;
   $('tol-range-badge').textContent = info.tol_min + ' – ' + info.tol_max + ' px';
 
+  // tol_col — solo para Pakar / Cklass / Otro (ExtractorTexto)
+  const tolColRow = $('enc-row-tol-col');
+  if (info.has_tol_col) {
+    tolColRow.style.display = '';
+    const tc = $('tol_col');
+    tc.min   = info.tol_col_min;
+    tc.max   = info.tol_col_max;
+    tc.value = info.tol_col_default;
+  } else {
+    tolColRow.style.display = 'none';
+  }
+
   // Resaltar fila activa en la tabla de rangos
   Object.keys(PROVEEDORES).forEach(k => {
     const row = $('range-row-'+k);
@@ -891,23 +932,36 @@ function getOffset() {
   return PROVEEDORES[proveedor].offset;
 }
 
+function getTolCol() {
+  const info = PROVEEDORES[proveedor];
+  if (!info.has_tol_col) return null;
+  return parseInt($('tol_col').value) || 0;
+}
+
 function buildConfig() {
-  return {
-    _comentario:     'Configuración Fase 1 — Extracción de campos · books-label',
+  const info = PROVEEDORES[proveedor];
+  const cfg = {
+    _comentario:     info.comentario,
     _uso:            'python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json',
     proveedor:       proveedor,
     pdf_input:       'lista_cruda/' + sv('pdf_input'),
     excel_output:    'salida/'      + sv('excel_output'),
     encoding_offset: getOffset(),
-    tolerancia_x:    parseInt(sv('tolerancia_x')) || PROVEEDORES[proveedor].tol_default,
+    tolerancia_x:    parseFloat(sv('tolerancia_x')) || info.tol_default,
     col_pag:         getCampo('pag'),
     col_id:          getCampo('id'),
     col_precio:      getCampo('precio'),
   };
+  const tc = getTolCol();
+  if (tc !== null) cfg.tol_col = tc;
+  return cfg;
 }
 
 function buildCfgStr() {
-  const c = buildConfig();
+  const c    = buildConfig();
+  const info = PROVEEDORES[proveedor];
+  const tolColLine = info.has_tol_col
+    ? `\n    "tol_col":          ${c.tol_col},` : '';
   return `{
     "_comentario":     ${JSON.stringify(c._comentario)},
     "_uso":            ${JSON.stringify(c._uso)},
@@ -918,7 +972,7 @@ function buildCfgStr() {
     "excel_output":    ${JSON.stringify(c.excel_output)},
 
     "encoding_offset": ${c.encoding_offset},
-    "tolerancia_x":    ${c.tolerancia_x},
+    "tolerancia_x":    ${c.tolerancia_x},${tolColLine}
 
     "col_pag":         ${JSON.stringify(c.col_pag)},
     "col_id":          ${JSON.stringify(c.col_id)},
@@ -969,6 +1023,7 @@ function limpiar() {
   $('excel_output').value  = '';
   $('encoding_offset').value = '0';
   ['pag','id','precio'].forEach(c => $('campo-'+c+'-input').value = '');
+  $('tol_col').value = '0';
   setProveedor('PS');
 }
 

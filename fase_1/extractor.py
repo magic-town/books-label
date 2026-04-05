@@ -8,7 +8,7 @@ Uso:
     python3 fase_1/extractor.py --config fase_1/config/config_ps_pv26.json
 
 Proveedores soportados:
-    PS     → Price Shoes  (encoding propietario, extracción por coordenadas X)
+    PS     → Price Shoes  (encoding propietario OR texto limpio, auto-detectado)
     Pakar  → Pakar        (texto limpio, extracción tabular)
     Cklass → Cklass       (texto limpio, precios con $ y decimales)
     Otro   → genérico     (texto limpio, offset configurable)
@@ -74,15 +74,6 @@ def setup_logger(nombre: str, base_dir: str) -> logging.Logger:
 # ─────────────────────────────────────────────
 
 def _decodificar(txt: str, offset: int) -> str:
-    """
-    Price Shoes usa dos fuentes en el mismo PDF:
-    - Letras/simbolos: offset ASCII (ej. offset=29).
-    - Numeros: (cid:N) donde N=19->'0', N=20->'1', ..., N=28->'9'.
-      No llevan offset; se mapean directamente a digito.
-
-    _limpiar_cid eliminaba TODOS los (cid:N), vaciando Pag, ID y precio.
-    Esta funcion los preserva correctamente.
-    """
     resultado = []
     i = 0
     while i < len(txt):
@@ -104,6 +95,14 @@ def _decodificar(txt: str, offset: int) -> str:
     return ''.join(resultado)
 
 
+def _tiene_encoding_ps(words: list) -> bool:
+    """Detecta si la página usa encoding propietario de Price Shoes."""
+    for w in words:
+        if '(cid:' in w['text']:
+            return True
+    return False
+
+
 # ─────────────────────────────────────────────
 #  Limpieza de precio
 # ─────────────────────────────────────────────
@@ -119,63 +118,74 @@ def _limpiar_precio(val: str) -> str | None:
 
 
 # ─────────────────────────────────────────────
-#  Extractor Price Shoes — coordenadas X fijas
+#  Extractor Price Shoes
 # ─────────────────────────────────────────────
 
 class ExtractorPS:
     """
-    Price Shoes: encoding propietario + layout con imagen izquierda y tabla derecha.
+    Price Shoes: soporta AMBOS formatos del mismo proveedor:
+      - PDFs con encoding propietario (cid: / offset ASCII)
+      - PDFs con texto limpio y seleccionable
 
-    Estrategia final (rangos X fijos):
-    - Las columnas Pag, ID y Sug_credito tienen posiciones X estables en todo el PDF.
-    - Se detectan desde el encabezado y se aplica una tolerancia estricta (~20px)
-      para no capturar columnas adyacentes (Corrida, Pasillo, etc.).
-    - Cada producto ocupa un bloque de 3-5 sub-filas con Y ligeramente distintas.
-      Se fusionan filas a <=12px de distancia vertical.
-    - El decodificador maneja dos fuentes: letras con offset ASCII,
-      numeros como (cid:N) donde N-19 = digito.
+    La detección es automatica por pagina: si no hay '(cid:' se usa el
+    texto tal cual; si lo hay se aplica _decodificar(offset).
     """
 
+    _RE_ID = re.compile(r'^\d{6,8}$')
+
     def __init__(self, config: dict, logger: logging.Logger):
-        self.logger     = logger
-        self.offset     = config.get("encoding_offset", 29)
-        self.tol_x      = config.get("tolerancia_x", 20.0)   # estricta para separar columnas
-        self.col_pag    = config.get("col_pag",    "Pag")
-        self.col_id     = config.get("col_id",     "ID")
-        self.col_precio = config.get("col_precio", "Sug_credito")
+        self.logger   = logger
+        self.offset   = config.get("encoding_offset", 29)
+        self.tol_x    = config.get("tolerancia_x", 20.0)
+        self.col_pag  = config.get("col_pag",    "Pag")
+        self.col_id   = config.get("col_id",     "ID")
+        self.col_prec = config.get("col_precio", "Sug_credito")
+        self._merge_y = config.get("merge_y", 12)
 
     def extraer(self, pdf_path: str) -> pd.DataFrame:
-        registros = []
-        col_x     = None
+        registros   = []
+        col_x       = None
+        ids_pdf_col = 0
 
         with pdfplumber.open(pdf_path) as pdf:
             total = len(pdf.pages)
             self.logger.info(f"📄 Total páginas: {total}")
 
             for i, page in enumerate(pdf.pages, 1):
-                # x_tolerance=3 mantiene tokens separados para detectar columnas
-                words = page.extract_words(
-                    x_tolerance=3,
-                    y_tolerance=5,
-                    keep_blank_chars=False,
-                )
-                if not words:
+                raw = page.extract_words(x_tolerance=3, y_tolerance=5, keep_blank_chars=False)
+                if not raw:
                     continue
 
-                # Decodificar todos los tokens
-                decoded = [{**w, "text": _decodificar(w["text"], self.offset)} for w in words]
+                # Auto-detect encoding
+                if _tiene_encoding_ps(raw):
+                    words = [{**w, "text": _decodificar(w["text"], self.offset)} for w in raw]
+                    self.logger.debug(f"  Pág {i}: encoding PS → offset={self.offset}")
+                else:
+                    words = raw
+                    self.logger.debug(f"  Pág {i}: texto limpio")
 
-                # Intentar detectar encabezado
-                nuevo_col_x = self._detectar_encabezado(decoded)
-                if nuevo_col_x:
-                    col_x = nuevo_col_x
-                    self.logger.debug(f"  Página {i}: encabezado → {col_x}")
+                # Detectar encabezado
+                nuevo_cx = self._detectar_encabezado(words)
+                if nuevo_cx:
+                    col_x = nuevo_cx
+                    self.logger.debug(
+                        f"  Pág {i}: encabezado OK — "
+                        f"Pag@x={col_x['pag']:.1f}  ID@x={col_x['id']:.1f}  Precio@x={col_x['precio']:.1f}"
+                    )
 
                 if not col_x:
-                    self.logger.debug(f"  Página {i}: sin columnas detectadas, omitida")
+                    self.logger.warning(f"  Pág {i}: encabezado NO encontrado — omitida")
                     continue
 
-                filas = self._extraer_filas(decoded, col_x)
+                # Contar IDs esperados en esta página
+                x_id = col_x["id"]
+                for w in words:
+                    tok = w["text"].strip()
+                    if self._RE_ID.match(tok) and abs(w["x0"] - x_id) <= self.tol_x:
+                        ids_pdf_col += 1
+
+                # Extraer filas
+                filas = self._extraer_filas(words, col_x)
                 antes = len(registros)
                 for fila in filas:
                     registros.append({
@@ -183,27 +193,19 @@ class ExtractorPS:
                         "id":          fila.get("id",  "").strip(),
                         "precio_base": _limpiar_precio(fila.get("precio", "")),
                     })
-                self.logger.debug(f"  Página {i}: {len(registros)-antes} registros")
+                self.logger.debug(f"  Pág {i}: {len(registros)-antes} registros")
 
         df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag","id","precio_base"])
-        return self._filtrar(df)
+        df = self._filtrar(df)
+        df.attrs["ids_esperados_pdf"] = ids_pdf_col
+        return df
 
     def _detectar_encabezado(self, words: list) -> dict | None:
-        """
-        Busca la fila con col_pag y col_id. Si col_precio esta en fila adyacente
-        (Price Shoes lo pone ~1px abajo), lo busca en un rango de +-5px.
-        Devuelve {alias: x0} con las coordenadas X del encabezado.
-        """
-        filas_y = {}
+        filas_y  = {}
         for w in words:
             y = round(w["top"])
             filas_y.setdefault(y, []).append(w)
 
-        objetivos = {
-            self.col_pag:    "pag",
-            self.col_id:     "id",
-            self.col_precio: "precio",
-        }
         ys_sorted = sorted(filas_y.keys())
 
         for y, tokens in sorted(filas_y.items()):
@@ -214,17 +216,21 @@ class ExtractorPS:
             col_x = {}
             for t in tokens:
                 txt = t["text"].strip()
-                if txt in objetivos:
-                    col_x[objetivos[txt]] = t["x0"]
+                if txt == self.col_pag:
+                    col_x["pag"] = t["x0"]
+                elif txt == self.col_id:
+                    col_x["id"] = t["x0"]
+                elif txt == self.col_prec:
+                    col_x["precio"] = t["x0"]
 
+            # col_precio puede estar en fila adyacente (±5px)
             if "precio" not in col_x:
                 for y2 in ys_sorted:
-                    if y2 == y or abs(y2 - y) > 5:
+                    if abs(y2 - y) == 0 or abs(y2 - y) > 5:
                         continue
                     for t in filas_y[y2]:
-                        if t["text"].strip() == self.col_precio:
+                        if t["text"].strip() == self.col_prec:
                             col_x["precio"] = t["x0"]
-                            self.logger.debug(f"  col_precio en fila adyacente y={y2}")
                             break
 
             if "pag" in col_x and "id" in col_x and "precio" in col_x:
@@ -233,26 +239,18 @@ class ExtractorPS:
         return None
 
     def _extraer_filas(self, words: list, col_x: dict) -> list:
-        """
-        Asigna cada token a pag/id/precio usando rangos X estrictos
-        (encabezado_X +- tol_x). Evita capturar columnas adyacentes como
-        Pasillo (x~40) o Corrida (x~160) que confunden la asignacion.
-
-        Luego fusiona sub-filas del mismo producto (gap Y <= 12px).
-        """
         x_pag    = col_x["pag"]
         x_id     = col_x["id"]
         x_precio = col_x["precio"]
         tol      = self.tol_x
 
+        # Paso 1: asignar tokens a columnas
         filas_raw = {}
         for w in words:
-            x = w["x0"]
+            x     = w["x0"]
             token = w["text"].strip()
             if not token:
                 continue
-
-            # Asignar solo si el token cae dentro del rango de la columna
             if abs(x - x_pag) <= tol:
                 col = "pag"
             elif abs(x - x_id) <= tol:
@@ -261,46 +259,49 @@ class ExtractorPS:
                 col = "precio"
             else:
                 continue
-
             y_key = round(w["top"])
-            if y_key not in filas_raw:
-                filas_raw[y_key] = {}
+            filas_raw.setdefault(y_key, {})
             prev = filas_raw[y_key].get(col, "")
             filas_raw[y_key][col] = (prev + " " + token).strip() if prev else token
 
-        # Fusionar sub-filas del mismo producto (gap <= 12px)
+        # Paso 2: fusionar sub-filas del mismo producto
         bloques = []
         ys = sorted(filas_raw.keys())
         if not ys:
             return []
 
-        bloque_actual = dict(filas_raw[ys[0]])
-        y_inicio = ys[0]
+        bloque  = dict(filas_raw[ys[0]])
+        y_ini   = ys[0]
 
         for y in ys[1:]:
-            if y - y_inicio <= 12:
+            if y - y_ini <= self._merge_y:
                 for col, val in filas_raw[y].items():
-                    if col not in bloque_actual:
-                        bloque_actual[col] = val
-                    elif col in ("pag", "id", "precio") and re.match(r"^\d+$", val) and not re.match(r"^\d+$", bloque_actual[col]):
-                        bloque_actual[col] = val  # preferir valor numerico puro
+                    if col not in bloque:
+                        bloque[col] = val
+                    else:
+                        cur = bloque[col]
+                        # Preferir: ID válido > número/precio > lo que haya
+                        if col == "id" and self._RE_ID.match(val) and not self._RE_ID.match(cur):
+                            bloque[col] = val
+                        elif col == "precio" and re.match(r'^\$?\d', val) and not re.match(r'^\$?\d', cur):
+                            bloque[col] = val
+                        elif col == "pag" and re.match(r'^\d+$', val) and not re.match(r'^\d+$', cur):
+                            bloque[col] = val
             else:
-                bloques.append(bloque_actual)
-                bloque_actual = dict(filas_raw[y])
-                y_inicio = y
+                bloques.append(bloque)
+                bloque = dict(filas_raw[y])
+                y_ini  = y
 
-        bloques.append(bloque_actual)
+        bloques.append(bloque)
         return bloques
 
     def _filtrar(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
-        # IDs de Price Shoes: 7 digitos. Rango 6-8 para cubrir variaciones.
         df = df[df["id"].astype(str).str.match(r"^\d{6,8}$")].copy()
         df = df[df["precio_base"].notna()].copy()
+        df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
         return df.reset_index(drop=True)
-
-
 
 
 # ─────────────────────────────────────────────
@@ -308,19 +309,14 @@ class ExtractorPS:
 # ─────────────────────────────────────────────
 
 class ExtractorTexto:
-    """
-    Para PDFs con texto seleccionable y estructura tabular clara.
-    Detecta encabezado por nombre de columna, mapea X y extrae filas.
-    """
-
     def __init__(self, config: dict, logger: logging.Logger):
-        self.logger     = logger
-        self.tol_x      = config.get("tolerancia_x", 20.0)
-        self.tol_col    = config.get("tol_col", 0)          # 0 = sin filtro de distancia (comportamiento original)
-        self.col_pag    = config.get("col_pag",    "PÁG.")
-        self.col_id     = config.get("col_id",     "CÓDIGO")
-        self.col_precio = config.get("col_precio", "2 PAGOS")
-        self.offset     = config.get("encoding_offset", 0)
+        self.logger   = logger
+        self.tol_x    = config.get("tolerancia_x", 20.0)
+        self.tol_col  = config.get("tol_col", 0)
+        self.col_pag  = config.get("col_pag",    "PÁG.")
+        self.col_id   = config.get("col_id",     "CÓDIGO")
+        self.col_prec = config.get("col_precio", "2 PAGOS")
+        self.offset   = config.get("encoding_offset", 0)
 
     def extraer(self, pdf_path: str) -> pd.DataFrame:
         registros = []
@@ -331,25 +327,19 @@ class ExtractorTexto:
             self.logger.info(f"📄 Total páginas: {total}")
 
             for i, page in enumerate(pdf.pages, 1):
-                words = page.extract_words(
-                    x_tolerance=self.tol_x,
-                    y_tolerance=5,
-                    keep_blank_chars=False,
-                )
+                words = page.extract_words(x_tolerance=self.tol_x, y_tolerance=5, keep_blank_chars=False)
                 if not words:
                     continue
-
                 if self.offset:
                     words = [{**w, "text": _decodificar(w["text"], self.offset)} for w in words]
 
                 header_y = self._detectar_encabezado(words)
                 if header_y is not None:
                     col_x = self._mapear_columnas(words, header_y)
-
                 if not col_x:
                     continue
 
-                hy = header_y if header_y is not None else -1
+                hy    = header_y if header_y is not None else -1
                 filas = self._agrupar_filas(words, hy, col_x)
                 for fila in filas:
                     registros.append({
@@ -370,47 +360,33 @@ class ExtractorTexto:
         return None
 
     def _mapear_columnas(self, words, header_y):
-        """
-        Mapea columnas objetivo a su coordenada X.
-        tol_y=15 para cubrir encabezados partidos en 2 filas (Pakar: y=53 y y=54).
-        Une pares de tokens consecutivos para manejar nombres como "2 PAGOS"
-        que pdfplumber parte en tokens separados "2" y "PAGOS".
-        """
         col_x = {}
         tol_y = 15
-        mapa  = {self.col_pag: "pag", self.col_id: "id", self.col_precio: "precio"}
-
-        # Agrupar tokens de la zona del encabezado por fila Y
-        zona = [w for w in words if abs(w["top"] - header_y) < tol_y]
+        mapa  = {self.col_pag: "pag", self.col_id: "id", self.col_prec: "precio"}
+        zona  = [w for w in words if abs(w["top"] - header_y) < tol_y]
         zona_por_fila = {}
         for w in zona:
-            y2 = round(w["top"])
-            zona_por_fila.setdefault(y2, []).append(w)
-
+            zona_por_fila.setdefault(round(w["top"]), []).append(w)
         for y2, fila_tokens in zona_por_fila.items():
             for i, w in enumerate(fila_tokens):
                 txt = w["text"].strip()
                 for nombre, alias in mapa.items():
                     if alias in col_x:
                         continue
-                    # Match directo
                     if txt == nombre or nombre in txt:
                         col_x[alias] = w["x0"]
                         break
-                    # Match uniendo con token siguiente ("2" + "PAGOS" -> "2 PAGOS")
                     if i + 1 < len(fila_tokens):
-                        txt2 = txt + " " + fila_tokens[i + 1]["text"].strip()
+                        txt2 = txt + " " + fila_tokens[i+1]["text"].strip()
                         if txt2 == nombre or nombre in txt2:
                             col_x[alias] = w["x0"]
                             break
-
         return col_x
 
     def _agrupar_filas(self, words, header_y, col_x):
         filas   = {}
         aliases = list(col_x.keys())
         xs      = [col_x[a] for a in aliases]
-
         for w in words:
             if w["top"] <= header_y + 5:
                 continue
@@ -418,19 +394,13 @@ class ExtractorTexto:
             token = w["text"].strip()
             if not token:
                 continue
-
-            idx  = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
-            # tol_col > 0: descartar tokens demasiado lejos de todas las columnas objetivo
-            # Esto evita que columnas intermedias (MARCA, COLOR, CLAVE…) ensucien pag/id/precio
+            idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
             if self.tol_col > 0 and abs(w["x0"] - xs[idx]) > self.tol_col:
                 continue
             col = aliases[idx]
-
-            if y_key not in filas:
-                filas[y_key] = {}
+            filas.setdefault(y_key, {})
             prev = filas[y_key].get(col, "")
             filas[y_key][col] = (prev + " " + token).strip() if prev else token
-
         return list(filas.values())
 
     def _filtrar(self, df):
@@ -468,7 +438,7 @@ class ExtractorCatalogo:
     def _factory(self):
         p = self.proveedor.upper()
         if p == "PS":
-            self.logger.info("🔧 Modo: Price Shoes (decodificador + coordenadas X)")
+            self.logger.info("🔧 Modo: Price Shoes (auto-detect encoding + coordenadas X)")
             return ExtractorPS(self.config, self.logger)
         elif p in ("PAKAR", "CKLASS", "OTRO"):
             self.logger.info(f"🔧 Modo: texto limpio ({self.proveedor})")
@@ -497,17 +467,32 @@ class ExtractorCatalogo:
             df["len"] = df["id"].astype(str).str.len()
             df.to_excel(self.excel_path, index=False)
 
-            n    = len(df)
-            u    = df["id"].nunique()
-            pmin = df["precio_base"].min()
-            pmax = df["precio_base"].max()
+            n          = len(df)
+            u          = df["id"].nunique()
+            pmin       = df["precio_base"].min()
+            pmax       = df["precio_base"].max()
+            esperados  = df.attrs.get("ids_esperados_pdf")
+            pct        = f"{n/esperados*100:.1f}%" if esperados else "N/A"
 
             self.logger.info(f"✅ Excel generado:  {self.excel_path}")
-            self.logger.info(f"   Registros:       {n}")
-            self.logger.info(f"   IDs únicos:      {u}")
-            self.logger.info(f"   Rango precios:   {pmin} – {pmax}")
+            self.logger.info(f"─────────────────────────────────────────")
+            self.logger.info(f"   Registros extraídos : {n}")
+            self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
+            if esperados is not None:
+                diff = esperados - n
+                self.logger.info(f"   IDs en PDF (columna) : {esperados}")
+                self.logger.info(f"   Cobertura            : {pct}  ({n}/{esperados})")
+                if diff == 0:
+                    self.logger.info(f"   ✔ COMPLETO — todos los registros capturados")
+                elif diff > 0:
+                    self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
+                else:
+                    self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados no filtrados")
+            self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
+            self.logger.info(f"─────────────────────────────────────────")
 
-            if n >= 100:
+            ok = esperados is None or n >= esperados * 0.98
+            if n >= 100 and ok:
                 self.logger.info("🟢 EXTRACCIÓN EXITOSA — Validar Excel antes de usar en Fase 2")
             elif n >= 20:
                 self.logger.warning("🟡 EXTRACCIÓN PARCIAL — Revisar columnas en el config")
