@@ -11,4 +11,4 @@
   "col_precio":       "Sug_credito",
 
   "_nota": "Sug_credito está en y=132 (fila distinta a Pag/ID en y=131). El extractor corregido busca en las dos filas del encabezado."
-}
+  }
