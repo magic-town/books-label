@@ -24,7 +24,7 @@ del proveedor        catálogo            al cliente
 
 Para ambos métodos siempre iniciamos descargando los catalogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedcr/`:
 
-+ Price Shoes: [Web Page](https://www.priceshoes.com/)
++ Price Shoes: <a href="https://www.priceshoes.com/" target="_blank">Web Page</a>
 + Pakar: Por medio de la app móvil $\to$ Whatsapp $\to$ Download
 + Cklass: Se consiguen por combo c/una lista de precios para todos los cátalogos.
 
