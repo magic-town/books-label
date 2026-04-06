@@ -17,14 +17,31 @@ del proveedor        catálogo            al cliente
 
 <img src="../imagenes/asset_repo/cover01.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
-## Modulo 1 - Fase 1
+## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
 
-La extracción por medio de LLM no es la que estamos buscando, pero ayudan a no frenarnos en nuestra operación, es decir, tenemos un proceso que medianamente funciona y otro en desarrollo.
+- [Extractor.py - Modulo que ha pasado la última etapa de pruebas y a partir de esta fecha se libera a producción](#extractor-py)
+- [NotebookLM - Como plan de contingencia conservamos la extracción por LLM.](#notebook)
 
-### Primer método usando LLM (el que ya conoces)
+Para ambos métodos siempre iniciamos descargando los catalogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedcr/`:
 
-- [ ] 📥 Descargar tus fichero crudos; libro y lista.
-- [ ] Antes de iniciar valida que concidan los _ID_`, _páginas_.
++ Price Shoes: [Web Page](https://www.priceshoes.com/)
++ Pakar: Por medio de la app móvil $\to$ Whatsapp $\to$ Download
++ Cklass: Se consiguen por combo c/una lista de precios para todos los cátalogos.
+
+### <a name="extractor-py"></a>Opción I. Extractor.py
+
+- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
+- [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
+
+```bash
+cp ~/boutique_zepeda/proveedor/catalogs` ~/books-label/fase_1/libros
+cp ~/boutique_zepeda/proveedor/lista_cruda` ~/books-label/fase_1/lista
+```
+
+### <a name="notebook"></a>Opción II. NotebookLM
+{text}
+
+- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
 - [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
 - [ ] Usa uno o varios de los siguietnes prompts:
 
@@ -80,7 +97,7 @@ Es incorrecta la última columna. Corrígela por los datos correctos: "columna_X
 IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
 
-### 🟣 Extacción de Pakar
+#### 🟣 Extacción de Pakar
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
