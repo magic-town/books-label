@@ -1,4 +1,8 @@
-<img src="../imagenes/asset_repo/cover00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="95%"/>
+<div align="center">
+<img src="../imagenes/asset_repo/cover00.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="95%"/>
+</div>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
 
@@ -17,7 +21,7 @@ del proveedor        catálogo            al cliente
 
 <div align="center">
   <img src="../imagenes/asset_repo/cover_modulos.png" 
-       alt="Boutique Zepeda — Taller de Etiquetado" 
+       alt="Boutique Zepeda — Taller de Etiquetado"
        width="65%"/>
 </div>
 
@@ -34,7 +38,11 @@ Para ambos métodos siempre iniciamos descargando los catálogos de cada proveed
 + Pakar:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
 + Cklass: Se consiguen por combo con una lista de precios para todos los catálogos.
 
-<img src="../imagenes/asset_repo/download00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
+<div align="center">
+<img src="../imagenes/asset_repo/download00.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="65%"/>
+</div>
 
 ### <a name="extractor-py"></a>Opción I. Extractor.py
 
@@ -45,8 +53,11 @@ Para ambos métodos siempre iniciamos descargando los catálogos de cada proveed
 cp ~/boutique_zepeda/proveedor/catalogos ~/books-label/fase_1/libros
 cp ~/boutique_zepeda/proveedor/lista_precios ~/books-label/fase_1/lista_cruda
 ```
-
-<img src="../imagenes/asset_repo/download.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+<div align="center">
+<img src="../imagenes/asset_repo/download.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="75%"/>
+</div>
 
 #### Modulo 1 = Extraer precios PDF + aplicar nuestra tabla
 
@@ -63,8 +74,11 @@ source venv/venv_catalogo/bin/activate
 ```
 El proyeecto se ha vuelto algo robusto, por lo que sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
 
-<img src="../imagenes/asset_repo/structure.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
-
+<div align="center">
+<img src="../imagenes/asset_repo/structure.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="75%"/>
+</div>
 
 ### <a name="notebook"></a>Opción II. NotebookLM
 {text}
@@ -182,7 +196,11 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 
 - [ ] Completar los tres campos I/O (inputs / outputs).
 
-<img src="../imagenes/asset_repo/configurador.png" alt="Boutique Zepeda — Taller de Etiquetado" width="85%"/>
+<div align="center">
+<img src="../imagenes/asset_repo/configurador.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
 
 - [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
 
