@@ -19,13 +19,13 @@ del proveedor        catálogo            al cliente
 
 ## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
 
-- [Extractor.py - Modulo que ha pasado la última etapa de pruebas y a partir de esta fecha se libera a producción](#extractor-py)
-- [NotebookLM - Como plan de contingencia conservamos la extracción por LLM.](#notebook)
+- [Extractor.py](#extractor-py)
+- [NotebookLM](#notebook)
 
 Para ambos métodos siempre iniciamos descargando los catalogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedcr/`:
 
-+ Price Shoes: https://www.priceshoes.com/
-+ Pakar: Por medio de la app móvil $\to$ Whatsapp $\to$ Download
++ Price Shoes: 👉 https://www.priceshoes.com/ + 📥 Download
++ Pakar: Por medio de la 📱 app móvil $\to$ Whatsapp $\to$ 📥 Download
 + Cklass: Se consiguen por combo c/una lista de precios para todos los cátalogos.
 
 ### <a name="extractor-py"></a>Opción I. Extractor.py
