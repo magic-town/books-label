@@ -27,7 +27,7 @@ del proveedor        catálogo            al cliente
 
 ## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
 
-El módulo está diseñado para ejecutarse de forma automática, iniciand en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo. No obstante, se seguirá contemplando un plan de contingencia que incluye la extracción mediante LLMs (como NotebookLM de Google o Claude de Anthropic).
+El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo. No obstante, se seguirá contemplando un plan de contingencia que incluye la extracción mediante LLMs (como NotebookLM de Google o Claude de Anthropic).
 
 - [Extractor.py](#extractor-py)
 - [NotebookLM](#notebook)
@@ -41,7 +41,7 @@ Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de 
 <div align="center">
 <img src="../imagenes/asset_repo/download00.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="65%"/>
+     width="75%"/>
 </div>
 
 ### <a name="extractor-py"></a>Opción 1. (recomendada). Extractor.py
@@ -65,7 +65,7 @@ cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fas
 - [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
 ```
-Abrimos **VSC** > File > Open Folder > books-label
+Abrimos VSC > File > Open Folder > books-label
 ```
 
 - [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
@@ -86,9 +86,14 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo
 <div align="center">
 <img src="../imagenes/asset_repo/init_vsc.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="75%"/>
+     width="85%"/>
 </div>
 
+#### Declarar inputs por medio de JSON (JavaScript Object Notation).
+
+La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y el directorio ``
+
+- [ ] Usar el panel (Opcional). 
 
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
