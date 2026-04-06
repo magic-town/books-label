@@ -32,11 +32,11 @@ El módulo está diseñado para ejecutarse de forma automática, iniciand en la 
 - [Extractor.py](#extractor-py)
 - [NotebookLM](#notebook)
 
-Para ambos métodos siempre iniciamos descargando los catálogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedor/`:
+Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedor/`:
 
-+ Price Shoes: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
-+ Pakar:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
-+ Cklass: Se consiguen por combo con una lista de precios para todos los catálogos.
++ **Price Shoes**: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
++ **Pakar**:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
++ **Cklass**: Se consiguen por combo con una lista de precios para todos los catálogos.
 
 <div align="center">
 <img src="../imagenes/asset_repo/download00.png"
@@ -44,15 +44,16 @@ Para ambos métodos siempre iniciamos descargando los catálogos de cada proveed
      width="65%"/>
 </div>
 
-### <a name="extractor-py"></a>Opción I. Extractor.py
+### <a name="extractor-py"></a>Opción 1. (recomendada). Extractor.py
 
 - [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en `ID`, `páginas`, `precio`.
 - [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/proveedor/catalogos ~/books-label/fase_1/libros
-cp ~/boutique_zepeda/proveedor/lista_precios ~/books-label/fase_1/lista_cruda
+cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_1/libros/
+cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fase_1/lista_cruda/
 ```
+
 <div align="center">
 <img src="../imagenes/asset_repo/download.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
@@ -61,7 +62,7 @@ cp ~/boutique_zepeda/proveedor/lista_precios ~/books-label/fase_1/lista_cruda
 
 #### Modulo 1 = Extraer precios PDF + aplicar nuestra tabla
 
-- [ ] Ya con el la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
+- [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
 ```
 Abrimos **VSC** > File > Open Folder > books-label
@@ -70,9 +71,9 @@ Abrimos **VSC** > File > Open Folder > books-label
 - [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
 
 ```bash
-source venv/venv_catalogo/bin/activate
+source venv_catalogo/bin/activate
 ```
-El proyeecto se ha vuelto algo robusto, por lo que sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
+El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
 
 <div align="center">
 <img src="../imagenes/asset_repo/structure.png"
@@ -80,7 +81,17 @@ El proyeecto se ha vuelto algo robusto, por lo que sugiero que uses un modulo a 
      width="75%"/>
 </div>
 
-### <a name="notebook"></a>Opción II. NotebookLM
+- [ ] En este punto debes tener el fichero `lista_cruda.pdf` en el directorio `~/fase_1/liista_cruda/` y el `venv` activado.
+
+<div align="center">
+<img src="../imagenes/asset_repo/init_vsc.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="75%"/>
+</div>
+
+
+
+### <a name="notebook"></a>Opción 2. NotebookLM
 {text}
 
 - [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
