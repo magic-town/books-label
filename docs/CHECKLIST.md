@@ -22,21 +22,25 @@ del proveedor        catálogo            al cliente
 - [Extractor.py](#extractor-py)
 - [NotebookLM](#notebook)
 
-Para ambos métodos siempre iniciamos descargando los catalogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedcr/`:
+Para ambos métodos siempre iniciamos descargando los catálogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedor/`:
 
 + Price Shoes: 👉 https://www.priceshoes.com/ + 📥 Download
 + Pakar: Por medio de la 📱 app móvil $\to$ Whatsapp $\to$ 📥 Download
-+ Cklass: Se consiguen por combo c/una lista de precios para todos los cátalogos.
++ Cklass: Se consiguen por combo con una lista de precios para todos los catálogos.
+
+<img src="../imagenes/asset_repo/download00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
 
 ### <a name="extractor-py"></a>Opción I. Extractor.py
 
-- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
+- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en `ID`, `páginas`, `precio`.
 - [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
 
 ```bash
 cp ~/boutique_zepeda/proveedor/catalogs` ~/books-label/fase_1/libros
 cp ~/boutique_zepeda/proveedor/lista_cruda` ~/books-label/fase_1/lista
 ```
+
+<img src="../imagenes/asset_repo/download.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
 ### <a name="notebook"></a>Opción II. NotebookLM
 {text}
