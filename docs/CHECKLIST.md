@@ -15,17 +15,19 @@ Extraer precios  →  Etiquetar       →   Publicar
 del proveedor        catálogo            al cliente
 ```
 
-<img src="../imagenes/asset_repo/cover01.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+<img src="../imagenes/asset_repo/cover_modulos.png" alt="Boutique Zepeda — Taller de Etiquetado" width="80%"/>
 
 ## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
+
+El módulo está diseñado para ejecutarse de forma automática, iniciand en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo. No obstante, se seguirá contemplando un plan de contingencia que incluye la extracción mediante LLMs (como NotebookLM de Google o Claude de Anthropic).
 
 - [Extractor.py](#extractor-py)
 - [NotebookLM](#notebook)
 
 Para ambos métodos siempre iniciamos descargando los catálogos de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedor/`:
 
-+ Price Shoes: 👉 https://www.priceshoes.com/ + 📥 Download
-+ Pakar: Por medio de la 📱 app móvil $\to$ Whatsapp $\to$ 📥 Download
++ Price Shoes: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
++ Pakar:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
 + Cklass: Se consiguen por combo con una lista de precios para todos los catálogos.
 
 <img src="../imagenes/asset_repo/download00.png" alt="Boutique Zepeda — Taller de Etiquetado" width="65%"/>
@@ -36,11 +38,30 @@ Para ambos métodos siempre iniciamos descargando los catálogos de cada proveed
 - [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/proveedor/catalogs` ~/books-label/fase_1/libros
-cp ~/boutique_zepeda/proveedor/lista_cruda` ~/books-label/fase_1/lista
+cp ~/boutique_zepeda/proveedor/catalogos ~/books-label/fase_1/libros
+cp ~/boutique_zepeda/proveedor/lista_precios ~/books-label/fase_1/lista_cruda
 ```
 
 <img src="../imagenes/asset_repo/download.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
+
+#### Modulo 1 = Extraer precios PDF + aplicar nuestra tabla
+
+- [ ] Ya con el la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
+
+
+```
+Abrimos **VSC** > File > Open Folder > books-label
+```
+
+- [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
+
+```bash
+source venv/venv_catalogo/bin/activate
+```
+El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
+
+
+
 
 ### <a name="notebook"></a>Opción II. NotebookLM
 {text}
