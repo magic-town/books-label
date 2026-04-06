@@ -4,8 +4,8 @@
 
     "proveedor": "PS",
 
-    "pdf_input":    "lista_cruda/lista_kids.pdf",
-    "excel_output": "salida/lista_kids.xlsx",
+    "pdf_input":    "lista_cruda/lista_perfumes.pdf",
+    "excel_output": "salida/lista_perfumes.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15.0,

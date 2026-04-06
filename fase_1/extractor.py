@@ -25,8 +25,56 @@ import logging
 import argparse
 from datetime import datetime
 
+import math
+
 import pandas as pd
 import pdfplumber
+from openpyxl import Workbook
+
+
+# ─────────────────────────────────────────────
+#  Ruta fija del tabulador de márgenes
+# ─────────────────────────────────────────────
+
+TABULADOR_PATH = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
+
+
+# ─────────────────────────────────────────────
+#  Helpers precio_venta (replicar lógica Excel)
+# ─────────────────────────────────────────────
+
+def _round_excel(value: float, digits: int) -> float:
+    """ROUND(..., digits) con redondeo 'half away from zero', igual que Excel."""
+    if digits < 0:
+        factor = 10 ** (-digits)
+        return math.floor(float(value) / factor + 0.5) * factor
+    factor = 10 ** digits
+    return math.floor(float(value) * factor + 0.5) / factor
+
+
+def _cargar_tabulador(path: str) -> pd.DataFrame:
+    df = pd.read_excel(path, header=0)           # fila 0 = encabezado (desde/hasta/sumar)
+    df.columns = ["desde", "hasta", "sumar"]
+    df = df.dropna(subset=["desde"]).copy()
+    df["desde"] = pd.to_numeric(df["desde"], errors="coerce")
+    df["sumar"] = pd.to_numeric(df["sumar"], errors="coerce")
+    return df.sort_values("desde").reset_index(drop=True)
+
+
+def _calcular_pv(precio_base, tabulador_df: pd.DataFrame):
+    """Replica: =ROUND(IF(pb<200, ROUND(pb,-1)*1.5, pb+VLOOKUP(pb,tab,3,1)), -1)"""
+    try:
+        pb = float(precio_base)
+    except (TypeError, ValueError):
+        return None
+    redondea = _round_excel(pb, -1)
+    if pb < 200:
+        return int(_round_excel(redondea * 1.5, -1))
+    mask = tabulador_df["desde"] <= pb
+    if not mask.any():
+        return None
+    sumar = float(tabulador_df.loc[mask.values.nonzero()[0][-1], "sumar"])
+    return int(_round_excel(pb + sumar, -1))
 
 
 # ─────────────────────────────────────────────
@@ -464,8 +512,7 @@ class ExtractorCatalogo:
             )
             self.logger.error("🔴 EXTRACCIÓN FALLIDA")
         else:
-            df["len"] = df["id"].astype(str).str.len()
-            df.to_excel(self.excel_path, index=False)
+            self._escribir_excel(df)
 
             n          = len(df)
             u          = df["id"].nunique()
@@ -474,7 +521,6 @@ class ExtractorCatalogo:
             esperados  = df.attrs.get("ids_esperados_pdf")
             pct        = f"{n/esperados*100:.1f}%" if esperados else "N/A"
 
-            self.logger.info(f"✅ Excel generado:  {self.excel_path}")
             self.logger.info(f"─────────────────────────────────────────")
             self.logger.info(f"   Registros extraídos : {n}")
             self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
@@ -502,6 +548,68 @@ class ExtractorCatalogo:
         self.logger.info(f"[STAT] proveedor={self.proveedor}")
         self.logger.info(f"[STAT] registros={len(df)}")
         self.logger.info(f"[STAT] ids_unicos={df['id'].nunique() if not df.empty else 0}")
+
+    def _escribir_excel(self, df: pd.DataFrame):
+        """
+        Escribe el Excel de salida con la estructura de 9 columnas:
+          A  pag          — valor
+          B  id            — valor
+          C  precio_base   — valor
+          D  redondea      — fórmula =ROUND(C,-1)
+          E  precio_venta  — fórmula =ROUND(IF(C<200,D*1.5,C+VLOOKUP(C,tabulador,3,1)),-1)
+          F  len           — fórmula =LEN(B)
+          G  (vacía)
+          H  ID            — valor estático (sin fórmulas, para scripts Python)
+          I  precio_venta  — valor estático calculado en Python
+        """
+        if not os.path.isfile(TABULADOR_PATH):
+            raise FileNotFoundError(f"Tabulador no encontrado: {TABULADOR_PATH}")
+
+        tab_df = _cargar_tabulador(TABULADOR_PATH)
+        n_tab  = len(tab_df) + 1          # filas de datos en la hoja tabulador (+1 por header)
+
+        wb      = Workbook()
+        ws      = wb.active
+        ws.title = "Datos"
+
+        # ── Hoja tabulador incrustada (oculta) ──────────────────────────────
+        ws_tab = wb.create_sheet("tabulador")
+        ws_tab.sheet_state = "hidden"
+        ws_tab.append(["desde", "hasta", "sumar"])
+        for _, row in tab_df.iterrows():
+            ws_tab.append([row["desde"], row["hasta"], row["sumar"]])
+
+        rango_tab = f"tabulador.$A$2:$C${n_tab + 1}"
+
+        # ── Encabezados ──────────────────────────────────────────────────────
+        ws.append(["pag", "id", "precio_base", "redondea", "precio_venta", "len", "", "ID", "precio_venta"])
+
+        # ── Filas de datos ───────────────────────────────────────────────────
+        for i, record in enumerate(df.itertuples(index=False), start=2):
+            pag = record.pag
+            id_ = record.id
+            try:
+                pb = int(float(record.precio_base))
+            except (TypeError, ValueError):
+                pb = record.precio_base
+
+            pv_val = _calcular_pv(pb, tab_df) if isinstance(pb, (int, float)) else None
+
+            ws.cell(row=i, column=1, value=pag)
+            ws.cell(row=i, column=2, value=id_)
+            ws.cell(row=i, column=3, value=pb)
+            ws.cell(row=i, column=4, value=f"=ROUND(C{i},-1)")
+            ws.cell(row=i, column=5, value=(
+                f"=ROUND(IF(C{i}<200,D{i}*1.5,"
+                f"C{i}+VLOOKUP(C{i},{rango_tab},3,1)),-1)"
+            ))
+            ws.cell(row=i, column=6, value=f"=LEN(B{i})")
+            # columna 7 vacía
+            ws.cell(row=i, column=8, value=id_)
+            ws.cell(row=i, column=9, value=pv_val)
+
+        wb.save(self.excel_path)
+        self.logger.info(f"✅ Excel generado:  {self.excel_path}")
 
 
 # ─────────────────────────────────────────────

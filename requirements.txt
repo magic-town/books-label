@@ -1,8 +1,10 @@
 cffi==2.0.0
 charset-normalizer==3.4.6
 cryptography==46.0.5
+defusedxml==0.7.1
 et_xmlfile==2.0.0
 numpy==2.4.3
+odfpy==1.4.1
 openpyxl==3.1.5
 packaging==26.0
 pandas==3.0.1
