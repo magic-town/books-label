@@ -15,7 +15,11 @@ Extraer precios  →  Etiquetar       →   Publicar
 del proveedor        catálogo            al cliente
 ```
 
-<img src="../imagenes/asset_repo/cover_modulos.png" alt="Boutique Zepeda — Taller de Etiquetado" width="80%"/>
+<div align="center">
+  <img src="../imagenes/asset_repo/cover_modulos.png" 
+       alt="Boutique Zepeda — Taller de Etiquetado" 
+       width="65%"/>
+</div>
 
 ## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
 
@@ -48,7 +52,6 @@ cp ~/boutique_zepeda/proveedor/lista_precios ~/books-label/fase_1/lista_cruda
 
 - [ ] Ya con el la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
-
 ```
 Abrimos **VSC** > File > Open Folder > books-label
 ```
@@ -58,9 +61,9 @@ Abrimos **VSC** > File > Open Folder > books-label
 ```bash
 source venv/venv_catalogo/bin/activate
 ```
-El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
+El proyeecto se ha vuelto algo robusto, por lo que sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
 
-
+<img src="../imagenes/asset_repo/structure.png" alt="Boutique Zepeda — Taller de Etiquetado" width="75%"/>
 
 
 ### <a name="notebook"></a>Opción II. NotebookLM
