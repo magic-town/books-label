@@ -50,8 +50,8 @@ Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de 
 - [ ] Hacer una copia de `~/boutique_zepeda/<proveedor>/catalogos` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/<proveedor>/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
-cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_marca.pdf> ~/books-label/fase_1/lista_cruda/
+cp ~/boutique_zepeda/<proveedor>/catalogos/<catalogo_temp.pdf> ~/books-label/fase_2/libros/
+cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp.pdf> ~/books-label/fase_1/lista_cruda/
 ```
 
 <div align="center">
@@ -65,7 +65,7 @@ cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_marca.pdf> ~/books-label/f
 - [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
 ```
-Abrimos VSC > File > Open Folder > books-label > Open
+Abrimos VSC > File > Open Folder > books-label > Open > fase_1
 ```
 
 - [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
@@ -104,8 +104,8 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
 - [ ] LLenamos los campos:
 
   - `proveedor`: <price_shoes, pakar, cklass, otro>
-  - `lista_cruda`: <lista_proveedor.pdf>
-  - `salida`: <marca_precios.xlsx>
+  - `lista_cruda`: <lista_catalogo_temp.pdf>
+  - `salida`: <lista_catalogo_temp.xlsx>
   - `tolerancia_col_X`: dejamos la que tiene por defecto
 
 - [ ] Damos click a `COPY JSON`
@@ -117,7 +117,7 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
      width="85%"/>
 </div>
 
-- [ ] Si quieres editar el fichero `/fase_1/<config_proveedor.json>` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
+- [ ] Si quieres editar el fichero `../fase_1/<config_proveedor.json>` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
@@ -128,10 +128,10 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
 - [ ] Ejecuta el fichero `<extractor.py>` con su configuración conrrespondiente para este modulo. Obtendras un par de tablas:
 
 ```bash
-python3 fase_1/extractor.py --config fase_1/config/<config_marca.json>
+python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 ```
 
-- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida&/<lista_catalogo.xlsx>`
+- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`
 - [ ] También te genera un segundo fichero `/fase_1/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
@@ -217,11 +217,16 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 - [ ] Copia tu tabla extraida en `~/books-label/fase_2/precios/precios_tabla.ods`
 - [ ] Aplica las transformaciones `REDONDEAR`, `precios_venta`, `LEN`
 - [ ] Copia las columnas `ID`, `precio_venta` en una tabla al costado de la transformada con `pegado especial`
+- [ ] Pega esas columnas en un fichero nuevo:
+
+```
+File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<lista_catalogo_temp.xlsx>
+```
 
 ---
 
 <div align="center">
-<img src="../imagenes/asset_repo/fase_2.png"
+<img src="../imagenes/asset_repo/fase_2_cover.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
@@ -230,25 +235,29 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
 
-Al final de la fase 1 obtuvimos un output `marca_precios.xlsx`, este fichero se convierte en uno de los 2 inputs en este modulo.
+Al final de la **fase 1** obtuvimos un output `../fase_2/precios/<lista_cat_tem.xlsx>`, este fichero se convierte en uno de los 2 inputs en este modulo.
 
-- [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
+- [ ] Verificar que tienes el catálogo PDF en `../fase_2/libros/<catalogo_temp.pdf>`
 
 ```
 cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
 ```
 
-- [ ] Copiamos las columnas `ID`, `precio_venta` a un nuevo fichero `~/books-label/fase_2/precios/<lista_marca_temp.xlsx>` 
+- [ ] Abrimos **VSC** los inputs deben verse reflejados al abrir el folder `books-laber`
 
+```
+VSC > File > Open Folder > books-label > Open > fase_2
+```
+```
 
 <div align="center">
-<img src="../imagenes/asset_repo/excel.png"
+<img src="../imagenes/asset_repo/fase_2.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="80%"/>
 </div>
 
 
-- [ ] Verica que el virtual environment este activado:
+- [ ] Verica que el virtual environment este activado `Ctrl + J`:
   
   ```bash
   source venv_catalogo/bin/activate
