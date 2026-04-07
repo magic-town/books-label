@@ -81,7 +81,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo
      width="75%"/>
 </div>
 
-- [ ] En este punto debes tener el fichero `lista_cruda.pdf` en el directorio `~/fase_1/liista_cruda/` y el `venv` activado.
+- [ ] Debe verse reflejado el fichero `lista_cruda.pdf` en el directorio `../fase_1/liista_cruda/` y el `venv` activado.
 
 <div align="center">
 <img src="../imagenes/asset_repo/init_vsc.png"
@@ -103,12 +103,12 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
 
 - [ ] LLenamos los campos:
 
-  - `proveedor`; <price_shoes, pakar, cklass, otro>
+  - `proveedor`: <price_shoes, pakar, cklass, otro>
   - `lista_cruda`: <lista_proveedor.pdf>
   - `salida`: <marca_precios.xlsx>
   - `tolerancia_col_X`: dejamos la que tiene por defecto
 
-- [ ] Damops click a `COPY JSON`
+- [ ] Damos click a `COPY JSON`
 - [ ] Pegamos la configuración JSON en el fichero correspondiente: `/fase_1/config_price.json`, `/fase_1/config_pakar.json`, `/fase_1/config_cklass.json`.
 
 <div align="center">
@@ -117,7 +117,7 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
      width="85%"/>
 </div>
 
-- [] Si quieres editar el fichero `/fase_1/<config_proveedor.json>`, sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
+- [ ] Si quieres editar el fichero `/fase_1/<config_proveedor.json>` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
