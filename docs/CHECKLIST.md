@@ -25,7 +25,7 @@ del proveedor        catálogo            al cliente
        width="65%"/>
 </div>
 
-## Modulo 1 - Fase 1 (🚀 Deploy 06-abril).
+## Fase 1
 
 El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo. No obstante, se seguirá contemplando un plan de contingencia que incluye la extracción mediante LLMs (como NotebookLM de Google o Claude de Anthropic).
 
@@ -60,7 +60,7 @@ cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fas
      width="75%"/>
 </div>
 
-#### Modulo 1 = Extraer precios PDF + aplicar nuestra tabla
+#### Modulo 1 = Extraer precios del proveedor (PDF) + Aplicar nuestra tabla de precios
 
 - [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
@@ -95,10 +95,11 @@ La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en e
 
 - [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 
+
 <div align="center">
 <img src="../imagenes/asset_repo/panel_extractor.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="95%"/>
 </div>
 
 - [ ] LLenamos los campos:
@@ -111,11 +112,13 @@ La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en e
 - [ ] Damops click a `COPY JSON`
 - [ ] Pegamos la configuración JSON en el fichero correspondiente:
 
+
 <div align="center">
 <img src="../imagenes/asset_repo/config_fase_1.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
+
 
 - [ ] No es necesario hacer un fichero `config_marca.json` para cada `lista_cruda.pdf`. Asi como todos los pasos anteriores los puedes editar a mano en el fichero dentro del editor de **VSC**.
 
@@ -237,11 +240,13 @@ cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/l
 
 - [ ] Copiamos las columnas `ID`, `precio_venta` a un nuevo fichero `~/books-label/fase_2/precios/<lista_marca_temp.xlsx>` 
 
+
 <div align="center">
 <img src="../imagenes/asset_repo/excel.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="80%"/>
 </div>
+
 
 - [ ] Verica que el virtual environment este activado:
   
