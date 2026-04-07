@@ -228,7 +228,7 @@ File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<li
 <div align="center">
 <img src="../imagenes/asset_repo/fase_2_cover.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="65%"/>
 </div>
 
 ## 🏷️ FASE 2 — Etiquetar el catálogo
@@ -247,7 +247,6 @@ cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/l
 
 ```
 VSC > File > Open Folder > books-label > Open > fase_2
-```
 ```
 
 <div align="center">
