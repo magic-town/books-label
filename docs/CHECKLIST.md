@@ -252,7 +252,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 <div align="center">
 <img src="../imagenes/asset_repo/fase_2.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="80%"/>
+     width="100%"/>
 </div>
 
 
