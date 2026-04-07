@@ -91,13 +91,54 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo
 
 #### Declarar inputs por medio de JSON (JavaScript Object Notation).
 
-La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y el directorio ``
+La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en el directorio `~/books-label/fase_1/config` encontraras un panel auxiliar, tu decides si usarlo,
 
-- [ ] Usar el panel (Opcional). 
+- [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 
+<div align="center">
+<img src="../imagenes/asset_repo/panel_extractor.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] LLenamos los campos:
+
+  - `proveedor`; <price_shoes, pakar, cklass, otro>
+  - `lista_cruda`: <lista_proveedor.pdf>
+  - `salida`: <marca_precios.xlsx>
+  - `tolerancia_col_X`: dejamos la que tiene por defecto
+
+- [ ] Damops click a `COPY JSON`
+- [ ] Pegamos la configuración JSON en el fichero correspondiente:
+
+<div align="center">
+<img src="../imagenes/asset_repo/config_fase_1.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] No es necesario hacer un fichero `config_marca.json` para cada `lista_cruda.pdf`. Asi como todos los pasos anteriores los puedes editar a mano en el fichero dentro del editor de **VSC**.
+
+<div align="center">
+<img src="../imagenes/asset_repo/fichero_json.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Ejecuta el fichero core con su configuración conrrespondiente de este moduloo para obtener tu tabla con precios:
+
+```bash
+python3 fase_1/extractor.py --config fase_1/config/<config_marca.json>
+```
+- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida`
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
-{text}
+
+Este es el método largo e incocistente, solo recurrimos a él en caso de que el método 1, no de la extracción correcta. En otras palabras, aqui el flujo es el siguiete:
+
+1. Insertar fichero en Claude.
+2. Copiar la extracción a precios_tabla.ods
+3. Aplicar las formulas `redondear`, `aplicar_precios`, extraer columnas `ID`, `precio_venta`
 
 - [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
 - [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
@@ -176,6 +217,11 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 
 ---
 
+<div align="center">
+<img src="../imagenes/asset_repo/fase_2.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
 
 ## 🏷️ FASE 2 — Etiquetar el catálogo
 
@@ -184,12 +230,10 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 ### Antes de empezar
 
 - [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
-- [ ] Verificar que tienes el Excel validado en `fase_2/precios/`
-- [ ] Ejecutar sync.
-  Desde **Tilix** o la terminal integrada de VSC:
-  ```bash
-  cd ~/books-label && ./sync.sh
-  ```
+- [ ] Verificar que tienes el Excel validado en `fase_2/precios/`. 
+
+
+
 - [ ] Activar el entorno:
   ```bash
   source venv_catalogo/bin/activate
