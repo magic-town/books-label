@@ -91,10 +91,9 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo
 
 #### Declarar inputs por medio de JSON (JavaScript Object Notation).
 
-La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en el directorio `~/books-label/fase_1/config` encontraras un panel auxiliar, tu decides si usarlo,
+La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
 
 - [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
-
 
 <div align="center">
 <img src="../imagenes/asset_repo/panel_extractor.png"
@@ -110,8 +109,7 @@ La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en e
   - `tolerancia_col_X`: dejamos la que tiene por defecto
 
 - [ ] Damops click a `COPY JSON`
-- [ ] Pegamos la configuración JSON en el fichero correspondiente:
-
+- [ ] Pegamos la configuración JSON en el fichero correspondiente: `/fase_1/config_price.json`, `/fase_1/config_pakar.json`, `/fase_1/config_cklass.json`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/config_fase_1.png"
@@ -119,8 +117,7 @@ La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en e
      width="85%"/>
 </div>
 
-
-- [ ] No es necesario hacer un fichero `config_marca.json` para cada `lista_cruda.pdf`. Asi como todos los pasos anteriores los puedes editar a mano en el fichero dentro del editor de **VSC**.
+- [] Si quieres editar el fichero `/fase_1/<config_proveedor.json>`, sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
@@ -128,12 +125,14 @@ La asionación del input: `proveedor`, `lista_cruda` es un paso inmediato y en e
      width="85%"/>
 </div>
 
-- [ ] Ejecuta el fichero core con su configuración conrrespondiente de este moduloo para obtener tu tabla con precios:
+- [ ] Ejecuta el fichero `<extractor.py>` con su configuración conrrespondiente para este modulo. Obtendras un par de tablas:
 
 ```bash
 python3 fase_1/extractor.py --config fase_1/config/<config_marca.json>
 ```
-- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida`
+
+- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida&/<lista_catalogo.xlsx>`
+- [ ] También te genera un segundo fichero `/fase_1/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
 

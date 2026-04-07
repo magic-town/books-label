@@ -16,15 +16,21 @@ Proveedores soportados:
 Dependencias Python (requirements.txt):
     pdfplumber, pandas, openpyxl
 
-Estructura del Excel de salida:
-    A  pag          valor
-    B  id           valor
-    C  precio_base  valor
-    D  redondea     =ROUND(C,-1)
-    E  len          =LEN(B)
-    F  (vacía)
-    G  ID           valor estático — para scripts Python
-    H  precio_venta valor estático — calculado con tabulador
+Estructura del Excel de salida — fase_1/salida/ (10 columnas):
+    A  pag           valor
+    B  id            valor
+    C  precio_base   valor
+    D  redondea      =ROUND(C,-1)
+    E  precio_venta  =ROUND(IF(C<200,ROUND(C,-1)*1.5,C+VLOOKUP(...,Tabulador,3,1)),-1)  [oculta]
+    F  precio_venta  valor estático — calculado con tabulador
+    G  len           =LEN(B)
+    H  (vacía)
+    I  ID            valor estático — para scripts Python
+    J  precio_venta  valor estático — calculado con tabulador
+
+Segundo output — fase_2/precios/ (2 columnas, mismo nombre de archivo):
+    A  ID            valor estático
+    B  precio_venta  valor estático
 """
 
 import math
@@ -45,7 +51,8 @@ from openpyxl import Workbook
 #  Ruta fija del tabulador de márgenes
 # ─────────────────────────────────────────────
 
-TABULADOR_PATH = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
+TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
+FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
 
 
 # ─────────────────────────────────────────────
@@ -543,45 +550,94 @@ class ExtractorCatalogo:
 
     def _escribir_excel(self, df: pd.DataFrame):
         """
-        Columnas del xlsx de salida:
-          A  pag          valor
-          B  id           valor
-          C  precio_base  valor
-          D  redondea     =ROUND(C,-1)
-          E  len          =LEN(B)
-          F  (vacía)
-          G  ID           valor estático
-          H  precio_venta valor estático calculado con tabulador
+        Genera dos archivos Excel con el mismo nombre base:
+
+        1) fase_1/salida/<nombre>.xlsx — 10 columnas:
+             A  pag           valor
+             B  id            valor
+             C  precio_base   valor
+             D  redondea      =ROUND(C,-1)
+             E  precio_venta  fórmula VLOOKUP contra hoja Tabulador oculta  [col oculta]
+             F  precio_venta  valor estático (numeric)
+             G  len           =LEN(B)
+             H  (vacía)
+             I  ID            valor estático
+             J  precio_venta  valor estático (numeric)
+
+        2) fase_2/precios/<nombre>.xlsx — 2 columnas:
+             A  ID            valor estático
+             B  precio_venta  valor estático (numeric)
         """
         if not os.path.isfile(TABULADOR_PATH):
             raise FileNotFoundError(f"Tabulador no encontrado: {TABULADOR_PATH}")
 
-        tab      = _cargar_tabulador(TABULADOR_PATH)
-        wb       = Workbook()
-        ws       = wb.active
-        ws.title = "Datos"
+        tab = _cargar_tabulador(TABULADOR_PATH)
 
-        ws.append(["pag", "id", "precio_base", "redondea", "len", "", "ID", "precio_venta"])
-
-        for i, record in enumerate(df.itertuples(index=False), start=2):
+        # ── Pre-calcular precio_venta para todas las filas (un solo pase) ────
+        filas = []
+        for record in df.itertuples(index=False):
             try:
                 pb = int(float(record.precio_base))
             except (TypeError, ValueError):
                 pb = record.precio_base
-
             pv = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
+            filas.append((record.pag, record.id, pb, pv))
 
-            ws.cell(row=i, column=1, value=record.pag)
-            ws.cell(row=i, column=2, value=record.id)
-            ws.cell(row=i, column=3, value=pb)
-            ws.cell(row=i, column=4, value=f"=ROUND(C{i},-1)")
-            ws.cell(row=i, column=5, value=f"=LEN(B{i})")
-            # columna 6 vacía
-            ws.cell(row=i, column=7, value=record.id)
-            ws.cell(row=i, column=8, value=pv)
+        # ════════════════════════════════════════════════════════════════════
+        #  Archivo 1 — fase_1/salida/
+        # ════════════════════════════════════════════════════════════════════
+        wb  = Workbook()
+        ws  = wb.active
+        ws.title = "Datos"
 
+        # Hoja "Tabulador" oculta — referenciada por la fórmula de col E
+        ws_tab = wb.create_sheet("Tabulador")
+        ws_tab.sheet_state = "hidden"
+        ws_tab.append(["desde", "hasta", "sumar"])
+        for _, row in tab.iterrows():
+            ws_tab.append([row["desde"], row.get("hasta", ""), row["sumar"]])
+
+        ws.append(["pag", "id", "precio_base", "redondea",
+                   "precio_venta", "precio_venta",
+                   "len", "", "ID", "precio_venta"])
+
+        # Ocultar col E (precio_venta fórmula)
+        ws.column_dimensions["E"].hidden = True
+
+        for i, (pag, id_, pb, pv) in enumerate(filas, start=2):
+            ws.cell(row=i, column=1,  value=pag)
+            ws.cell(row=i, column=2,  value=id_)
+            ws.cell(row=i, column=3,  value=pb)
+            ws.cell(row=i, column=4,  value=f"=ROUND(C{i},-1)")
+            ws.cell(row=i, column=5,  value=(
+                f"=ROUND(IF(C{i}<200,ROUND(C{i},-1)*1.5,"
+                f"C{i}+VLOOKUP(C{i},Tabulador!$A:$C,3,1)),-1)"
+            ))
+            ws.cell(row=i, column=6,  value=pv)
+            ws.cell(row=i, column=7,  value=f"=LEN(B{i})")
+            # column 8 vacía
+            ws.cell(row=i, column=9,  value=id_)
+            ws.cell(row=i, column=10, value=pv)
+
+        os.makedirs(os.path.dirname(self.excel_path), exist_ok=True)
         wb.save(self.excel_path)
-        self.logger.info(f"✅ Excel generado:  {self.excel_path}")
+        self.logger.info(f"✅ Excel (fase 1) generado:  {self.excel_path}")
+
+        # ════════════════════════════════════════════════════════════════════
+        #  Archivo 2 — fase_2/precios/  (ID + precio_venta estáticos)
+        # ════════════════════════════════════════════════════════════════════
+        fase2_path = os.path.join(FASE2_PRECIOS_DIR, os.path.basename(self.excel_path))
+        os.makedirs(FASE2_PRECIOS_DIR, exist_ok=True)
+
+        wb2  = Workbook()
+        ws2  = wb2.active
+        ws2.title = "Precios"
+        ws2.append(["ID", "precio_venta"])
+        for _, id_, _, pv in filas:
+            ws2.append([id_, pv])
+
+        wb2.save(fase2_path)
+        self.logger.info(f"✅ Excel (fase 2) generado:  {fase2_path}")
 
 
 # ─────────────────────────────────────────────
