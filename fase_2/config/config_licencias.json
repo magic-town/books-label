@@ -4,7 +4,7 @@
 
     "pdf_input":   "libros/licencias_26.pdf",
     "excel_input": "precios/lista_licencias.xlsx",
-    "pdf_output":  "salidas/licencias_precios.pdf",
+    "pdf_output":  "salida/licencias_precios.pdf",
 
     "paginas_prueba": false,
 

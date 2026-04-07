@@ -32,7 +32,7 @@ El módulo está diseñado para ejecutarse de forma automática, iniciando en la
 - [Extractor.py](#extractor-py)
 - [NotebookLM](#notebook)
 
-Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/proveedor/`:
+Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/<proveedor>/`:
 
 + **Price Shoes**: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
 + **Pakar**:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
@@ -44,14 +44,14 @@ Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de 
      width="75%"/>
 </div>
 
-### <a name="extractor-py"></a>Opción 1. (recomendada). Extractor.py
+### <a name="extractor-py"></a>Opción 1 (recomendada). Extractor.py
 
 - [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en `ID`, `páginas`, `precio`.
-- [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
+- [ ] Hacer una copia de `~/boutique_zepeda/<proveedor>/catalogos` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
-cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fase_1/lista_cruda/
+cp ~/boutique_zepeda/<proveedor>/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
+cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_marca.pdf> ~/books-label/fase_1/lista_cruda/
 ```
 
 <div align="center">
@@ -65,7 +65,7 @@ cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fas
 - [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
 ```
-Abrimos VSC > File > Open Folder > books-label
+Abrimos VSC > File > Open Folder > books-label > Open
 ```
 
 - [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
@@ -137,11 +137,12 @@ python3 fase_1/extractor.py --config fase_1/config/<config_marca.json>
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
 
-Este es el método largo e incocistente, solo recurrimos a él en caso de que el método 1, no de la extracción correcta. En otras palabras, aqui el flujo es el siguiete:
+Este es el método largo e incocistente, solo recurrimos a él en caso de que el método 1 no de la extracción correcta. El flujo es el siguiete:
 
-1. Insertar fichero en Claude.
-2. Copiar la extracción a precios_tabla.ods
-3. Aplicar las formulas `redondear`, `aplicar_precios`, extraer columnas `ID`, `precio_venta`
+1. Insertar fichero en Claude o NotebookLM.
+2. Usar los prompt que aparecen a continuación en ese orden.
+3. Copiar la extracción a precios_tabla.ods
+4. Aplicar las formulas `redondear`, `aplicar_precios`, extraer columnas `ID`, `precio_venta`
 
 - [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
 - [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`

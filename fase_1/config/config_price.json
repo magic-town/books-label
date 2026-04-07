@@ -4,8 +4,8 @@
 
     "proveedor": "PS",
 
-    "pdf_input":    "lista_cruda/ella_26.pdf",
-    "excel_output": "salida/ella_precios.xlsx",
+    "pdf_input":    "lista_cruda/lista_man26.pdf",
+    "excel_output": "salida/man_precios.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15.0,

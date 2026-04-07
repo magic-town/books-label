@@ -419,6 +419,46 @@ class EtiquetadorCatalogo:
             output_type=pytesseract.Output.DICT
         )
 
+    def _ocr_con_rotaciones(self, img: Image.Image) -> dict:
+        """
+        Ejecuta OCR en tres orientaciones: 0°, 90° CCW y 270° CCW (90° CW).
+        Las coordenadas de las pasadas rotadas se transforman al espacio
+        original antes de fusionar, por lo que el dict devuelto es compatible
+        directamente con los cálculos x_pdf / y_pdf de marcar().
+
+        Cubre texto impreso verticalmente (ej. etiquetas Pakar con código en
+        orientación vertical). Aplica a todos los proveedores sin código repetido.
+
+        Fórmulas de mapeo inverso (imagen original W×H):
+          90° CCW  → rotado(rx, ry) → original(x=ry,      y=H-1-rx)
+          270° CCW → rotado(rx, ry) → original(x=W-1-ry,  y=rx)
+        """
+        W, H = img.size
+
+        # 0° — orientación estándar
+        data_0 = self._ocr_tokens(img)
+
+        # 90° CCW — cubre texto que asciende de abajo hacia arriba en el original
+        img_90  = img.rotate(90, expand=True)
+        data_90 = self._ocr_tokens(img_90)
+        left_90 = list(data_90["top"])                          # x_orig = top_rot
+        top_90  = [H - 1 - rx for rx in data_90["left"]]       # y_orig = H-1-left_rot
+        data_90["left"] = left_90
+        data_90["top"]  = top_90
+
+        # 270° CCW (90° CW) — cubre texto que desciende de arriba hacia abajo en el original
+        img_270  = img.rotate(270, expand=True)
+        data_270 = self._ocr_tokens(img_270)
+        left_270 = [W - 1 - ry for ry in data_270["top"]]      # x_orig = W-1-top_rot
+        top_270  = list(data_270["left"])                       # y_orig = left_rot
+        data_270["left"] = left_270
+        data_270["top"]  = top_270
+
+        # Fusionar: 0° como base, 90° y 270° agregan solo tokens sin solapamiento
+        merged = self._fusionar_tokens(data_0, data_90)
+        merged = self._fusionar_tokens(merged, data_270)
+        return merged
+
     # ── Fusión de resultados de doble pasada ─────────────────────────────────
 
     def _fusionar_tokens(self, data_normal: dict, data_invertido: dict) -> dict:
@@ -694,12 +734,12 @@ class EtiquetadorCatalogo:
 
                 # ── Pasada normal ──────────────────────────────────────────
                 img_normal  = self._mejorar_imagen(img_base.copy())
-                data_normal = self._ocr_tokens(img_normal)
+                data_normal = self._ocr_con_rotaciones(img_normal)
 
                 # ── Pasada invertida (preprocesado suave para fondo oscuro) ──
                 if self.ocr_doble_pasada:
                     img_inv  = self._mejorar_imagen_invertida(img_base.copy())
-                    data_inv = self._ocr_tokens(img_inv)
+                    data_inv = self._ocr_con_rotaciones(img_inv)
                     data     = self._fusionar_tokens(data_normal, data_inv)
                 else:
                     data = data_normal
@@ -717,6 +757,7 @@ class EtiquetadorCatalogo:
 
                 # IDs detectados en esta página antes de procesar
                 ids_pagina_antes = len(ids_detectados)
+                ids_en_pagina    = set()   # guard por página — evita etiquetar el mismo ID dos veces
 
                 for j in range(len(data["text"])):
                     texto = data["text"][j]
@@ -749,6 +790,9 @@ class EtiquetadorCatalogo:
                         if len(id_detectado) > self.id_len_max * 2:
                             continue
 
+                    if id_detectado in ids_en_pagina:
+                        continue
+
                     precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
 
                     if precio and precio > 0:
@@ -757,6 +801,7 @@ class EtiquetadorCatalogo:
 
                         can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
                         total_etiquetado += 1
+                        ids_en_pagina.add(id_detectado)
                         ids_detectados.add(id_detectado)
                         if tipo_match == "fuzzy":
                             fuzzy_matches += 1

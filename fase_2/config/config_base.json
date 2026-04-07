@@ -6,7 +6,7 @@
 
     "pdf_input":   "libros/<nombre_catalogo.pdf>",
     "excel_input": "precios/<lista_catalogo.xlsx>",
-    "pdf_output":  "salidas/<catalogo_precios.pdf>",
+    "pdf_output":  "salida/<catalogo_precios.pdf>",
 
     "paginas_prueba": false,
 
