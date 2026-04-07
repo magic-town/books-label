@@ -50,7 +50,7 @@ Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de 
 - [ ] Hacer una copia de `~/boutique_zepeda/proveedor/catalogs` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_1/libros/
+cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
 cp ~/boutique_zepeda/proveedor/lista_precios/<lista_marca.pdf> ~/books-label/fase_1/lista_cruda/
 ```
 
@@ -227,14 +227,24 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
 
-### Antes de empezar
+Al final de la fase 1 obtuvimos un output `marca_precios.xlsx`, este fichero se convierte en uno de los 2 inputs en este modulo.
 
 - [ ] Verificar que tienes el catálogo PDF en `fase_2/libros/`
-- [ ] Verificar que tienes el Excel validado en `fase_2/precios/`. 
 
+```
+cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
+```
 
+- [ ] Copiamos las columnas `ID`, `precio_venta` a un nuevo fichero `~/books-label/fase_2/precios/<lista_marca_temp.xlsx>` 
 
-- [ ] Activar el entorno:
+<div align="center">
+<img src="../imagenes/asset_repo/excel.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Verica que el virtual environment este activado:
+  
   ```bash
   source venv_catalogo/bin/activate
   ```
@@ -248,6 +258,7 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
   `config_<proveedor>_<temporada>.json`
 
 - [ ] Abrir el configurador haciendo doble clic sobre:
+
   ```
   fase_2/config/configurador.html
   ```
