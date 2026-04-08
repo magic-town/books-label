@@ -341,8 +341,8 @@ VSC > File > Open Folder > books-label > Open > fase_2
 - [ ] Si ya encontraste la mejor combinación entre `dpi`, `psm`, puedes intentar cambiar `constraste`, `nitidez` como prueba final (no garantiza mejora).
 
 ```
-"contraste":     2.5 $\to$ 3.0,
-"nitidez":       2.0 $\to$ 2.5,
+"contraste":     2.5 → 3.0,
+"nitidez":       2.0 → 2.5,
 ```
 ---
 
