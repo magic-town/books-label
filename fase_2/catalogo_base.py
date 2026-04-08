@@ -473,9 +473,17 @@ class EtiquetadorCatalogo:
         Cubre texto impreso verticalmente (ej. etiquetas Pakar con código en
         orientación vertical). Aplica a todos los proveedores sin código repetido.
 
-        Fórmulas de mapeo inverso (imagen original W×H):
-          90° CCW  → rotado(rx, ry) → original(x=ry,      y=H-1-rx)
-          270° CCW → rotado(rx, ry) → original(x=W-1-ry,  y=rx)
+        Fórmulas de mapeo inverso (imagen original W×H, rx=left_rot, ry=top_rot):
+          90° CCW  → rotado(rx, ry) → original(x=W-1-ry,  y=rx)
+          270° CCW → rotado(rx, ry) → original(x=ry,      y=H-1-rx)
+
+        Derivación geométrica (PIL rotate con expand=True):
+          90° CCW : rotado(c,r) = original(W-1-r, c)
+                    → x_orig = W-1-r = W-1-top_rot
+                    → y_orig = c     = left_rot
+          270° CCW: rotado(c,r) = original(r, H-1-c)
+                    → x_orig = r     = top_rot
+                    → y_orig = H-1-c = H-1-left_rot
         """
         W, H = img.size
 
@@ -483,18 +491,20 @@ class EtiquetadorCatalogo:
         data_0 = self._ocr_tokens(img)
 
         # 90° CCW — cubre texto que asciende de abajo hacia arriba en el original
+        # Imagen rotada tiene dimensiones (H, W); mapeo: x_orig=W-1-top_rot, y_orig=left_rot
         img_90  = img.rotate(90, expand=True)
         data_90 = self._ocr_tokens(img_90)
-        left_90 = list(data_90["top"])                          # x_orig = top_rot
-        top_90  = [H - 1 - rx for rx in data_90["left"]]       # y_orig = H-1-left_rot
+        left_90 = [W - 1 - ry for ry in data_90["top"]]        # x_orig = W-1-top_rot
+        top_90  = list(data_90["left"])                         # y_orig = left_rot
         data_90["left"] = left_90
         data_90["top"]  = top_90
 
         # 270° CCW (90° CW) — cubre texto que desciende de arriba hacia abajo en el original
+        # Imagen rotada tiene dimensiones (H, W); mapeo: x_orig=top_rot, y_orig=H-1-left_rot
         img_270  = img.rotate(270, expand=True)
         data_270 = self._ocr_tokens(img_270)
-        left_270 = [W - 1 - ry for ry in data_270["top"]]      # x_orig = W-1-top_rot
-        top_270  = list(data_270["left"])                       # y_orig = left_rot
+        left_270 = list(data_270["top"])                                # x_orig = top_rot
+        top_270  = [H - 1 - rx for rx in data_270["left"]]             # y_orig = H-1-left_rot
         data_270["left"] = left_270
         data_270["top"]  = top_270
 
