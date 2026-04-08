@@ -327,7 +327,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 - [ ] Probar entre 4 y 8 combinaciones. Tabla de referencia:
 
 | # | DPI | PSM | Doble pasada | Cuándo usarla |
-|---|:---:|:---:|:------------:|:--------:|---------------|
+|---|:---:|:---:|:------------:|---------------|
 | 1 | 200 | 6 | ❌ | Punto de partida — catálogo limpio |
 | 2 | 200 | 11 | ❌ | IDs dispersos o fotos de página completa |
 | 3 | 200 | 4 | ❌ | Catálogo en columnas de texto |
