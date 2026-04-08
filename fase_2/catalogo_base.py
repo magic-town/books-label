@@ -360,9 +360,11 @@ class EtiquetadorCatalogo:
             return re.compile(r'\d{3}-\d{2}'), True
 
         elif p == "PS":
-            # Solo dígitos, longitud configurable
+            # Solo dígitos, longitud configurable.
+            # Prefijos reconocidos: "ID", "id", "1D", "Id" + separador opcional.
+            # La normalización del prefijo ocurre en _extraer_id_candidato (re.IGNORECASE).
             mn, mx = self.id_len_min, self.id_len_max
-            self.logger.info(f"🔑 Formato ID: PS     → \\d{{{mn},{mx}}}")
+            self.logger.info(f"🔑 Formato ID: PS     → \\d{{{mn},{mx}}}  (prefijo ID/id/1D tolerado)")
             return re.compile(rf'\d{{{mn},{mx}}}'), False
 
         elif p == "OTRO":
@@ -379,6 +381,48 @@ class EtiquetadorCatalogo:
             mn, mx = self.id_len_min, self.id_len_max
             self.logger.info(f"🔑 Formato ID: PS     → \\d{{{mn},{mx}}} (fallback)")
             return re.compile(rf'\d{{{mn},{mx}}}'), False
+
+    # ── Extracción de candidato a ID por proveedor ───────────────────────────
+
+    def _extraer_id_candidato(self, texto: str):
+        """
+        Extrae el candidato a ID de un token OCR según el proveedor.
+        Orden: general → particular.
+
+          Pakar / Cklass  → búsqueda directa con patrón regex (usa_guion=True)
+                            el patrón incluye guion, no hay prefijo que limpiar.
+          PS              → normalizar prefijo, luego solo dígitos.
+                            Prefijos tolerados: ID / id / 1D / Id (re.IGNORECASE).
+                            [I1] cubre la confusión OCR I↔1.
+                            \\D* absorbe el espacio entre prefijo y número.
+                            Permite longitud hasta id_len_max×2 para que tokens
+                            con texto adyacente fusionado lleguen al recorte
+                            por ventana en _buscar_id.
+          Otro            → solo alfanumérico sin prefijo especial.
+
+        Retorna el candidato (str) o None si el token no cumple requisitos.
+        """
+        if self._usa_guion:
+            # Pakar / Cklass: patrón directo incluye guion
+            m = self._id_pattern.search(texto)
+            return m.group() if m else None
+
+        p = self.id_proveedor.upper()
+
+        if p == "PS":
+            # Normalizar prefijo: ID/id/1D/Id + separador opcional (espacio, punto, etc.)
+            fuente = re.sub(r"^[I1][Dd]\D*", "", texto, flags=re.IGNORECASE)
+            fuente = fuente.strip() or texto
+            candidato = re.sub(r"\D", "", fuente)
+        else:  # OTRO
+            candidato = re.sub(r"[^A-Za-z0-9]", "", texto)
+
+        largo = len(candidato)
+        if largo < self.id_len_min:
+            return None
+        if largo > self.id_len_max * 2:
+            return None
+        return candidato
 
     # ── Preprocesado de imagen ────────────────────────────────────────────────
 
@@ -503,6 +547,101 @@ class EtiquetadorCatalogo:
                 tokens["top"].append(y2)
 
         return tokens
+
+    # ── Reconstrucción de pares "id XXXXXXX" entre tokens separados ─────────
+
+    def _reconstruir_tokens_id(self, data: dict) -> dict:
+        """
+        Resuelve el caso de texto vertical donde Tesseract segmenta
+        el prefijo "id" (o "1D", "Id", "ID") y el número como tokens
+        distintos y consecutivos.
+
+        Recorre todos los tokens buscando uno que sea solo el prefijo ID.
+        Si el token siguiente (dentro de un radio de 120px en X o Y) es
+        un número con longitud válida, fusiona ambos en un nuevo token
+        compuesto ("id1311268") en la posición del número — que es donde
+        queremos pintar el precio.
+
+        Los tokens originales que forman el par se marcan vacíos para que
+        el loop principal no los procese de nuevo.
+
+        Solo aplica al proveedor PS (usa_guion=False y sin guion en el ID).
+        """
+        if self._usa_guion or self.id_proveedor.upper() not in ("PS", "OTRO"):
+            return data
+
+        PREFIJO_RE = re.compile(r'^[I1][Dd]$', re.IGNORECASE)
+        RADIO_PX   = 120   # distancia máxima entre tokens vecinos en px
+
+        texts = data["text"]
+        lefts = data["left"]
+        tops  = data["top"]
+        confs = data["conf"]
+
+        nuevos_text = []
+        nuevos_left = []
+        nuevos_top  = []
+        nuevos_conf = []
+        usados      = set()
+
+        for j, tok in enumerate(texts):
+            if j in usados:
+                nuevos_text.append("")
+                nuevos_left.append(lefts[j])
+                nuevos_top.append(tops[j])
+                nuevos_conf.append(confs[j])
+                continue
+
+            if not PREFIJO_RE.match(tok.strip()):
+                nuevos_text.append(tok)
+                nuevos_left.append(lefts[j])
+                nuevos_top.append(tops[j])
+                nuevos_conf.append(confs[j])
+                continue
+
+            # Este token es "id" / "1D" / etc. — buscar número vecino
+            x0, y0 = lefts[j], tops[j]
+            par_idx = None
+            par_dist = float("inf")
+
+            for k, tok2 in enumerate(texts):
+                if k == j or k in usados:
+                    continue
+                if not tok2.strip():
+                    continue
+                solo_num = re.sub(r"\D", "", tok2)
+                if len(solo_num) < self.id_len_min or len(solo_num) > self.id_len_max * 2:
+                    continue
+                dist = abs(lefts[k] - x0) + abs(tops[k] - y0)
+                if dist < RADIO_PX and dist < par_dist:
+                    par_dist = dist
+                    par_idx  = k
+
+            if par_idx is not None:
+                # Fusionar: token compuesto en la posición del número
+                tok_num = texts[par_idx]
+                fusionado = tok.strip() + tok_num.strip()
+                nuevos_text.append(fusionado)
+                nuevos_left.append(lefts[par_idx])
+                nuevos_top.append(tops[par_idx])
+                nuevos_conf.append(confs[par_idx])
+                usados.add(j)
+                usados.add(par_idx)
+                self.logger.debug(
+                    f"   🔗  Par ID fusionado: '{tok}' + '{tok_num}' → '{fusionado}'"
+                )
+            else:
+                nuevos_text.append(tok)
+                nuevos_left.append(lefts[j])
+                nuevos_top.append(tops[j])
+                nuevos_conf.append(confs[j])
+
+        return {
+            "text": nuevos_text,
+            "conf": nuevos_conf,
+            "left": nuevos_left,
+            "top":  nuevos_top,
+        }
 
     # ── Fuzzy matching ────────────────────────────────────────────────────────
 
@@ -744,6 +883,10 @@ class EtiquetadorCatalogo:
                 else:
                     data = data_normal
 
+                # Reconstruir pares "id XXXXXXX" que Tesseract segmentó
+                # en tokens separados (frecuente en texto vertical PS)
+                data = self._reconstruir_tokens_id(data)
+
                 p_orig       = reader_pdf.pages[i]
                 w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
                 w_img, h_img = img_normal.size
@@ -764,31 +907,10 @@ class EtiquetadorCatalogo:
                     if not texto.strip():
                         continue
 
-                    if self._usa_guion:
-                        # Pakar / Cklass: busca el patrón directamente en el texto
-                        m = self._id_pattern.search(texto)
-                        if not m:
-                            continue
-                        id_detectado = m.group()
-                    else:
-                        # PS: recorte previo del prefijo "ID" pegado al número.
-                        # Cubre: "ID1231420", "IDI231468", "1D1266688"
-                        # (Tesseract confunde I con 1 — patrón [I1]D\D*).
-                        # Si el token no empieza con ese prefijo, re.sub
-                        # no modifica nada y el flujo normal continúa.
-                        # Otro: alfanumérico sin prefijo especial.
-                        if self.id_proveedor.upper() == "PS":
-                            fuente = re.sub(r"^[I1]D\D*", "", texto, flags=re.IGNORECASE)
-                            fuente = fuente if fuente.strip() else texto
-                        else:
-                            fuente = texto
-                        id_detectado = re.sub(r"\D", "", fuente) if self.id_proveedor.upper() == "PS" else re.sub(r"[^A-Za-z0-9]", "", fuente)
-                        # Permitir hasta el doble del máximo para que tokens con
-                        # texto adyacente fusionado lleguen a _buscar_id.
-                        if len(id_detectado) < self.id_len_min:
-                            continue
-                        if len(id_detectado) > self.id_len_max * 2:
-                            continue
+                    # Extracción general → particular según proveedor
+                    id_detectado = self._extraer_id_candidato(texto)
+                    if id_detectado is None:
+                        continue
 
                     if id_detectado in ids_en_pagina:
                         continue
