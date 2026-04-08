@@ -28,7 +28,7 @@
 
     "etiqueta_font":        "Helvetica-BoldOblique",
     "etiqueta_font_size":   12,
-    "etiqueta_color_rgb":   [0.89, 0.20, 0.23],
+    "etiqueta_color_rgb":   [0.00, 0.00, 1.00],
     "etiqueta_offset_x_pt": 0.0,
     "etiqueta_offset_y_pt": 0.0,
 

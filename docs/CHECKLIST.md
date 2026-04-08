@@ -65,15 +65,15 @@ cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp.pdf> ~/books
 - [ ] Ya con la lista descarga y copiada en `~/books-labels/fase_1/lista_cruda`:
 
 ```
-Abrimos VSC > File > Open Folder > books-label > Open > fase_1
+VSC > File > Open Folder > books-label > Open > fase_1
 ```
 
-- [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal puedes usar: `Ctrl + J`
+- [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal, puedes usar: `Ctrl + J`
 
 ```bash
 source venv_catalogo/bin/activate
 ```
-El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo a la vez, de momento nos encontramos en el modulo_1 - fase_1
+El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módulo a la vez, de momento nos encontramos en el modulo_1 - fase_1.
 
 <div align="center">
 <img src="../imagenes/asset_repo/structure.png"
@@ -89,9 +89,9 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un modulo
      width="85%"/>
 </div>
 
-#### Declarar inputs por medio de JSON (JavaScript Object Notation).
+#### Declarar inputs por medio de JSON (Java Script Object Notation).
 
-La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
+La asignación de: `proveedor`, `lista_cruda`, `salida` puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
 
 - [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 
@@ -125,14 +125,14 @@ La asignación de: `proveedor`, `lista_cruda`, `salida.xlsx` puedes hacerla con 
      width="85%"/>
 </div>
 
-- [ ] Ejecuta el fichero `<extractor.py>` con su configuración conrrespondiente para este modulo. Obtendras un par de tablas:
+- [ ] Ejecuta el fichero `extractor.py` con su configuración conrrespondiente para este módulo. Obtendras un par de tablas:
 
 ```bash
 python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 ```
 
-- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`
-- [ ] También te genera un segundo fichero `/fase_1/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
+- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`. Tenemos cierta confianza de que la extracción es correcta, por lo que con revisar que las paginas coincidan con las del catálogo es suficiente. No hay por que hacer mas revisiones. 
+- [ ] También te genera un segundo fichero `/fase_2/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
 
 ### <a name="notebook"></a>Opción 2. NotebookLM
 
@@ -228,7 +228,7 @@ File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<li
 <div align="center">
 <img src="../imagenes/asset_repo/fase_2_cover.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="65%"/>
+     width="45%"/>
 </div>
 
 ## 🏷️ FASE 2 — Etiquetar el catálogo
@@ -296,6 +296,12 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 - [ ] Activar modo prueba con **20 páginas**.
 - [ ] Mantener las carátulas en `false` durante esta etapa.
+- [ ] El color de la etiqueta debe ser **azul**
+
+```
+"etiqueta_color_rgb":   [0.00, 0.00, 1.00],
+```
+
 - [ ] Ejecutar el script:
   ```bash
   python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
