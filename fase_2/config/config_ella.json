@@ -6,16 +6,16 @@
     "excel_input": "precios/lista_ella.xlsx",
     "pdf_output":  "salidas/ella_precios.pdf",
 
-    "paginas_prueba": 20,
+    "paginas_prueba": false,
 
     "id_proveedor": "PS",
 
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 80},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 150},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
 
     "logo_activo":        true,
@@ -35,13 +35,13 @@
     "id_longitud_min": 4,
     "id_longitud_max": 8,
 
-    "dpi": 200,
-    "psm": 6,
+    "dpi": 250,
+    "psm": 11,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
-    "contraste":     2.5,
-    "nitidez":       2.0,
+    "contraste":     3.0,
+    "nitidez":       2.5,
     "ocr_grayscale": true,
     "ocr_invertir":  false,
 

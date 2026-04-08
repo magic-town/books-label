@@ -4,8 +4,8 @@
 
     "proveedor": "Pakar",
 
-    "pdf_input":    "lista_cruda/sandalia_pk26.pdf",
-    "excel_output": "salida/lista_sandalias_pk26.xlsx",
+    "pdf_input":    "lista_cruda/lista_pakar_kids.pdf",
+    "excel_output": "salida/lista_kids_pk.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3.0,

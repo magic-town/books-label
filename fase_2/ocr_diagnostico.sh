@@ -5,8 +5,8 @@ python3 << 'EOF'
 # ══════════════════════════════════════════════════════════════
 
 # ── CONFIGURACIÓN ──────────────────────────────────────────────
-PDF       = "fase_2/libros/licencias_26.pdf"
-EXCEL     = "fase_2/listas/precios_ps.xlsx"   # columnas: ID, precio_venta
+PDF       = "fase_2/libros/ella_26.pdf"
+EXCEL     = "fase_2/precios/lista_ella.xlsx"   # columnas: ID, precio_venta
 PAGINAS   = [17]                               # páginas a revisar
 PROVEEDOR = "PS"       # PS | Pakar | Cklass | Otro
 ID_MIN    = 4
