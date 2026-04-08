@@ -295,13 +295,15 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 ---
 
-### Etapa 1 de pruebas — Posicionamiento visual
+### Etapa 1 de pruebas — Logo, etiquetas, combinación de parámetros.
 
-> **Objetivo:** que la etiqueta de precio aparezca junto al ID del producto.
+> Colocar el logotipo preferentemente en la parte superior de la portada, alineado con los demás elemenetos 
+> La etiqueta de precio aparezca cerca al ID del producto, visible y lo menos empalmada posible.
+> Aprovecha estas pruebas para hacer combinación de parámetros: dpi, psm.
 
-- [ ] Activar modo prueba con **20 páginas**.
+- [ ] Activar modo prueba con **21 páginas**.
 - [ ] Mantener las carátulas en `false` durante esta etapa.
-- [ ] El color de la etiqueta debe ser **azul**
+- [ ] El color de la etiqueta debe ser 🔵 **azul**
 
 ```
 "etiqueta_color_rgb":   [0.00, 0.00, 1.00],
@@ -311,8 +313,8 @@ VSC > File > Open Folder > books-label > Open > fase_2
   ```bash
   python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
   ```
-- [ ] Abrir el PDF en `fase_2/salidas/` y verificar visualmente.
-- [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar.
+- [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente.
+- [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar o cambiar parámetros directamente en el editor de **VSC**.
 
 ---
 
@@ -320,23 +322,28 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 > **Objetivo:** encontrar la combinación de parámetros que detecta más IDs.
 
-- [ ] Mantener modo prueba activo. Usar entre **30 y 40 páginas**.
+- [ ] Mantener modo prueba activo. Usar entre **20 a 30 páginas**.
 - [ ] Desactivar doble pasada durante esta etapa.
 - [ ] Probar entre 4 y 8 combinaciones. Tabla de referencia:
 
-| # | DPI | PSM | Doble pasada | Invertir | Cuándo usarla |
+| # | DPI | PSM | Doble pasada | Cuándo usarla |
 |---|:---:|:---:|:------------:|:--------:|---------------|
-| 1 | 200 | 6 | ❌ | ❌ | Punto de partida — catálogo limpio |
-| 2 | 200 | 11 | ❌ | ❌ | IDs dispersos o fotos de página completa |
-| 3 | 200 | 4 | ❌ | ❌ | Catálogo en columnas de texto |
-| 4 | 250 | 6 | ❌ | ❌ | PDF de baja resolución |
-| 5 | 250 | 11 | ❌ | ❌ | IDs dispersos con más resolución |
-| 6 | 300 | 11 | ❌ | ❌ | Máxima resolución |
-| 7 | 250 | 11 | ❌ | ✅ | IDs en texto blanco sobre fondo oscuro |
+| 1 | 200 | 6 | ❌ | Punto de partida — catálogo limpio |
+| 2 | 200 | 11 | ❌ | IDs dispersos o fotos de página completa |
+| 3 | 200 | 4 | ❌ | Catálogo en columnas de texto |
+| 4 | 250 | 6 | ❌ | PDF de baja resolución |
+| 5 | 250 | 11 | ❌ | IDs dispersos con más resolución |
+| 6 | 300 | 11 | ❌ | Máxima resolución |
+| 7 | 250 | 11 | ❌ | IDs en texto blanco sobre fondo oscuro |
 
 - [ ] El dato clave de cada corrida es **Etiquetas** — no el porcentaje.
 - [ ] Registrar los resultados. Los logs se guardan en `fase_2/diagnosticos/`.
+- [ ] Si ya encontraste la mejor combinación entre `dpi`, `psm`, puedes intentar cambiar `constraste`, `nitidez` como prueba final (no garantiza mejora).
 
+```
+"contraste":     2.5 $\to$ 3.0,
+"nitidez":       2.0 $\to$ 2.5,
+```
 ---
 
 ### Etiquetado final
@@ -348,7 +355,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 ```json
 "presentaciones": [
     {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
-    {"path": "../imagenes/logos/portada_02.pdf", "posicion": 25},
+    {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
     {"path": "../imagenes/logos/portada_03.pdf", "posicion": 150},
     {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
     {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
@@ -363,45 +370,21 @@ VSC > File > Open Folder > books-label > Open > fase_2
 "ocr_doble_pasada": true
 ```
 
-- [ ] Copiar JSON del configurador y pegar en el archivo de configuración.
 - [ ] Ejecutar el script:
   ```bash
   python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
   ```
-
 ---
 
 ### Leer el semáforo
 
 | Resultado | Acción |
 |-----------|--------|
-| 🟢 **VERDE** — 85% o más | Revisar el PDF visualmente y continuar a Fase 3 |
-| 🟡 **AMARILLO** — 65% a 84% | Revisar el PDF y evaluar si se requiere un ajuste |
-| 🔴 **ROJO** — menos de 65% | No publicar — ver sección siguiente |
+| 🟢 **VERDE** — 85% o más | Revisar el PDF visualmente, listo para publicar en Whatsapp |
+| 🟡 **AMARILLO** — 65% a 84% | Si las pruebas has sido exhaustivas, puedes publicar |
+| 🔴 **ROJO** — menos de 65% | No publicar — Compartirlo con tu colaborador |
 
-- [ ] Ejecutar el diagnóstico al terminar:
-  ```bash
-  python3 fase_2/diagnostico.py
-  ```
-  Copiar el output y compartirlo con Gabriel si el semáforo no es verde.
-
----
-
-### Si el semáforo no es verde
-
-**Camino A — Ajuste autónomo**
-- [ ] Abrir el configurador, ajustar parámetros, copiar JSON y ejecutar de nuevo.
-
-**Camino B — Diagnóstico con Claude**
-- [ ] Ejecutar `python3 fase_2/diagnostico.py`
-- [ ] Pegar el output en Claude: *"Este es el diagnóstico de mi script, ¿qué parámetros recomiendas?"*
-
-**Camino C — Escalar a Gabriel**
-- [ ] Aplica cuando A y B no superan el 70%.
-- [ ] Compartir el PDF, el log de consola y las combinaciones ya probadas.
-
-> Tu responsabilidad concluye al ejecutar el diagnóstico y completar las iteraciones.
-> Si después de ese proceso la tasa sigue por debajo del 70%, se escala.
+- [ ] Existe un fichero `ocr_diagnostico.sh` que puede tratar de encontrar el por que no lee el `ID`, si la tasa es baja (semaforo rojo) pidele a Gabriel que lo revise. 
 
 ---
 
@@ -409,6 +392,8 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 > **Estado:** canal actual es Dropbox + WhatsApp Business.
 > Se evalúa migrar a GitHub Pages o portal web para visualización directa.
+
+⚠️ Módulo en desarrollo, no hay algo que hacer para esta etapa
 
 ### Mover el archivo
 
