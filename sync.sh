@@ -149,14 +149,19 @@ fi
 git add -A
 
 if git diff --cached --quiet; then
-  echo "✅ Sin cambios locales — todo al día."
-  exit 0
+  # No hay nada nuevo que commitear, pero puede haber commits pendientes de push
+  PENDING=$(git log --oneline origin/main..main 2>/dev/null | wc -l)
+  if [ "$PENDING" -gt 0 ]; then
+    echo "⬆️  Sin cambios nuevos pero hay $PENDING commit(s) pendiente(s) de subir..."
+  else
+    echo "✅ Sin cambios locales — todo al día."
+    exit 0
+  fi
+else
+  ARCHIVOS_CAMBIADOS=$(git diff --cached --name-only | head -5 | tr '\n' ', ' | sed 's/,$//')
+  MSG="sync $(date '+%Y-%m-%d %H:%M') | $QUIEN | $ARCHIVOS_CAMBIADOS"
+  git commit -m "$MSG"
 fi
-
-ARCHIVOS_CAMBIADOS=$(git diff --cached --name-only | head -5 | tr '\n' ', ' | sed 's/,$//')
-MSG="sync $(date '+%Y-%m-%d %H:%M') | $QUIEN | $ARCHIVOS_CAMBIADOS"
-
-git commit -m "$MSG"
 
 echo "⬆️  Subiendo cambios..."
 git push
