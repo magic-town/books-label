@@ -235,15 +235,15 @@ File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<li
 
 > **Objetivo:** ejecutar el script y obtener semáforo verde en el catálogo completo.
 
-Al final de la **fase 1** obtuvimos un output `../fase_2/precios/<lista_cat_tem.xlsx>`, este fichero se convierte en uno de los 2 inputs en este modulo.
+Al final de la **fase 1** obtuvimos el output `../fase_2/precios/<lista_cat_tem.xlsx>`, este fichero se convierte en uno de los 2 inputs en este módulo.
 
-- [ ] Verificar que tienes el catálogo PDF en `../fase_2/libros/<catalogo_temp.pdf>`
+- [ ] Verificar que tienes el catálogo PDF en: `../fase_2/libros/<catalogo_temp.pdf>`, te comparto el comando para copiarlo.
 
 ```
 cp ~/boutique_zepeda/proveedor/catalogos/<marca_temp.pdf> ~/books-label/fase_2/libros/
 ```
 
-- [ ] Abrimos **VSC** los inputs deben verse reflejados al abrir el folder `books-laber`
+- [ ] Al abrir **VSC** los inputs deben verse reflejados en: `../fase_2/libros/`, `../fase_2/precios/`. el fichero `lista_catalogo_temp.xlsx` se genera automáticamente, solo debes colocar el `catalogo_temp.pdf` en su directorio.
 
 ```
 VSC > File > Open Folder > books-label > Open > fase_2
@@ -256,7 +256,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 </div>
 
 
-- [ ] Verica que el virtual environment este activado `Ctrl + J`:
+- [ ] Verica que el virtual environment este activado al mostrar la terminal: `Ctrl + J`
   
   ```bash
   source venv_catalogo/bin/activate
@@ -266,17 +266,22 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 ### Preparar la configuración
 
-- [ ] Crear una copia de `fase_2/config/config_base.json`. Desde **Dolphin**: `Ctrl+C` → `Ctrl+V`.
-- [ ] Renombrar la copia con `F12`:
+- [ ] Crear una copia de `../fase_2/config/config_base.json`. Desde el panel de directorios de **VSC** o desde **Dolphin**, al hacer: `Ctrl+C` $\to$ `Ctrl+V` en cualquiera de los dos, la copia se genera en automático.
+- [ ] Renombrar la copia con `F2`:
   `config_<proveedor>_<temporada>.json`
-
 - [ ] Abrir el configurador haciendo doble clic sobre:
 
   ```
-  fase_2/config/configurador.html
+  ~/books-label/fase_2/config/configurador.html
   ```
 
   Elige el **proveedor** primero — determina el patrón de búsqueda del OCR.
+
+<div align="center">
+<img src="../imagenes/asset_repo/proveedores00.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="100%"/>
+</div>
 
 - [ ] Completar los tres campos I/O (inputs / outputs).
 
@@ -286,7 +291,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
      width="85%"/>
 </div>
 
-- [ ] Copiar el JSON del configurador y pegarlo en tu archivo de configuración en VSC.
+- [ ] Hacer `COPY JSON` del configurador y pegarlo en tu archivo de configuración en VSC.
 
 ---
 

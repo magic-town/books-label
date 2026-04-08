@@ -6,16 +6,16 @@
     "excel_input": "precios/lista_licencias.xlsx",
     "pdf_output":  "salidas/licencias_precios.pdf",
 
-    "paginas_prueba": 21,
+    "paginas_prueba": false,
 
     "id_proveedor": "PS",
 
     "presentaciones": [
-        {"path": "../imagenes/logos/portada_01.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 90},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 150},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
 
     "logo_activo":        true,
@@ -36,12 +36,12 @@
     "id_longitud_max": 8,
 
     "dpi": 300,
-    "psm": 4,
+    "psm": 6,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste":     2.5,
-    "nitidez":       2.5,
+    "nitidez":       2.0,
     "ocr_grayscale": true,
     "ocr_invertir":  false,
 
