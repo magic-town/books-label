@@ -168,8 +168,15 @@ git push
 
 if [ $? -ne 0 ]; then
   echo ""
-  echo "⚠️  Push fallido — probablemente hay cambios nuevos en remoto."
-  echo "   Ejecuta ./sync.sh de nuevo para bajarlos y reintentar."
+  echo "⚠️  Push reportó error — verificando si los cambios llegaron..."
+  git fetch origin
+  PENDING=$(git log --oneline origin/main..main 2>/dev/null | wc -l)
+  if [ "$PENDING" -eq 0 ]; then
+    echo "✅ El push llegó correctamente a pesar del error reportado."
+    exit 0
+  fi
+  echo "⚠️  Hay $PENDING commit(s) que no llegaron al remoto."
+  echo "   Ejecuta ./sync.sh de nuevo para reintentar."
   exit 1
 fi
 
