@@ -1,0 +1,17 @@
+{
+    "_comentario":     "Configuración Cklass — Extracción Fase 1 · Boutique Zepeda",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
+
+    "proveedor":       "Cklass",
+
+    "pdf_input":       "lista_cruda/lista_cklass_pv26.pdf",
+    "excel_output":    "salida/lista_cklass_pv26.xlsx",
+
+    "encoding_offset": 0,
+    "tolerancia_x":    12,
+    "tol_col":          0,
+
+    "col_pag":         "PÁGINA",
+    "col_id":          "MODELO",
+    "col_precio":      "CRÉDITO"
+}
