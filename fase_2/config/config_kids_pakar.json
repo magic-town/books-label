@@ -6,31 +6,31 @@
     "excel_input": "precios/lista_kids_pk.xlsx",
     "pdf_output":  "salidas/kids_pakar_precios.pdf",
 
-    "paginas_prueba": 20,
+    "paginas_prueba": false,
 
     "id_proveedor": "Pakar",
 
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 150},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 200},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
 
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          430,
-    "logo_y_pt":          630,
-    "logo_ancho_pt":      80,
-    "logo_alto_pt":       80,
+    "logo_x_pt":          367,
+    "logo_y_pt":          634,
+    "logo_ancho_pt":      90,
+    "logo_alto_pt":       90,
     "logo_transparencia": 0.85,
 
     "etiqueta_font":        "Helvetica-BoldOblique",
-    "etiqueta_font_size":   12,
-    "etiqueta_color_rgb":   [0.22, 0.41, 0.3],
+    "etiqueta_font_size":   10,
+    "etiqueta_color_rgb":   [0.22, 0.34, 0.74],
     "etiqueta_offset_x_pt": 9,
-    "etiqueta_offset_y_pt": 19.5,
+    "etiqueta_offset_y_pt": 7.5,
 
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -38,7 +38,7 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
 
     "contraste":     2.5,
     "nitidez":       2,
