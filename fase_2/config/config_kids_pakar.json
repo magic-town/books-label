@@ -6,7 +6,7 @@
     "excel_input": "precios/lista_kids_pk.xlsx",
     "pdf_output":  "salidas/kids_pakar_precios.pdf",
 
-    "paginas_prueba": false,
+    "paginas_prueba": 22,
 
     "id_proveedor": "Pakar",
 
@@ -38,10 +38,10 @@
     "dpi": 200,
     "psm": 6,
 
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
 
     "contraste":     2.5,
-    "nitidez":       2,
+    "nitidez":       2.0,
     "ocr_grayscale": true,
     "ocr_invertir":  false,
 

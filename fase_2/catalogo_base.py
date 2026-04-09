@@ -172,7 +172,7 @@ class EtiquetadorCatalogo:
         Si Ghostscript no está disponible el PDF original se conserva intacto
         — el proceso no falla, solo avisa.
         """
-        import tempfile, shutil
+        import shutil
         tmp = path + ".gs_tmp.pdf"
         try:
             result = subprocess.run(
@@ -558,41 +558,123 @@ class EtiquetadorCatalogo:
 
         return tokens
 
-    # ── Reconstrucción de pares "id XXXXXXX" entre tokens separados ─────────
+    # ── Reconstrucción de tokens fragmentados por Tesseract ──────────────────
 
-    def _reconstruir_tokens_id(self, data: dict) -> dict:
+    def _reconstruir_tokens(self, data: dict) -> dict:
         """
-        Resuelve el caso de texto vertical donde Tesseract segmenta
-        el prefijo "id" (o "1D", "Id", "ID") y el número como tokens
-        distintos y consecutivos.
+        Tesseract frecuentemente parte un código en dos o tres tokens
+        al leer texto vertical. Este método los fusiona antes de que
+        lleguen a la extracción por proveedor.
 
-        Recorre todos los tokens buscando uno que sea solo el prefijo ID.
-        Si el token siguiente (dentro de un radio de 120px en X o Y) es
-        un número con longitud válida, fusiona ambos en un nuevo token
-        compuesto ("id1311268") en la posición del número — que es donde
-        queremos pintar el precio.
+        Corre siempre sobre el dict unificado (ya fusionadas las pasadas
+        0°/90°/270° y, si aplica, la doble pasada invertida). Es agnóstico
+        a la orientación: no importa si el fragmento vino de la pasada
+        horizontal o de una rotación.
 
-        Los tokens originales que forman el par se marcan vacíos para que
-        el loop principal no los procese de nuevo.
+        Estrategia por proveedor
+        ─────────────────────────
+        PS / Otro
+          Disparador : token que sea solo el prefijo "ID"/"id"/"1D" (confusión OCR I↔1).
+          Par buscado : token con N dígitos válidos dentro de RADIO_PX.
+          Fusión      : prefijo + número  →  "id1234567"
+          Posición    : la del número (ahí se pinta el precio).
 
-        Solo aplica al proveedor PS (usa_guion=False y sin guion en el ID).
+        Pakar  (NNN-NNN)
+        Cklass (NNN-NN)
+          Disparador : token de exactamente left_len dígitos (con o sin guion al final).
+          Par buscado : token de exactamente right_len dígitos dentro de RADIO_PX.
+          Guion       : si existe como token separado cercano, se absorbe y se descarta.
+          Fusión      : izq + "-" + der  →  "856-954"
+          Verificación: el resultado debe cumplir el patrón del proveedor antes
+                        de aceptarse — evita fusiones falsas.
+          Posición    : la del fragmento izquierdo.
+
+        Tokens que ya llegan completos (p.ej. "938-998" horizontal) no tienen
+        vecino que disparar la fusión y pasan sin modificación.
         """
-        if self._usa_guion or self.id_proveedor.upper() not in ("PS", "OTRO"):
-            return data
+        p = self.id_proveedor.upper()
 
-        PREFIJO_RE = re.compile(r'^[I1][Dd]$', re.IGNORECASE)
-        RADIO_PX   = 120   # distancia máxima entre tokens vecinos en px
+        # ── PS / Otro: prefijo "ID" + número ────────────────────────────────
+        if p in ("PS", "OTRO"):
+            PREFIJO_RE = re.compile(r'^[I1][Dd]$', re.IGNORECASE)
+            RADIO_PX   = 120
 
-        texts = data["text"]
-        lefts = data["left"]
-        tops  = data["top"]
-        confs = data["conf"]
+            texts = list(data["text"])
+            lefts = list(data["left"])
+            tops  = list(data["top"])
+            confs = list(data["conf"])
+            usados = set()
 
-        nuevos_text = []
-        nuevos_left = []
-        nuevos_top  = []
-        nuevos_conf = []
-        usados      = set()
+            nuevos_text, nuevos_left, nuevos_top, nuevos_conf = [], [], [], []
+
+            for j, tok in enumerate(texts):
+                if j in usados:
+                    nuevos_text.append("")
+                    nuevos_left.append(lefts[j])
+                    nuevos_top.append(tops[j])
+                    nuevos_conf.append(confs[j])
+                    continue
+
+                if not PREFIJO_RE.match(tok.strip()):
+                    nuevos_text.append(tok)
+                    nuevos_left.append(lefts[j])
+                    nuevos_top.append(tops[j])
+                    nuevos_conf.append(confs[j])
+                    continue
+
+                x0, y0 = lefts[j], tops[j]
+                par_idx, par_dist = None, float("inf")
+
+                for k, tok2 in enumerate(texts):
+                    if k == j or k in usados or not tok2.strip():
+                        continue
+                    solo_num = re.sub(r"\D", "", tok2)
+                    if len(solo_num) < self.id_len_min or len(solo_num) > self.id_len_max * 2:
+                        continue
+                    dist = abs(lefts[k] - x0) + abs(tops[k] - y0)
+                    if dist < RADIO_PX and dist < par_dist:
+                        par_dist = dist
+                        par_idx  = k
+
+                if par_idx is not None:
+                    tok_num   = texts[par_idx]
+                    fusionado = tok.strip() + tok_num.strip()
+                    nuevos_text.append(fusionado)
+                    nuevos_left.append(lefts[par_idx])
+                    nuevos_top.append(tops[par_idx])
+                    nuevos_conf.append(confs[par_idx])
+                    usados.add(j)
+                    usados.add(par_idx)
+                    self.logger.debug(f"   🔗  Fusión prefijo: '{tok}' + '{tok_num}' → '{fusionado}'")
+                else:
+                    nuevos_text.append(tok)
+                    nuevos_left.append(lefts[j])
+                    nuevos_top.append(tops[j])
+                    nuevos_conf.append(confs[j])
+
+            return {"text": nuevos_text, "conf": nuevos_conf,
+                    "left": nuevos_left, "top":  nuevos_top}
+
+        # ── Pakar / Cklass: NNN + NNN (o NN) con guion ──────────────────────
+        if p == "PAKAR":
+            left_len, right_len = 3, 3
+        elif p == "CKLASS":
+            left_len, right_len = 3, 2
+        else:
+            return data   # Otro con guion: pendiente definir formato
+
+        RADIO_PX  = 150
+        GUION_RE  = re.compile(r'^[-—–]$')
+        LEFT_RE   = re.compile(rf'^\d{{{left_len}}}[-—–]?$')
+        RIGHT_RE  = re.compile(rf'^\d{{{right_len}}}$')
+
+        texts = list(data["text"])
+        lefts = list(data["left"])
+        tops  = list(data["top"])
+        confs = list(data["conf"])
+        usados = set()
+
+        nuevos_text, nuevos_left, nuevos_top, nuevos_conf = [], [], [], []
 
         for j, tok in enumerate(texts):
             if j in usados:
@@ -602,25 +684,36 @@ class EtiquetadorCatalogo:
                 nuevos_conf.append(confs[j])
                 continue
 
-            if not PREFIJO_RE.match(tok.strip()):
+            tok_limpio = tok.strip()
+            parte_izq  = re.sub(r"\D", "", tok_limpio)
+
+            if not LEFT_RE.match(tok_limpio) or len(parte_izq) != left_len:
                 nuevos_text.append(tok)
                 nuevos_left.append(lefts[j])
                 nuevos_top.append(tops[j])
                 nuevos_conf.append(confs[j])
                 continue
 
-            # Este token es "id" / "1D" / etc. — buscar número vecino
             x0, y0 = lefts[j], tops[j]
-            par_idx = None
-            par_dist = float("inf")
 
+            # Absorber guion separado si existe cerca
+            guion_idx = None
             for k, tok2 in enumerate(texts):
-                if k == j or k in usados:
+                if k == j or k in usados or not tok2.strip():
                     continue
-                if not tok2.strip():
+                if GUION_RE.match(tok2.strip()):
+                    if abs(lefts[k] - x0) + abs(tops[k] - y0) < RADIO_PX:
+                        guion_idx = k
+                        break
+
+            # Buscar fragmento derecho
+            par_idx, par_dist = None, float("inf")
+            for k, tok2 in enumerate(texts):
+                if k == j or k in usados or k == guion_idx or not tok2.strip():
                     continue
-                solo_num = re.sub(r"\D", "", tok2)
-                if len(solo_num) < self.id_len_min or len(solo_num) > self.id_len_max * 2:
+                tok2_limpio = tok2.strip()
+                parte_der   = re.sub(r"\D", "", tok2_limpio)
+                if len(parte_der) != right_len or not RIGHT_RE.match(tok2_limpio):
                     continue
                 dist = abs(lefts[k] - x0) + abs(tops[k] - y0)
                 if dist < RADIO_PX and dist < par_dist:
@@ -628,30 +721,27 @@ class EtiquetadorCatalogo:
                     par_idx  = k
 
             if par_idx is not None:
-                # Fusionar: token compuesto en la posición del número
-                tok_num = texts[par_idx]
-                fusionado = tok.strip() + tok_num.strip()
-                nuevos_text.append(fusionado)
-                nuevos_left.append(lefts[par_idx])
-                nuevos_top.append(tops[par_idx])
-                nuevos_conf.append(confs[par_idx])
-                usados.add(j)
-                usados.add(par_idx)
-                self.logger.debug(
-                    f"   🔗  Par ID fusionado: '{tok}' + '{tok_num}' → '{fusionado}'"
-                )
-            else:
-                nuevos_text.append(tok)
-                nuevos_left.append(lefts[j])
-                nuevos_top.append(tops[j])
-                nuevos_conf.append(confs[j])
+                parte_der = re.sub(r"\D", "", texts[par_idx].strip())
+                fusionado = f"{parte_izq}-{parte_der}"
+                if self._id_pattern.search(fusionado):
+                    nuevos_text.append(fusionado)
+                    nuevos_left.append(lefts[j])
+                    nuevos_top.append(tops[j])
+                    nuevos_conf.append(confs[j])
+                    usados.add(j)
+                    usados.add(par_idx)
+                    if guion_idx is not None:
+                        usados.add(guion_idx)
+                    self.logger.debug(f"   🔗  Fusión guion: '{tok}' + '{texts[par_idx]}' → '{fusionado}'")
+                    continue
 
-        return {
-            "text": nuevos_text,
-            "conf": nuevos_conf,
-            "left": nuevos_left,
-            "top":  nuevos_top,
-        }
+            nuevos_text.append(tok)
+            nuevos_left.append(lefts[j])
+            nuevos_top.append(tops[j])
+            nuevos_conf.append(confs[j])
+
+        return {"text": nuevos_text, "conf": nuevos_conf,
+                "left": nuevos_left, "top":  nuevos_top}
 
     # ── Fuzzy matching ────────────────────────────────────────────────────────
 
@@ -830,9 +920,6 @@ class EtiquetadorCatalogo:
             f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
             f"Modo OCR={modo}"
         )
-        self.logger.info(f"   📸  DPI            {self.dpi}")
-        self.logger.info(f"   🔍  PSM            {self.psm}")
-
         self._pdf_tmp_flat = None  # se asigna en _aplanar_pdf si aplica
 
         pdf_path_proc = self._aplanar_pdf(self.pdf_path)
@@ -893,9 +980,9 @@ class EtiquetadorCatalogo:
                 else:
                     data = data_normal
 
-                # Reconstruir pares "id XXXXXXX" que Tesseract segmentó
-                # en tokens separados (frecuente en texto vertical PS)
-                data = self._reconstruir_tokens_id(data)
+                # Reconstruir tokens fragmentados por Tesseract (aplica a todos los proveedores)
+                # Cubre: "ID"+"12345678" (PS/Otro) y "856"+"954" → "856-954" (Pakar/Cklass)
+                data = self._reconstruir_tokens(data)
 
                 p_orig       = reader_pdf.pages[i]
                 w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
@@ -908,9 +995,7 @@ class EtiquetadorCatalogo:
                 can.setFont(self.etiqueta_font, self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
 
-                # IDs detectados en esta página antes de procesar
-                ids_pagina_antes = len(ids_detectados)
-                ids_en_pagina    = set()   # guard por página — evita etiquetar el mismo ID dos veces
+                ids_en_pagina = set()   # guard por página — evita etiquetar el mismo ID dos veces
 
                 for j in range(len(data["text"])):
                     texto = data["text"][j]

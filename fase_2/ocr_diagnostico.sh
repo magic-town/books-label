@@ -5,10 +5,10 @@ python3 << 'EOF'
 # ══════════════════════════════════════════════════════════════
 
 # ── CONFIGURACIÓN ──────────────────────────────────────────────
-PDF       = "fase_2/libros/ella_26.pdf"
-EXCEL     = "fase_2/precios/lista_ella.xlsx"   # columnas: ID, precio_venta
-PAGINAS   = [17]                               # páginas a revisar
-PROVEEDOR = "PS"       # PS | Pakar | Cklass | Otro
+PDF       = "fase_2/libros/catalogo_kids_pk.pdf"
+EXCEL     = "fase_2/precios/lista_kids_pk.xlsx"   # columnas: ID, precio_venta
+PAGINAS   = [249]                               # páginas a revisar
+PROVEEDOR = "Pakar"       # PS | Pakar | Cklass | Otro
 ID_MIN    = 4
 ID_MAX    = 8
 DPI       = 200
