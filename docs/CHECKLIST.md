@@ -380,7 +380,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
     {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
     {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
     {"path": "../imagenes/logos/portada_03.pdf", "posicion": 150},
-    {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
+    {"path": "../imagenes/logos/portada_04.pdf", "posicion": 250},
     {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
 ]
 ```
@@ -395,7 +395,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
 
 - [ ] Ejecutar el script:
   ```bash
-  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
+  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config.json>
   ```
 ---
 
