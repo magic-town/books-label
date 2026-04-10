@@ -311,16 +311,23 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 - [ ] Ejecutar el script:
   ```bash
-  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
+  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config.json>
   ```
-- [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente.
+- [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente si los cambios están reflejados.
 - [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar o cambiar parámetros directamente en el editor de **VSC**.
 
 ---
 
 #### 🚨 El catálogo se imprimio en blanco y negro
 
-Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal:
+Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal en:`~/books-label`
+
+Antes de ejecutar edita el libro que vas a convertir:
+
+```text
+<catalogo_temp_rgb.pdf> por nombre del catalogo corregido
+<catalogo_temp.pdf> por el nombre del catalogo corrupto
+```
 
 ```
 gs -dBATCH -dNOPAUSE -dQUIET \
@@ -328,10 +335,9 @@ gs -dBATCH -dNOPAUSE -dQUIET \
    -dCompatibilityLevel=1.4 \
    -dColorConversionStrategy=/sRGB \
    -dProcessColorModel=/DeviceRGB \
-   -sOutputFile=<catalogo_rgb.pdf> \
-   <catalgo_temp.pdf>
+   -sOutputFile=fase_1/libros/<catalogo_temp_rgb.pdf> \
+   fase_1/libros/<catalogo_temp.pdf>
 ```
-
 
 ---
 
