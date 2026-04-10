@@ -1,0 +1,17 @@
+{
+    "_comentario":     "Configuración Pakar — Extracción Fase 1 · Boutique Zepeda",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
+
+    "proveedor":       "Pakar",
+
+    "pdf_input":       "lista_cruda/lista_pk_mujer.pdf",
+    "excel_output":    "salida/lista_mujer_pk.xlsx",
+
+    "encoding_offset": 0,
+    "tolerancia_x":    3,
+    "tol_col":          12,
+
+    "col_pag":         "PÁG.",
+    "col_id":          "CÓDIGO",
+    "col_precio":      "2 PAGOS"
+}
