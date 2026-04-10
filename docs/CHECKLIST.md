@@ -314,6 +314,14 @@ VSC > File > Open Folder > books-label > Open > fase_2
   python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config>.json
   ```
 - [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente.
+
+#### 🚨 El catálogo se imprimio en blanco y negro
+
+Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco
+
+
+
+
 - [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar o cambiar parámetros directamente en el editor de **VSC**.
 
 ---
