@@ -147,7 +147,9 @@ Este es el método largo e incocistente, solo recurrimos a él en caso de que el
 - [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
 - [ ] Usa uno o varios de los siguietnes prompts:
 
-#### 🛍️ Prompt para Price Shoes
+---
+
+#### 🔵 Extracción para Price Shoes
 
 **Paso 1 — Extracción inicial**
 
@@ -199,19 +201,42 @@ Es incorrecta la última columna. Corrígela por los datos correctos: "columna_X
 IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 ```
 
-#### 🟣 Extacción de Pakar
+---
+
+#### 🟡 Extacción de Pakar
 
 ```
 Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
 
 {
-  "columna_1":  "PÁG.",
-  "columna_2":  "CÓDIGO",
-  "columna_11": "2 PAGOS"
+  "columna_1":  "PÁG.",     // type: numeric
+  "columna_2":  "CÓDIGO",   // type: "text"
+  "columna_11": "2 PAGOS"   // type: numeric
 }
 
 IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle fórmula en Calc. Tu output tiene que ser una tabla lista para copiar y pegar.
 ```
+
+---
+
+#### 🔴 Extacción para Cklaas
+
+```
+Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
+
+{
+  "columna_1":  "PÁGINA",     // type: numeric
+  "columna_2":  "MODELO",     // type: "text"
+  "columna_3":  "CLAVE",      // type: numeric
+  "columna_6": "CRÉDITO",     // type: numeric
+  "columna_7": "NUMERACIÓN"   // type: "text"
+}
+
+Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
+IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
+```
+
+---
 
 - [ ] Valida que la tabla es la que necesitas Vs tu tabla cruda.
 - [ ] Copia tu tabla extraida en `~/books-label/fase_2/precios/precios_tabla.ods`
