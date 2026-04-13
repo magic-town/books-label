@@ -235,19 +235,8 @@ class ExtractorPS:
                 x_id = col_x["id"]
                 for w in words:
                     tok = w["text"].strip()
-                    x0_ = w["x0"]
-                    x1_ = w.get("x1", x0_)
-                    near_id = (abs(x0_ - x_id) <= self.tol_x or
-                               (x0_ < x_id and x_id <= x1_ + self.tol_x))
-                    if not near_id:
-                        continue
-                    # Accept bare ID or ID embedded at the end of a merged token
-                    if self._RE_ID.match(tok):
+                    if self._RE_ID.match(tok) and abs(w["x0"] - x_id) <= self.tol_x:
                         ids_pdf_col += 1
-                    else:
-                        m = re.search(r'(\d{6,8})$', tok)
-                        if m:
-                            ids_pdf_col += 1
 
                 filas = self._extraer_filas(words, col_x)
                 antes = len(registros)
@@ -309,23 +298,13 @@ class ExtractorPS:
         filas_raw = {}
         for w in words:
             x     = w["x0"]
-            x1_   = w.get("x1", x)
             token = w["text"].strip()
             if not token:
                 continue
             if abs(x - x_pag) <= tol:
                 col = "pag"
-            elif (abs(x - x_id) <= tol or
-                  (x < x_id and x_id <= x1_ + tol)):
+            elif abs(x - x_id) <= tol:
                 col = "id"
-                # When brand name and ID are merged into one token
-                # (e.g. "NDKIDS1269584"), extract just the trailing digits
-                if not self._RE_ID.match(token):
-                    m = re.search(r'(\d{6,8})$', token)
-                    if m:
-                        token = m.group(1)
-                    else:
-                        continue   # overlaps ID column but no valid ID found
             elif abs(x - x_precio) <= tol:
                 col = "precio"
             else:
