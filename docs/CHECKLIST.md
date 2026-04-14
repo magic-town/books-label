@@ -345,7 +345,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 #### 🚨 El catálogo se imprimio en blanco y negro
 
-Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal en:`~/books-label`
+Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal en:`~/books-label/`
 
 Antes de ejecutar edita el libro que vas a convertir:
 
@@ -360,8 +360,8 @@ gs -dBATCH -dNOPAUSE -dQUIET \
    -dCompatibilityLevel=1.4 \
    -dColorConversionStrategy=/sRGB \
    -dProcessColorModel=/DeviceRGB \
-   -sOutputFile=fase_1/libros/<catalogo_temp_rgb.pdf> \
-   fase_1/libros/<catalogo_temp.pdf>
+   -sOutputFile=fase_2/libros/<catalogo_temp_rgb.pdf> \
+   fase_2/libros/<catalogo_temp.pdf>
 ```
 
 ---
