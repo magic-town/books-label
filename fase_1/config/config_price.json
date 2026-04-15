@@ -4,8 +4,8 @@
 
     "proveedor":       "PS",
 
-    "pdf_input":       "lista_cruda/lista_playa.pdf",
-    "excel_output":    "salida/lista_playa.xlsx",
+    "pdf_input":       "lista_cruda/lista_vestir_casual.pdf",
+    "excel_output":    "salida/lista_vestir_casual.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
