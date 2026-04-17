@@ -4,8 +4,8 @@
 
     "proveedor":       "Pakar",
 
-    "pdf_input":       "lista_cruda/listapakar_ropa.pdf",
-    "excel_output":    "salida/lista_ropa_pk.xlsx",
+    "pdf_input":       "lista_cruda/listapakar_casual.pdf",
+    "excel_output":    "salida/lista_casual_pk.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
