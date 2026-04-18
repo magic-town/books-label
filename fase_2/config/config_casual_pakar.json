@@ -40,8 +40,8 @@
 
     "ocr_doble_pasada": true,
 
-    "contraste":     2.5,
-    "nitidez":       2,
+    "contraste":     3.0,
+    "nitidez":       2.5,
     "ocr_grayscale": true,
     "ocr_invertir":  false,
 
