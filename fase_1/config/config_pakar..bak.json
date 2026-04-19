@@ -1,17 +1,15 @@
 {
     "_comentario":     "Configuración Pakar — Extracción Fase 1 · Boutique Zepeda",
-    "_uso":            "python3 fase_1/extractor_01.py --config fase_1/config/config_pakar.json",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
 
     "proveedor":       "Pakar",
-    "name":            "Urbano",
-    "temporada":       "PV26",
 
     "pdf_input":       "lista_cruda/listapakar_casual.pdf",
     "excel_output":    "salida/lista_casual_pk.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
-    "tol_col":         12,
+    "tol_col":          12,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",

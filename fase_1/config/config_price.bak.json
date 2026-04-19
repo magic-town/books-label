@@ -1,10 +1,8 @@
 {
     "_comentario":     "Configuración Price Shoes — Extracción Fase 1 · Boutique Zepeda",
-    "_uso":            "python3 fase_1/extractor_01.py --config fase_1/config/config_price.json",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
 
     "proveedor":       "PS",
-    "name":            "Ella",
-    "temporada":       "PV26",
 
     "pdf_input":       "lista_cruda/lista_vestir_casual.pdf",
     "excel_output":    "salida/lista_vestir_casual.xlsx",
