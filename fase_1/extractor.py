@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extractor.py — Extractor de campos de listas de precios
+extractor_01.py — Extractor acumulativo de listas de precios
 Boutique Zepeda · books-label · Fase 1
 
 Uso:
-    python3 fase_1/extractor.py --config fase_1/config/config_ps_pv26.json
+    python3 fase_1/extractor_01.py --config fase_1/config/config_ps.json
+
+Cambios respecto a extractor.py:
+    - Acumula registros en un xlsx único con pestañas por proveedor
+    - Campos nuevos: name, temporada, fecha (automática)
+    - No sobreescribe — encuentra la última fila y agrega
+    - fase_2/precios/ no se toca (sin cambios)
 
 Proveedores soportados:
     PS     → Price Shoes  (encoding propietario OR texto limpio, auto-detectado)
@@ -16,19 +22,19 @@ Proveedores soportados:
 Dependencias Python (requirements.txt):
     pdfplumber, pandas, openpyxl
 
-Estructura del Excel de salida — fase_1/salida/ (10 columnas):
-    A  pag           valor
-    B  id            valor
-    C  precio_base   valor
-    D  redondea      =ROUND(C,-1)
-    E  precio_venta  =ROUND(IF(C<200,ROUND(C,-1)*1.5,C+VLOOKUP(...,Tabulador,3,1)),-1)  [oculta]
-    F  precio_venta  valor estático — calculado con tabulador
-    G  len           =LEN(B)
-    H  (vacía)
-    I  ID            valor estático — para scripts Python
-    J  precio_venta  valor estático — calculado con tabulador
+Estructura del xlsx acumulativo — fase_1/salidas/lista_precios.xlsx:
+    Pestaña por proveedor (PS, Pakar, Cklass, Otro)
+    Columnas:
+        A  name          — del JSON
+        B  temporada     — del JSON
+        C  pag           — del PDF
+        D  id            — del PDF (texto)
+        E  precio_base   — del PDF
+        F  redondea      — =ROUND(E,-1)
+        G  precio_venta  — valor estático calculado con tabulador
+        H  fecha         — datetime de ejecución (automático)
 
-Segundo output — fase_2/precios/ (2 columnas, mismo nombre de archivo):
+Segundo output — fase_2/precios/ (sin cambios):
     A  ID            valor estático
     B  precio_venta  valor estático
 """
@@ -44,15 +50,18 @@ from datetime import datetime
 
 import pandas as pd
 import pdfplumber
-from openpyxl import Workbook
-
+from openpyxl import Workbook, load_workbook
 
 # ─────────────────────────────────────────────
-#  Ruta fija del tabulador de márgenes
+#  Rutas fijas
 # ─────────────────────────────────────────────
 
 TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
+INTEGRACION_PATH  = os.path.expanduser("~/books-label/fase_1/salida/lista_precios.xlsx")
+
+COLUMNAS = ["name", "temporada", "pag", "id", "precio_base",
+            "redondea", "precio_venta", "fecha"]
 
 
 # ─────────────────────────────────────────────
@@ -99,7 +108,7 @@ def _calcular_pv(precio_base, tab: pd.DataFrame):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Extractor de campos de listas de precios — Boutique Zepeda"
+        description="Extractor acumulativo de listas de precios — Boutique Zepeda"
     )
     parser.add_argument("--config", required=True, help="Ruta al archivo JSON de configuración")
     return parser.parse_args()
@@ -115,7 +124,7 @@ def setup_logger(nombre: str, base_dir: str) -> logging.Logger:
     os.makedirs(log_dir, exist_ok=True)
     log_path = os.path.join(log_dir, f"{nombre}_{ts}.log")
 
-    logger = logging.getLogger("extractor")
+    logger = logging.getLogger("extractor_01")
     logger.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
@@ -241,7 +250,6 @@ class ExtractorPS:
                                (x0_ < x_id and x_id <= x1_ + self.tol_x))
                     if not near_id:
                         continue
-                    # Accept bare ID or ID embedded at the end of a merged token
                     if self._RE_ID.match(tok):
                         ids_pdf_col += 1
                     else:
@@ -318,14 +326,12 @@ class ExtractorPS:
             elif (abs(x - x_id) <= tol or
                   (x < x_id and x_id <= x1_ + tol)):
                 col = "id"
-                # When brand name and ID are merged into one token
-                # (e.g. "NDKIDS1269584"), extract just the trailing digits
                 if not self._RE_ID.match(token):
                     m = re.search(r'(\d{6,8})$', token)
                     if m:
                         token = m.group(1)
                     else:
-                        continue   # overlaps ID column but no valid ID found
+                        continue
             elif abs(x - x_precio) <= tol:
                 col = "precio"
             else:
@@ -469,6 +475,7 @@ class ExtractorTexto:
             filas.setdefault(y_key, {})
             prev = filas[y_key].get(col, "")
             filas[y_key][col] = (prev + " " + token).strip() if prev else token
+
         return list(filas.values())
 
     def _filtrar(self, df):
@@ -481,6 +488,70 @@ class ExtractorTexto:
 
 
 # ─────────────────────────────────────────────
+#  Escritura acumulativa en xlsx
+# ─────────────────────────────────────────────
+
+def _abrir_o_crear_xlsx(path: str) -> object:
+    """Abre el xlsx si existe, lo crea si no."""
+    if os.path.isfile(path):
+        return load_workbook(path)
+    wb = Workbook()
+    wb.remove(wb.active)  # quitar hoja vacía por defecto
+    return wb
+
+
+def _obtener_o_crear_pestaña(wb, nombre: str):
+    """Devuelve la hoja del proveedor, la crea con encabezado si no existe."""
+    if nombre in wb.sheetnames:
+        return wb[nombre]
+    ws = wb.create_sheet(title=nombre)
+    ws.append(COLUMNAS)
+    return ws
+
+
+def escribir_acumulativo(df: pd.DataFrame, config: dict, tab: pd.DataFrame, logger: logging.Logger):
+    """
+    Abre lista_precios.xlsx, encuentra la pestaña del proveedor,
+    y agrega los nuevos registros después de la última fila existente.
+    """
+    os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
+
+    proveedor  = config.get("proveedor", "Otro").strip()
+    name       = config.get("name", "")
+    temporada  = config.get("temporada", "")
+    fecha      = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    wb = _abrir_o_crear_xlsx(INTEGRACION_PATH)
+    ws = _obtener_o_crear_pestaña(wb, proveedor)
+
+    nuevos = 0
+    for record in df.itertuples(index=False):
+        try:
+            pb = int(float(record.precio_base))
+        except (TypeError, ValueError):
+            pb = record.precio_base
+
+        pv       = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
+        redondea = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
+
+        ws.append([
+            name,        # A  name
+            temporada,   # B  temporada
+            record.pag,  # C  pag
+            record.id,   # D  id
+            pb,          # E  precio_base
+            redondea,    # F  redondea
+            pv,          # G  precio_venta
+            fecha,       # H  fecha
+        ])
+        nuevos += 1
+
+    wb.save(INTEGRACION_PATH)
+    logger.info(f"✅ {nuevos} registros agregados → pestaña '{proveedor}' en {INTEGRACION_PATH}")
+    return nuevos
+
+
+# ─────────────────────────────────────────────
 #  Clase principal
 # ─────────────────────────────────────────────
 
@@ -488,20 +559,21 @@ class ExtractorCatalogo:
 
     def __init__(self, config: dict, base_dir: str):
         nombre = os.path.splitext(
-            os.path.basename(config.get("_config_path", "extractor"))
+            os.path.basename(config.get("_config_path", "extractor_01"))
         )[0]
         self.logger    = setup_logger(nombre, base_dir)
         self.config    = config
         self.base_dir  = base_dir
         self.proveedor = config.get("proveedor", "PS").strip()
 
-        self.pdf_path   = os.path.join(base_dir, config.get("pdf_input",    ""))
-        self.excel_path = os.path.join(base_dir, config.get("excel_output", ""))
-        os.makedirs(os.path.dirname(self.excel_path), exist_ok=True)
+        self.pdf_path = os.path.join(base_dir, config.get("pdf_input", ""))
+        os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
 
-        self.logger.info(f"🏭 Proveedor:       {self.proveedor}")
-        self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
-        self.logger.info(f"📊 Excel de salida: {self.excel_path}")
+        self.logger.info(f"🏭 Proveedor:        {self.proveedor}")
+        self.logger.info(f"📄 PDF de entrada:   {self.pdf_path}")
+        self.logger.info(f"📊 Integración:      {INTEGRACION_PATH}  (pestaña: {self.proveedor})")
+        self.logger.info(f"🏷  name:             {config.get('name', '')}")
+        self.logger.info(f"📅 temporada:        {config.get('temporada', '')}")
 
     def _factory(self):
         p = self.proveedor.upper()
@@ -520,6 +592,12 @@ class ExtractorCatalogo:
             self.logger.error(f"❌ PDF no encontrado: {self.pdf_path}")
             raise FileNotFoundError(self.pdf_path)
 
+        if not os.path.isfile(TABULADOR_PATH):
+            self.logger.error(f"❌ Tabulador no encontrado: {TABULADOR_PATH}")
+            raise FileNotFoundError(TABULADOR_PATH)
+
+        tab = _cargar_tabulador(TABULADOR_PATH)
+
         extractor = self._factory()
         self.logger.info("🚀 Iniciando extracción...")
         df = extractor.extraer(self.pdf_path)
@@ -531,131 +609,68 @@ class ExtractorCatalogo:
                 "   con el encabezado del PDF después de aplicar encoding_offset."
             )
             self.logger.error("🔴 EXTRACCIÓN FALLIDA")
-        else:
-            self._escribir_excel(df)
+            return
 
-            n         = len(df)
-            u         = df["id"].nunique()
-            pmin      = df["precio_base"].min()
-            pmax      = df["precio_base"].max()
-            esperados = df.attrs.get("ids_esperados_pdf")
+        # ── Estadísticas ──────────────────────────────────────────────────
+        n         = len(df)
+        u         = df["id"].nunique()
+        pmin      = df["precio_base"].min()
+        pmax      = df["precio_base"].max()
+        esperados = df.attrs.get("ids_esperados_pdf")
 
-            self.logger.info("─────────────────────────────────────────")
-            self.logger.info(f"   Registros extraídos : {n}")
-            self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
-            if esperados is not None:
-                diff = esperados - n
-                pct  = f"{n / esperados * 100:.1f}%"
-                self.logger.info(f"   IDs en PDF (columna) : {esperados}")
-                self.logger.info(f"   Cobertura            : {pct}  ({n}/{esperados})")
-                if diff == 0:
-                    self.logger.info("   ✔ COMPLETO — todos los registros capturados")
-                elif diff > 0:
-                    self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
-                else:
-                    self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados no filtrados")
-            self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
-            self.logger.info("─────────────────────────────────────────")
-
-            ok = esperados is None or n >= esperados * 0.98
-            if n >= 100 and ok:
-                self.logger.info("🟢 EXTRACCIÓN EXITOSA — Validar Excel antes de usar en Fase 2")
-            elif n >= 20:
-                self.logger.warning("🟡 EXTRACCIÓN PARCIAL — Revisar columnas en el config")
+        self.logger.info("─────────────────────────────────────────")
+        self.logger.info(f"   Registros extraídos : {n}")
+        self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
+        if esperados is not None:
+            diff = esperados - n
+            pct  = f"{n / esperados * 100:.1f}%"
+            self.logger.info(f"   IDs en PDF (columna) : {esperados}")
+            self.logger.info(f"   Cobertura            : {pct}  ({n}/{esperados})")
+            if diff == 0:
+                self.logger.info("   ✔ COMPLETO — todos los registros capturados")
+            elif diff > 0:
+                self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
             else:
-                self.logger.error("🔴 EXTRACCIÓN INSUFICIENTE — Muy pocos registros")
+                self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados no filtrados")
+        self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
+        self.logger.info("─────────────────────────────────────────")
+
+        ok = esperados is None or n >= esperados * 0.98
+        if n >= 100 and ok:
+            self.logger.info("🟢 EXTRACCIÓN EXITOSA")
+        elif n >= 20:
+            self.logger.warning("🟡 EXTRACCIÓN PARCIAL — Revisar columnas en el config")
+        else:
+            self.logger.error("🔴 EXTRACCIÓN INSUFICIENTE — Muy pocos registros")
+
+        # ── Acumulación en lista_precios.xlsx ────────────────────────────
+        escribir_acumulativo(df, self.config, tab, self.logger)
+
+        # ── fase_2/precios/ (sin cambios) ────────────────────────────────
+        self._escribir_fase2(df, tab)
 
         self.logger.info(f"[STAT] proveedor={self.proveedor}")
-        self.logger.info(f"[STAT] registros={len(df)}")
-        self.logger.info(f"[STAT] ids_unicos={df['id'].nunique() if not df.empty else 0}")
+        self.logger.info(f"[STAT] registros={n}")
+        self.logger.info(f"[STAT] ids_unicos={u}")
 
-    def _escribir_excel(self, df: pd.DataFrame):
-        """
-        Genera dos archivos Excel con el mismo nombre base:
-
-        1) fase_1/salida/<nombre>.xlsx — 10 columnas:
-             A  pag           valor
-             B  id            valor
-             C  precio_base   valor
-             D  redondea      =ROUND(C,-1)
-             E  precio_venta  fórmula VLOOKUP contra hoja Tabulador oculta  [col oculta]
-             F  precio_venta  valor estático (numeric)
-             G  len           =LEN(B)
-             H  (vacía)
-             I  ID            valor estático
-             J  precio_venta  valor estático (numeric)
-
-        2) fase_2/precios/<nombre>.xlsx — 2 columnas:
-             A  ID            valor estático
-             B  precio_venta  valor estático (numeric)
-        """
-        if not os.path.isfile(TABULADOR_PATH):
-            raise FileNotFoundError(f"Tabulador no encontrado: {TABULADOR_PATH}")
-
-        tab = _cargar_tabulador(TABULADOR_PATH)
-
-        # ── Pre-calcular precio_venta para todas las filas (un solo pase) ────
-        filas = []
-        for record in df.itertuples(index=False):
-            try:
-                pb = int(float(record.precio_base))
-            except (TypeError, ValueError):
-                pb = record.precio_base
-            pv = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-            filas.append((record.pag, record.id, pb, pv))
-
-        # ════════════════════════════════════════════════════════════════════
-        #  Archivo 1 — fase_1/salida/
-        # ════════════════════════════════════════════════════════════════════
-        wb  = Workbook()
-        ws  = wb.active
-        ws.title = "Datos"
-
-        # Hoja "Tabulador" oculta — referenciada por la fórmula de col E
-        ws_tab = wb.create_sheet("Tabulador")
-        ws_tab.sheet_state = "hidden"
-        ws_tab.append(["desde", "hasta", "sumar"])
-        for _, row in tab.iterrows():
-            ws_tab.append([row["desde"], row.get("hasta", ""), row["sumar"]])
-
-        ws.append(["pag", "id", "precio_base", "redondea",
-                   "precio_venta", "precio_venta",
-                   "len", "", "ID", "precio_venta"])
-
-        # Ocultar col E (precio_venta fórmula)
-        ws.column_dimensions["E"].hidden = True
-
-        for i, (pag, id_, pb, pv) in enumerate(filas, start=2):
-            ws.cell(row=i, column=1,  value=pag)
-            ws.cell(row=i, column=2,  value=id_)
-            ws.cell(row=i, column=3,  value=pb)
-            ws.cell(row=i, column=4,  value=f"=ROUND(C{i},-1)")
-            ws.cell(row=i, column=5,  value=(
-                f"=ROUND(IF(C{i}<200,ROUND(C{i},-1)*1.5,"
-                f"C{i}+VLOOKUP(C{i},Tabulador!$A:$C,3,1)),-1)"
-            ))
-            ws.cell(row=i, column=6,  value=pv)
-            ws.cell(row=i, column=7,  value=f"=LEN(B{i})")
-            # column 8 vacía
-            ws.cell(row=i, column=9,  value=id_)
-            ws.cell(row=i, column=10, value=pv)
-
-        os.makedirs(os.path.dirname(self.excel_path), exist_ok=True)
-        wb.save(self.excel_path)
-        self.logger.info(f"✅ Excel (fase 1) generado:  {self.excel_path}")
-
-        # ════════════════════════════════════════════════════════════════════
-        #  Archivo 2 — fase_2/precios/  (ID + precio_venta estáticos)
-        # ════════════════════════════════════════════════════════════════════
-        fase2_path = os.path.join(FASE2_PRECIOS_DIR, os.path.basename(self.excel_path))
+    def _escribir_fase2(self, df: pd.DataFrame, tab: pd.DataFrame):
+        """fase_2/precios/ — ID + precio_venta estáticos (sin cambios respecto a extractor.py)."""
+        nombre_base = os.path.splitext(os.path.basename(self.config.get("excel_output", "salida.xlsx")))[0]
+        fase2_path  = os.path.join(FASE2_PRECIOS_DIR, f"{nombre_base}.xlsx")
         os.makedirs(FASE2_PRECIOS_DIR, exist_ok=True)
 
         wb2  = Workbook()
         ws2  = wb2.active
         ws2.title = "Precios"
         ws2.append(["ID", "precio_venta"])
-        for _, id_, _, pv in filas:
-            ws2.append([id_, pv])
+
+        for record in df.itertuples(index=False):
+            try:
+                pb = int(float(record.precio_base))
+            except (TypeError, ValueError):
+                pb = record.precio_base
+            pv = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
+            ws2.append([record.id, pv])
 
         wb2.save(fase2_path)
         self.logger.info(f"✅ Excel (fase 2) generado:  {fase2_path}")
@@ -683,5 +698,5 @@ if __name__ == "__main__":
         app = ExtractorCatalogo(config, BASE)
         app.ejecutar()
     except Exception as e:
-        logging.getLogger("extractor").error(f"🔥 Error crítico: {e}", exc_info=True)
+        logging.getLogger("extractor_01").error(f"🔥 Error crítico: {e}", exc_info=True)
         sys.exit(1)
