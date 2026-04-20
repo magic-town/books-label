@@ -108,7 +108,13 @@ La asignación de:
 + `OUTPUT EXCEL` 
 + `desviacion alarma` 
 
-puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
+Puedes hacerla con el uso de un panel en el directorio 
+
+```
+~/books-label/fase_1/config/panel_extraer_campos.html
+```
+
+tu decides si usarlo.
 
 - [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 
