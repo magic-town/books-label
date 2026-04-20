@@ -91,7 +91,24 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Declarar inputs por medio de JSON (Java Script Object Notation).
 
-La asignación de: `proveedor`, `lista_cruda`, `salida` puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
+**🔎 _Nuevos campos_**
+
+<div align="center">
+<img src="../imagenes/asset_repo/fase_1.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+La asignación de: 
+
++ `Proveedor`
++ `Catalogo`
++ `Temporada` 
++ `PDF Entrada`
++ `OUTPUT EXCEL` 
++ `desviacion alarma` 
+
+puedes hacerla con el uso de un panel en el directorio `~/books-label/fase_1/config/panel_extraer_campos.html`, tu decides si usarlo.
 
 - [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 

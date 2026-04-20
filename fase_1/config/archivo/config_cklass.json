@@ -11,6 +11,8 @@
     "tolerancia_x":    12,
     "tol_col":         0,
 
+    "desviacion_alerta": 2,
+
     "col_pag":         "PÁGINA",
     "col_id":          "MODELO",
     "col_precio":      "CRÉDITO"

@@ -39,6 +39,7 @@ Segundo output — fase_2/precios/ (sin cambios):
     B  precio_venta  valor estático
 """
 
+from itertools import count
 import math
 import os
 import re
@@ -51,6 +52,7 @@ from datetime import datetime
 import pandas as pd
 import pdfplumber
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment, PatternFill, Font
 
 # ─────────────────────────────────────────────
 #  Rutas fijas
@@ -58,9 +60,9 @@ from openpyxl import Workbook, load_workbook
 
 TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
-INTEGRACION_PATH  = os.path.expanduser("~/books-label/fase_1/salida/lista_precios.xlsx")
+INTEGRACION_PATH  = os.path.expanduser("~/books-label/fase_1/salida/base_precios.xlsx")
 
-COLUMNAS = ["name", "temporada", "pag", "id", "precio_base",
+COLUMNAS = ["catalogo", "temp", "pag", "id", "precio_base",
             "redondea", "precio_venta", "fecha"]
 
 
@@ -120,25 +122,26 @@ def parse_args():
 
 def setup_logger(nombre: str, base_dir: str) -> logging.Logger:
     ts      = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_dir = os.path.join(base_dir, "diagnosticos")
-    os.makedirs(log_dir, exist_ok=True)
-    log_path = os.path.join(log_dir, f"{nombre}_{ts}.log")
+    # log_dir = os.path.join(base_dir, "diagnosticos")
+    # os.makedirs(log_dir, exist_ok=True)
+    # log_path = os.path.join(log_dir, f"{nombre}_{ts}.log")
 
     logger = logging.getLogger("extractor_01")
     logger.setLevel(logging.DEBUG)
+    logger.handlers.clear()
     fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
-    fh = logging.FileHandler(log_path, encoding="utf-8")
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(fmt)
+    # fh = logging.FileHandler(log_path, encoding="utf-8")
+    # fh.setLevel(logging.DEBUG)
+    # fh.setFormatter(fmt)
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(fmt)
 
-    logger.addHandler(fh)
+    # logger.addHandler(fh)
     logger.addHandler(ch)
-    logger.info(f"📝 Log: {log_path}")
+    # logger.info(f"📝 Log: {log_path}")
     return logger
 
 
@@ -201,6 +204,7 @@ class ExtractorPS:
     _RE_ID = re.compile(r'^\d{6,8}$')
 
     def __init__(self, config: dict, logger: logging.Logger):
+        self.config   = config
         self.logger   = logger
         self.offset   = config.get("encoding_offset", 29)
         self.tol_x    = config.get("tolerancia_x", 20.0)
@@ -214,8 +218,10 @@ class ExtractorPS:
         col_x       = None
         ids_pdf_col = 0
 
+        registros_por_pagina = []
         with pdfplumber.open(pdf_path) as pdf:
             self.logger.info(f"📄 Total páginas: {len(pdf.pages)}")
+            self.logger.info("═" * 45)
 
             for i, page in enumerate(pdf.pages, 1):
                 raw = page.extract_words(x_tolerance=3, y_tolerance=5, keep_blank_chars=False)
@@ -265,7 +271,25 @@ class ExtractorPS:
                         "id":          fila.get("id",  "").strip(),
                         "precio_base": _limpiar_precio(fila.get("precio", "")),
                     })
-                self.logger.debug(f"  Pág {i}: {len(registros)-antes} registros")
+                df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
+                validos = len(df_pag)
+                registros_por_pagina.append((i, validos))
+                self.logger.info(f"  Pág {i}: {validos} registros")
+
+        if registros_por_pagina:
+            conteos = [c for _, c in registros_por_pagina]
+            promedio = sum(conteos) / len(conteos)
+            desviacion = (sum((c - promedio) ** 2 for c in conteos) / len(conteos)) ** 0.5
+            x = self.config.get("desviacion_alerta", 2)
+            alertas = [(pag, cnt) for pag, cnt in registros_por_pagina
+                       if abs(cnt - promedio) > desviacion * x]
+            self.logger.info("═" * 45)
+            self.logger.info(f"📊 Promedio por página: {promedio:.1f}  σ={desviacion:.1f}")
+            if alertas:
+                detalle = ", ".join(f"Pág {pag} ({cnt} registros)" for pag, cnt in alertas)
+                self.logger.warning(f"  ⚠️  Páginas fuera del rango: {detalle}")
+            else:
+                self.logger.info("  ✔ Todas las páginas dentro del rango esperado")
 
         df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
         df = self._filtrar(df)
@@ -386,6 +410,7 @@ class ExtractorPS:
 class ExtractorTexto:
 
     def __init__(self, config: dict, logger: logging.Logger):
+        self.config   = config
         self.logger   = logger
         self.tol_x    = config.get("tolerancia_x", 20.0)
         self.tol_col  = config.get("tol_col", 0)
@@ -398,8 +423,11 @@ class ExtractorTexto:
         registros = []
         col_x     = None
 
+    
+        registros_por_pagina = []
         with pdfplumber.open(pdf_path) as pdf:
             self.logger.info(f"📄 Total páginas: {len(pdf.pages)}")
+            self.logger.info("═" * 45)
 
             for i, page in enumerate(pdf.pages, 1):
                 words = page.extract_words(x_tolerance=self.tol_x, y_tolerance=5, keep_blank_chars=False)
@@ -415,13 +443,32 @@ class ExtractorTexto:
                     continue
 
                 filas = self._agrupar_filas(words, header_y, col_x)
+                antes = len(registros)
                 for fila in filas:
                     registros.append({
                         "pag":         fila.get("pag", "").strip(),
                         "id":          fila.get("id",  "").strip(),
                         "precio_base": _limpiar_precio(fila.get("precio", "")),
                     })
-                self.logger.debug(f"  Página {i}: {len(filas)} filas")
+                df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
+                validos = len(df_pag)
+                registros_por_pagina.append((i, validos))
+                self.logger.info(f"  Página {i}: {validos} registros")
+
+        if registros_por_pagina:
+            conteos = [c for _, c in registros_por_pagina]
+            promedio = sum(conteos) / len(conteos)
+            desviacion = (sum((c - promedio) ** 2 for c in conteos) / len(conteos)) ** 0.5
+            x = self.config.get("desviacion_alerta", 2)
+            alertas = [(pag, count) for pag, count in registros_por_pagina
+                       if abs(count - promedio) > desviacion * x]
+            self.logger.info("═" * 45)
+            self.logger.info(f"📊 Promedio por página: {promedio:.1f}  σ={desviacion:.1f}")
+            if alertas:
+                detalle = ", ".join(f"Pág {pag} ({count} filas)" for pag, count in alertas)
+                self.logger.warning(f"  ⚠️  Páginas fuera del rango: {detalle}")
+            else:
+                self.logger.info("  ✔ Todas las páginas dentro del rango esperado")
 
         df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
         return self._filtrar(df)
@@ -517,9 +564,9 @@ def escribir_acumulativo(df: pd.DataFrame, config: dict, tab: pd.DataFrame, logg
     os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
 
     proveedor  = config.get("proveedor", "Otro").strip()
-    name       = config.get("name", "")
+    catalgo    = config.get("catalogo", "")
     temporada  = config.get("temporada", "")
-    fecha      = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha      = datetime.now().strftime("%Y-%m-%d")
 
     wb = _abrir_o_crear_xlsx(INTEGRACION_PATH)
     ws = _obtener_o_crear_pestaña(wb, proveedor)
@@ -535,7 +582,7 @@ def escribir_acumulativo(df: pd.DataFrame, config: dict, tab: pd.DataFrame, logg
         redondea = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
 
         ws.append([
-            name,        # A  name
+            catalgo,     # A  catalogo
             temporada,   # B  temporada
             record.pag,  # C  pag
             record.id,   # D  id
@@ -546,6 +593,21 @@ def escribir_acumulativo(df: pd.DataFrame, config: dict, tab: pd.DataFrame, logg
         ])
         nuevos += 1
 
+    # Fondo azul, letra blanca, centrado
+    for cell in ws[1]:
+        cell.fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+        cell.font = Font(name="Calibri", color="FFFFFF", bold=False)
+        cell.alignment = Alignment(horizontal="center")
+        
+    # Freeze primera fila
+    ws.freeze_panes = "A2"
+
+    # Alinear datos a la izquierda
+    for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
+        for cell in row:
+            cell.alignment = Alignment(horizontal="right")
+
+    wb.save(INTEGRACION_PATH)
     wb.save(INTEGRACION_PATH)
     logger.info(f"✅ {nuevos} registros agregados → pestaña '{proveedor}' en {INTEGRACION_PATH}")
     return nuevos
@@ -569,11 +631,12 @@ class ExtractorCatalogo:
         self.pdf_path = os.path.join(base_dir, config.get("pdf_input", ""))
         os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
 
-        self.logger.info(f"🏭 Proveedor:        {self.proveedor}")
-        self.logger.info(f"📄 PDF de entrada:   {self.pdf_path}")
-        self.logger.info(f"📊 Integración:      {INTEGRACION_PATH}  (pestaña: {self.proveedor})")
-        self.logger.info(f"🏷  name:             {config.get('name', '')}")
-        self.logger.info(f"📅 temporada:        {config.get('temporada', '')}")
+        self.logger.info("═" * 45)
+        self.logger.info(f"🏭 Proveedor:       {self.proveedor}")
+        self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
+        self.logger.info(f"🛢️  Base Precios:    {INTEGRACION_PATH}  (pestaña: {self.proveedor})")
+        self.logger.info(f"📕 Catálogo:        {config.get('catalogo', '')}")
+        self.logger.info(f"📅 Temporada:       {config.get('temporada', '')}")
 
     def _factory(self):
         p = self.proveedor.upper()
@@ -618,8 +681,8 @@ class ExtractorCatalogo:
         pmax      = df["precio_base"].max()
         esperados = df.attrs.get("ids_esperados_pdf")
 
-        self.logger.info("─────────────────────────────────────────")
-        self.logger.info(f"   Registros extraídos : {n}")
+        self.logger.info("═" * 45)
+        self.logger.info(f"   Registros extraídos  : {n}")
         self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
         if esperados is not None:
             diff = esperados - n
@@ -633,15 +696,7 @@ class ExtractorCatalogo:
             else:
                 self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados no filtrados")
         self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
-        self.logger.info("─────────────────────────────────────────")
-
-        ok = esperados is None or n >= esperados * 0.98
-        if n >= 100 and ok:
-            self.logger.info("🟢 EXTRACCIÓN EXITOSA")
-        elif n >= 20:
-            self.logger.warning("🟡 EXTRACCIÓN PARCIAL — Revisar columnas en el config")
-        else:
-            self.logger.error("🔴 EXTRACCIÓN INSUFICIENTE — Muy pocos registros")
+        self.logger.info("═" * 45)
 
         # ── Acumulación en lista_precios.xlsx ────────────────────────────
         escribir_acumulativo(df, self.config, tab, self.logger)

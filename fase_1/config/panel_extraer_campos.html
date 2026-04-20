@@ -555,7 +555,7 @@ header::after {
     </div>
   </div>
   <div class="h-right">
-    <span class="badge-version">fase_1 · v1.1</span>
+    <span class="badge-version">fase_1 · v1.2</span>
     <button class="btn-limpiar" onclick="limpiar()">↺ Limpiar</button>
   </div>
 </header>
@@ -589,6 +589,25 @@ header::after {
             <span class="prov-hint">campos libres</span>
           </button>
         </div>
+
+        <!-- Catálogo y Temporada -->
+        <div style="margin-top:1.1rem;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+          <div class="field">
+            <div class="field-label">Catálogo</div>
+            <div class="input-prefixed">
+              <input type="text" id="catalogo" placeholder="Ella, Urbano, Tomo_1…" oninput="upd()"/>
+            </div>
+            <div class="field-hint">Nombre de la lista dentro del catálogo del proveedor</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Temporada</div>
+            <div class="input-prefixed">
+              <input type="text" id="temporada" placeholder="PV26, 2026, ofertas…" oninput="upd()"/>
+            </div>
+            <div class="field-hint">Temporada o vigencia de esta lista de precios</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -609,7 +628,7 @@ header::after {
         <div class="field">
           <div class="field-label">Output Excel</div>
           <div class="input-prefixed">
-            <span class="prefix">salida/</span>
+            <span class="prefix">precios/</span>
             <input type="text" id="excel_output" placeholder="lista_proveedor.xlsx" oninput="upd()"/>
           </div>
           <div class="field-hint">Archivo Excel generado por el extractor</div>
@@ -742,6 +761,41 @@ header::after {
     </div>
   </div>
 
+  <!-- ⑤ ALARMA DE EXTRACCIÓN -->
+  <div>
+    <div class="section-label">⑤ Alarma de extracción</div>
+    <div class="card">
+      <div class="card-inner" style="display:flex;flex-direction:column;gap:0.85rem;">
+
+        <div class="encoding-row" style="flex-direction:column;align-items:stretch;gap:0.75rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <div class="encoding-info">
+              <div class="encoding-name">Desviación de alerta <code style="font-family:var(--mono);font-size:10px;color:var(--navy-mid);">desviacion_alerta</code></div>
+              <div class="encoding-desc">Número de desviaciones estándar (σ) permitidas antes de marcar una página como atípica · a mayor valor, mayor tolerancia</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
+              <span class="tol-range-badge">0.5 – 2.0</span>
+              <input class="offset-input" id="desviacion_alerta" type="number" value="2" min="0.5" max="2" step="0.5" oninput="upd()"/>
+              <span class="offset-label">σ</span>
+            </div>
+          </div>
+
+          <!-- Nota elegante -->
+          <div style="padding:0.85rem 1.1rem;background:var(--gold-bg);border:1px solid var(--gold-line);border-left:3px solid var(--gold);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.7;">
+            <div style="font-size:9.5px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold2);font-weight:600;margin-bottom:0.4rem;font-family:var(--sans);">¿Qué es este parámetro?</div>
+            Este parámetro es nuestra alarma para saber si la base está completa. Compara los registros extraídos por página y te avisa cuando alguna se aleja demasiado del promedio — señal de que el PDF puede tener páginas mal leídas o incompletas.
+            <br/><br/>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--navy-mid);">0.5</span> → muy sensible, alerta con pequeñas variaciones &nbsp;·&nbsp;
+            <span style="font-family:var(--mono);font-size:11px;color:var(--navy-mid);">2.0</span> → solo casos claramente atípicos
+            <br/>
+            <span style="color:var(--gold2);font-weight:500;">Rango recomendado: 0.5 – 2</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ALERTA -->
   <div class="alert" id="alerta">
     ⚠️ Completa el PDF de entrada y el Output Excel antes de copiar el JSON.
@@ -749,7 +803,7 @@ header::after {
 
   <!-- ⑤ JSON OUTPUT -->
   <div>
-    <div class="section-label">⑤ Configuración generada</div>
+    <div class="section-label">⑥ Configuración generada</div>
     <div class="json-card">
       <div class="json-head">
         <div class="json-title">
@@ -944,13 +998,16 @@ function buildConfig() {
     _comentario:     info.comentario,
     _uso:            'python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json',
     proveedor:       proveedor,
+    catalogo:        sv('catalogo'),
+    temporada:       sv('temporada'),
     pdf_input:       'lista_cruda/' + sv('pdf_input'),
-    excel_output:    'salida/'      + sv('excel_output'),
+    excel_output:    'precios/'     + sv('excel_output'),
     encoding_offset: getOffset(),
     tolerancia_x:    parseFloat(sv('tolerancia_x')) || info.tol_default,
     col_pag:         getCampo('pag'),
     col_id:          getCampo('id'),
     col_precio:      getCampo('precio'),
+    desviacion_alerta: parseFloat($('desviacion_alerta').value) || 2,
   };
   const tc = getTolCol();
   if (tc !== null) cfg.tol_col = tc;
@@ -967,12 +1024,16 @@ function buildCfgStr() {
     "_uso":            ${JSON.stringify(c._uso)},
 
     "proveedor":       ${JSON.stringify(c.proveedor)},
+    "catalogo":        ${JSON.stringify(c.catalogo)},
+    "temporada":       ${JSON.stringify(c.temporada)},
 
     "pdf_input":       ${JSON.stringify(c.pdf_input)},
     "excel_output":    ${JSON.stringify(c.excel_output)},
 
     "encoding_offset": ${c.encoding_offset},
     "tolerancia_x":    ${c.tolerancia_x},${tolColLine}
+
+    "desviacion_alerta": ${c.desviacion_alerta},
 
     "col_pag":         ${JSON.stringify(c.col_pag)},
     "col_id":          ${JSON.stringify(c.col_id)},
@@ -1019,9 +1080,12 @@ function copiar() {
 }
 
 function limpiar() {
-  $('pdf_input').value     = '';
-  $('excel_output').value  = '';
-  $('encoding_offset').value = '0';
+  $('pdf_input').value          = '';
+  $('excel_output').value       = '';
+  $('catalogo').value           = '';
+  $('temporada').value          = '';
+  $('encoding_offset').value    = '0';
+  $('desviacion_alerta').value  = '2';
   ['pag','id','precio'].forEach(c => $('campo-'+c+'-input').value = '');
   $('tol_col').value = '0';
   setProveedor('PS');

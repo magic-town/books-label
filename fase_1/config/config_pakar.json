@@ -1,17 +1,19 @@
 {
     "_comentario":     "Configuración Pakar — Extracción Fase 1 · Boutique Zepeda",
-    "_uso":            "python3 fase_1/extractor_01.py --config fase_1/config/config_pakar.json",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/config_pakar.json",
 
     "proveedor":       "Pakar",
-    "name":            "catálogo",
-    "temporada":       "temporada",
+    "catalogo":        "Sandalia",
+    "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/<lista_cat_temp.pdf>",
-    "excel_output":    "precios/<lista_cat_temp.xlsx>",
+    "pdf_input":       "lista_cruda/lista_sandalia_pk26.pdf",
+    "excel_output":    "precios/lista_sandalia_pk26.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
     "tol_col":         12,
+
+    "desviacion_alerta": 2,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",
