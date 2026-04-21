@@ -155,10 +155,12 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
      width="100%"/>
 </div>
 
-**Importante**: Tanto los registros por página como los promedios y desviación nos pueden asegurar si la extracción ha sido exitoso, es decir, el parámetro `desviacion_alerta` nos dice que tanto nos podemos alejar del promedio y en ese casi mandar un **⚠️ Warning**.
+**Importante**: Tanto los registros por página como las métricas estadísticas (promedio y desviación estándar) permiten validar la calidad del proceso de extracción. En particular, el parámetro desviacion_alerta define el umbral de tolerancia respecto al promedio; cuando este se excede, se genera un **⚠️ Warning**.
 
-     + Los registros por página ya nos dice, si alguna(s) pagina no se extrajo como la demás.
-     + Lo anterior se ve reflejado en el **Warning** dependiendo del tamaño de $\sigma = 0.5, 1.0, 1.5, 2.0$ a menor $\sigma$ menor flexibilidad.
+- El número de registros por página permite identificar de forma directa si alguna página presenta inconsistencias en la extracción frente al resto.
+- Estas anomalías se reflejan en la generación del Warning, el cual depende del valor de $\sigma = 0.5, 1.0, 1.5, 2.0$; a menor valor de $\sigma$, menor tolerancia a la variación y, por tanto, mayor sensibilidad en la detección de desviaciones.
+
+- [ ] Se genera el fichero `../fase_2/lista_catalog_temp.xlsx` 
 
 #### Generación de 2 ficheros ../fase_1/salida/base_precios.xlsx y ../fase_2/precios/lista_catalogo_temp.xlsx
 
@@ -169,6 +171,13 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
+
+La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecución, por lo que se convierte en la fuente principal de consulta de precios. Cada ejecución llena la tabla a partir del último registro y para consultar algún ID usa el atajo de teclado:
+
+     + `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
+     + `Atl + ⬇` $\to$ Consultar `ID`
+
+- [ ] Al generarze la tabla `../fase_1/precios/lista_catalogo_temp.xlsx` termina la fase 1.
 
 ---
 
