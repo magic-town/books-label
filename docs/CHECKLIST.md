@@ -187,7 +187,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci√
   + `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
   + `Atl + ‚¨á` $\to$ Consultar `ID`
 
-- **lista_catalogo_temp.xlsx**
+**lista_catalogo_temp.xlsx**
 
 - [ ] Al generarze la tabla `../fase_1/precios/lista_catalogo_temp.xlsx` termina la fase 1.
 
