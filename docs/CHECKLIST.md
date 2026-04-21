@@ -152,7 +152,7 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 <div align="center">
 <img src="../imagenes/asset_repo/desviacion.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="100%"/>
 </div>
 
 - [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`. Tenemos cierta confianza de que la extracción es correcta, por lo que con revisar que las paginas coincidan con las del catálogo es suficiente. No hay por que hacer mas revisiones. 
