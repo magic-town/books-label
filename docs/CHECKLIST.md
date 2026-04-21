@@ -27,12 +27,9 @@ del proveedor        catálogo            al cliente
 
 ## Fase 1
 
-El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo. No obstante, se seguirá contemplando un plan de contingencia que incluye la extracción mediante LLMs (como NotebookLM de Google o Claude de Anthropic).
+El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo.
 
-- [Extractor.py](#extractor-py)
-- [NotebookLM](#notebook)
-
-Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/<proveedor>/`:
+Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/<proveedor>/`:
 
 + **Price Shoes**: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
 + **Pakar**:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
@@ -44,9 +41,9 @@ Para ambos métodos siempre iniciamos descargando los _catálogos_ y _listas de 
      width="75%"/>
 </div>
 
-### <a name="extractor-py"></a>Opción 1 (recomendada). Extractor.py
+### Extractor.py (Nuestra fuente de verdad)
 
-- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en `ID`, `páginas`, `precio`.
+- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en `ID`, `páginas`, `precio_base`.
 - [ ] Hacer una copia de `~/boutique_zepeda/<proveedor>/catalogos` a `~/books-label/fase_1/libros`
 
 ```bash
@@ -89,9 +86,9 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
      width="85%"/>
 </div>
 
-#### Declarar inputs por medio de JSON (Java Script Object Notation).
+#### Config JSON FASE 1
 
-**🔎 _Nuevos campos_**
+
 
 <div align="center">
 <img src="../imagenes/asset_repo/fase_1.png"

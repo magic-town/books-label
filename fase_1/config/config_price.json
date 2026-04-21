@@ -3,6 +3,7 @@
     "_uso":            "python3 fase_1/extractor.py --config fase_1/config/config_price.json",
 
     "proveedor":       "PS",
+    
     "catalogo":        "PERFUMES",
     "temporada":       "2026",
 
