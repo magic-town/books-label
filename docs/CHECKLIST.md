@@ -70,7 +70,7 @@ VSC > File > Open Folder > books-label > Open > fase_1
 ```bash
 source venv_catalogo/bin/activate
 ```
-El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módulo a la vez, de momento nos encontramos en el modulo_1 - fase_1.
+El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módulo a la vez, de momento nos encontramos en el `modulo_1` - `fase_1`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/structure.png"
@@ -88,7 +88,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Config JSON FASE 1
 
-
+Usamos un solo 🗒️ fichero `config_proveedor.json` por proveedor: `PS`, `Pakar`, `Cklass`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/fase_1.png"
@@ -96,16 +96,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
      width="85%"/>
 </div>
 
-La asignación de: 
-
-+ `Proveedor`
-+ `Catalogo`
-+ `Temporada` 
-+ `PDF Entrada`
-+ `OUTPUT EXCEL` 
-+ `desviacion alarma` 
-
-Puedes hacerla con el uso de un panel en el directorio 
+**Uso de un panel en el directorio (Opcional)**: 
 
 ```
 ~/books-label/fase_1/config/panel_extraer_campos.html
@@ -113,7 +104,7 @@ Puedes hacerla con el uso de un panel en el directorio
 
 tu decides si usarlo.
 
-- [ ] Usar el panel (Opcional). Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
+- [ ] Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
 
 <div align="center">
 <img src="../imagenes/asset_repo/panel_extractor.png"
@@ -123,10 +114,13 @@ tu decides si usarlo.
 
 - [ ] LLenamos los campos:
 
-  - `proveedor`: <price_shoes, pakar, cklass, otro>
-  - `lista_cruda`: <lista_catalogo_temp.pdf>
-  - `salida`: <lista_catalogo_temp.xlsx>
-  - `tolerancia_col_X`: dejamos la que tiene por defecto
+  + `Proveedor` : "Price Shoes", "Pakar", "Cklass", "Otro"
+  + `Catalogo`: "Ella", "Kids", "Urbano", "Tomo_1", ...
+  + `Temporada` "PV26". "OI26", "2026", "Ofertas", ...
+  + `PDF Entrada`: <lista_catalogo_temp.pdf>
+  + `OUTPUT EXCEL`: <lista_catalogo_temp.xlsx> 
+  + `tolerancia_col_X`: "dejamos la que tiene por defecto"
+  + `desviacion_alarma`: 0.5, 1.0, 1.5, 2.0
 
 - [ ] Damos click a `COPY JSON`
 - [ ] Pegamos la configuración JSON en el fichero correspondiente: `/fase_1/config_price.json`, `/fase_1/config_pakar.json`, `/fase_1/config_cklass.json`.
@@ -145,128 +139,24 @@ tu decides si usarlo.
      width="85%"/>
 </div>
 
-- [ ] Ejecuta el fichero `extractor.py` con su configuración conrrespondiente para este módulo. Obtendras un par de tablas:
+- [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendras un par de tablas:
 
 ```bash
 python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 ```
 
+#### 🦋 INFO en la ejecución de **extractor.py**
+
+> ✨ Al finalizar la ejecución y maximizar la terminal, se desplegará un conjunto de métricas de rendimiento; este punto constituye el criterio crítico de validación que determina la calidad y la certeza en nuestros datos.
+
+<div align="center">
+<img src="../imagenes/asset_repo/desviacion.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
 - [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`. Tenemos cierta confianza de que la extracción es correcta, por lo que con revisar que las paginas coincidan con las del catálogo es suficiente. No hay por que hacer mas revisiones. 
 - [ ] También te genera un segundo fichero `/fase_2/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
-
-### <a name="notebook"></a>Opción 2. NotebookLM
-
-Este es el método largo e incocistente, solo recurrimos a él en caso de que el método 1 no de la extracción correcta. El flujo es el siguiete:
-
-1. Insertar fichero en Claude o NotebookLM.
-2. Usar los prompt que aparecen a continuación en ese orden.
-3. Copiar la extracción a precios_tabla.ods
-4. Aplicar las formulas `redondear`, `aplicar_precios`, extraer columnas `ID`, `precio_venta`
-
-- [ ] Validar en patalla 🖥️ que el catálogo y la lista descargados coincidan en_ID_`, _páginas_.
-- [ ] Inserta tu lista cruda de precios en alguno de los 2 LLM que han dado mejor reusltado: `Claude` o `NotebookLM (Google)`
-- [ ] Usa uno o varios de los siguietnes prompts:
-
----
-
-#### 🔵 Extracción para Price Shoes
-
-**Paso 1 — Extracción inicial**
-
-```
-Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
-
-{
-  "columna_1":  "Pag",
-  "columna_4":  "ID",
-  "columna_12": "Sug_credito"
-}
-
-Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
-IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
-```
-
----
-
-**Paso 2 — Si se equivoca de columna**
-
-```
-Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
-
-{
-  "columna_1":  "Pag",
-  "columna_4":  "ID",
-  "columna_13": "Sug_credito"
-}
-
-
-La columa "Sug_credito" es la siguiete de la que me estas dando en tu último output.
-Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
-IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
-```
-
----
-
-**Paso 3 — Si vuelve a equivocarse (este es común para NotebookLM)**
-
-```
-La tabla que generaste es correcta en:
-
-{
-  "columna_1": "Pag",
-  "columna_4": "ID"
-}
-
-Es incorrecta la última columna. Corrígela por los datos correctos: "columna_X": "Sug_credito", es la siguiete columna de la que me estas dando en tus últimos outputs.
-IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
-```
-
----
-
-#### 🟡 Extacción de Pakar
-
-```
-Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
-
-{
-  "columna_1":  "PÁG.",     // type: numeric
-  "columna_2":  "CÓDIGO",   // type: "text"
-  "columna_11": "2 PAGOS"   // type: numeric
-}
-
-IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle fórmula en Calc. Tu output tiene que ser una tabla lista para copiar y pegar.
-```
-
----
-
-#### 🔴 Extacción para Cklaas
-
-```
-Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
-
-{
-  "columna_1":  "PÁGINA",     // type: numeric
-  "columna_2":  "MODELO",     // type: "text"
-  "columna_3":  "CLAVE",      // type: numeric
-  "columna_6": "CRÉDITO",     // type: numeric
-  "columna_7": "NUMERACIÓN"   // type: "text"
-}
-
-Preséntala en forma de tabla, lista para copiar y pegar en LibreOffice Calc.
-IMPORTANTE: el tipo de datos debe ser número y el formato debe ser una tabla.
-```
-
----
-
-- [ ] Valida que la tabla es la que necesitas Vs tu tabla cruda.
-- [ ] Copia tu tabla extraida en `~/books-label/fase_2/precios/precios_tabla.ods`
-- [ ] Aplica las transformaciones `REDONDEAR`, `precios_venta`, `LEN`
-- [ ] Copia las columnas `ID`, `precio_venta` en una tabla al costado de la transformada con `pegado especial`
-- [ ] Pega esas columnas en un fichero nuevo:
-
-```
-File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<lista_catalogo_temp.xlsx>
-```
 
 ---
 
