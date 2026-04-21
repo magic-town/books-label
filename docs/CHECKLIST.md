@@ -145,7 +145,7 @@ tu decides si usarlo.
 python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 ```
 
-#### 🦋 INFO en la ejecución de **extractor.py**
+#### 🦋 INFO en la ejecución de extractor.py
 
 > ✨ Al finalizar la ejecución y maximizar la terminal, se desplegará un conjunto de métricas de rendimiento; este punto constituye el criterio crítico de validación que determina la calidad y la certeza en nuestros datos.
 
@@ -155,8 +155,20 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
      width="100%"/>
 </div>
 
-- [ ] El output en la terminal te dira si la extracción fue exitosa, si es asi, revisa y valida los datos en la carpeta: `~/books-laber/fase_1/salida/<lista_catalogo_temp.xlsx>`. Tenemos cierta confianza de que la extracción es correcta, por lo que con revisar que las paginas coincidan con las del catálogo es suficiente. No hay por que hacer mas revisiones. 
-- [ ] También te genera un segundo fichero `/fase_2/precios/<lista_catalogo_temp.xlsx>` con esto **termina el modulo 1**, es decir, el output de fase_1 se convierte en uno de los dos inputs de fase_2.
+**Importante**: Tanto los registros por página como los promedios y desviación nos pueden asegurar si la extracción ha sido exitoso, es decir, el parámetro `desviacion_alerta` nos dice que tanto nos podemos alejar del promedio y en ese casi mandar un **⚠️ Warning**.
+
+     + Los registros por página ya nos dice, si alguna(s) pagina no se extrajo como la demás.
+     + Lo anterior se ve reflejado en el **Warning** dependiendo del tamaño de $\sigma = 0.5, 1.0, 1.5, 2.0$ a menor $\sigma$ menor flexibilidad.
+
+#### Generación de 2 ficheros ../fase_1/salida/base_precios.xlsx y ../fase_2/precios/lista_catalogo_temp.xlsx
+
+- **base_precios.xlsx**
+
+<div align="center">
+<img src="../imagenes/asset_repo/excel.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
 
 ---
 
