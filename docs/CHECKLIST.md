@@ -96,7 +96,7 @@ Usamos un solo 🗒️ fichero `config_proveedor.json` por proveedor: `PS`, `Pak
      width="85%"/>
 </div>
 
-**Uso de un panel en el directorio (Opcional)**: 
+**Uso del panel en el directorio (Opcional)**: 
 
 ```
 ~/books-label/fase_1/config/panel_extraer_campos.html
@@ -139,6 +139,12 @@ tu decides si usarlo.
      width="85%"/>
 </div>
 
+#### ¿Qué es `desviación_alarma = x.x`?
+
+>Python no sabe cuántos registros hay realmente en la lista de precios del proveedor. Lo que ocurre internamente es que el «Optical Character Recognition» (OCR) reconoce los caracteres en la página y los empata con los criterios que previamente le indicamos: Pag, ID, Sug_Crédito, MODELO, etc.
+
+>Por ello, utilizaremos una medida para verificar si alguna(s) página(s) fueron emparejadas incorrectamente. En otras palabras, en este punto debemos saber si contamos con el total completo de precios.
+
 - [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendras un par de tablas:
 
 ```bash
@@ -174,8 +180,10 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 
 La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecución, por lo que se convierte en la fuente principal de consulta de precios. Cada ejecución llena la tabla a partir del último registro y para consultar algún ID usa el atajo de teclado:
 
-     + `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
-     + `Atl + ⬇` $\to$ Consultar `ID`
++ `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
++ `Atl + ⬇` $\to$ Consultar `ID`
+
+- **lista_catalogo_temp.xlsx**
 
 - [ ] Al generarze la tabla `../fase_1/precios/lista_catalogo_temp.xlsx` termina la fase 1.
 
