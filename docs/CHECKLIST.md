@@ -123,7 +123,11 @@ tu decides si usarlo.
   + `desviacion_alarma`: 0.5, 1.0, 1.5, 2.0
 
 - [ ] Damos click a `COPY JSON`
-- [ ] Pegamos la configuración JSON en el fichero correspondiente: `/fase_1/config_price.json`, `/fase_1/config_pakar.json`, `/fase_1/config_cklass.json`.
+- [ ] Pegamos la configuración JSON en el fichero correspondiente: 
+
+     - `/fase_1/config_price.json` 
+     - `/fase_1/config_pakar.json`
+     - `/fase_1/config_cklass.json`
 
 <div align="center">
 <img src="../imagenes/asset_repo/config_fase_1.png"
@@ -139,7 +143,7 @@ tu decides si usarlo.
      width="85%"/>
 </div>
 
-#### ¿Qué es `desviación_alarma = x.x`?
+#### ¿Qué es `desviación_alerta = x.x`?
 
 >Python no sabe cuántos registros hay realmente en la lista de precios del proveedor. Lo que ocurre internamente es que el «Optical Character Recognition» (OCR) reconoce los caracteres en la página y los empata con los criterios que previamente le indicamos: Pag, ID, Sug_Crédito, MODELO, etc.
 
@@ -168,7 +172,7 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 
 - [ ] Se genera el fichero `../fase_2/lista_catalog_temp.xlsx` 
 
-#### Generación de 2 ficheros ../fase_1/salida/base_precios.xlsx y ../fase_2/precios/lista_catalogo_temp.xlsx
+#### Generación de 2 ficheros: ../fase_1/salida/base_precios.xlsx y ../fase_2/precios/lista_catalogo_temp.xlsx
 
 - **base_precios.xlsx**
 
@@ -180,8 +184,8 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 
 La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecución, por lo que se convierte en la fuente principal de consulta de precios. Cada ejecución llena la tabla a partir del último registro y para consultar algún ID usa el atajo de teclado:
 
-+ `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
-+ `Atl + ⬇` $\to$ Consultar `ID`
+  + `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
+  + `Atl + ⬇` $\to$ Consultar `ID`
 
 - **lista_catalogo_temp.xlsx**
 
