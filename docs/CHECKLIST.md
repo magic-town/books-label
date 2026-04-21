@@ -29,7 +29,7 @@ del proveedor        catálogo            al cliente
 
 El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo.
 
-Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/<proveedor>/`:
+Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor en el directorio 📁 `~/boutique_zepeda/<proveedor>/`
 
 + **Price Shoes**: 👉 https://www.priceshoes.com/ $\to$ 📥 Download
 + **Pakar**:  📱 app móvil $\to$ compartir a Whatsapp $\to$ 📥 Download
