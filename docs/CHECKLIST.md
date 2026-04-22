@@ -223,7 +223,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci√
  
 **lista_catalogo_temp.xlsx**
 
-- [ ] Al generarze la tabla `../fase_1/precios/lista_catalogo_temp.xlsx` termina la fase 1.
+- [ ] Al generarze la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` termina la fase 1.
 
 ---
 
