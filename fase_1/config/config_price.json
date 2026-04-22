@@ -13,7 +13,7 @@
     "encoding_offset": 29,
     "tolerancia_x":    15,
 
-    "desviacion_alerta": 2,
+    "desviacion_alerta": 1.5,
 
     "col_pag":         "Pag",
     "col_id":          "ID",
