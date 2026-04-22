@@ -621,7 +621,7 @@ class ExtractorCatalogo:
 
     def __init__(self, config: dict, base_dir: str):
         nombre = os.path.splitext(
-            os.path.basename(config.get("_config_path", "extractor_01"))
+            os.path.basename(config.get("_config_path", "extractor"))
         )[0]
         self.logger    = setup_logger(nombre, base_dir)
         self.config    = config

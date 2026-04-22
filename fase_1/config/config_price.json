@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Prokennex",
+    "catalogo":        "Perfumes00",
     "temporada":       "2026",
 
-    "pdf_input":       "lista_cruda/lista_prokennex_26.pdf",
-    "excel_output":    "precios/lista_prokennex_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_perfumes.pdf",
+    "excel_output":    "precios/lista_perfumes.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

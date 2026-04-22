@@ -187,6 +187,40 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci�
   + `Ctrl + Shift + L` $\to$ aplicar filtros a los encabezados
   + `Atl + ⬇` $\to$ Consultar `ID`
 
+**NOTAS para base_precios.xlsx**
+
+> La tabla `base_precios.xlsx` al ser una tabla que se autogenera tiene detalles a tomar en cuenta
+
+1. La tabla se llena con cada extracción, no es necesario validar o abrirla con cada ejecución.
+2. Cuando hagas la siguiente ejecución de `extractor.py` debe estar cerrado el fichero para evitar sobreescritura o perdida de información.
+3. Si tiens que eliminar registros para evitar duplicados o por algún error, sigue estos pasos:
+
+     3.1 Posicionate el la celda donde inician los registros a eliminar, en este ejemplo deseo eliminar los registros para `Perfumes00`, asi que me posiciono en `A179`:
+
+     <div align="center">
+     <img src="../imagenes/asset_repo/A171.png"
+          alt="Boutique Zepeda — Taller de Etiquetado"
+          width="70%"/>
+     </div>
+
+     3.2 Usa `Shift + Barra Espaciadora` para seleccionar la fila completa
+
+     <div align="center">
+     <img src="../imagenes/asset_repo/fila.png"
+          alt="Boutique Zepeda — Taller de Etiquetado"
+          width="70%"/>
+     </div>
+
+     3.3 Sin soltar `Shift` selecciona el resto de filas a eliminar (deben verse las filas completas seleccionadas):
+
+     <div align="center">
+     <img src="../imagenes/asset_repo/seleccion.png"
+          alt="Boutique Zepeda — Taller de Etiquetado"
+          width="70%"/>
+     </div>
+
+     3.4 Usa `Ctrl + -` Control con la tecla menos para eliminar la filas completas.
+ 
 **lista_catalogo_temp.xlsx**
 
 - [ ] Al generarze la tabla `../fase_1/precios/lista_catalogo_temp.xlsx` termina la fase 1.
