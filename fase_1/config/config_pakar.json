@@ -14,7 +14,7 @@
     "tolerancia_x":    3,
     "tol_col":         12,
 
-    "desviacion_alerta": 0.5,
+    "desviacion_alerta": 2.0,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",

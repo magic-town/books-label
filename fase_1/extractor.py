@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extractor_01.py — Extractor acumulativo de listas de precios
+extractor.py — Extractor acumulativo de listas de precios
 Boutique Zepeda · books-label · Fase 1
 
 Uso:
-    python3 fase_1/extractor_01.py --config fase_1/config/config_ps.json
+    python3 fase_1/extractor.py --config fase_1/config/config_ps.json
 
 Cambios respecto a extractor.py:
     - Acumula registros en un xlsx único con pestañas por proveedor

@@ -8,7 +8,7 @@
     "temporada":       "2026",
 
     "pdf_input":       "lista_cruda/lista_perfumes.pdf",
-    "excel_output":    "precios/lista_perfumes.xlsx",
+    "excel_output":    "precios/lista_perfumes_26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
