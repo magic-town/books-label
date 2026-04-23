@@ -1,8 +1,8 @@
 ## Opciones de prompt para publicar o postear en redes sociales (Fb, Whatsapp)
 
-Este archivo Markdown te servirá para crear publicaciones en estados de WhatsApp o posts en Facebook.
+Este fichero Markdown es para crear publicaciones en estados de WhatsApp, Facebook, IG.
 
-Para utilizarlo correctamente, necesitas contar con la imagen de la prenda y seleccionar uno de los prompts disponibles.
+Para usarlo ocuparemos un contenedor 📦 para archivar las prendas antes y después de la edición. 
 
 Elige el prompt según el público al que esté dirigido el producto:
 
