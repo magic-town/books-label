@@ -13,56 +13,212 @@ Guarda las fotos o toma capturas con `flameshot` para usar como inputo o archivo
 
 Elige el prompt según el público al que esté dirigido el producto:
 
-* [Catálogo] (#Catálogo)
+* [Catálogo](#Catálogo)
 * [Dama](#Dama)
-* [Caballero] (#Caballero)
-* [Infantil] (#Infantil)
-* [Accesorios] (#Accesorios)
+* [Caballero](#Caballero)
+* [Infantil](#Infantil)
+* [Accesorios](#Accesorios)
 
 Una vez seleccionado el prompt adecuado, utilízalo junto con la imagen de la prenda, logo (opcional) para generar una publicación visual atractiva y enfocada en la venta.
 
 ## Catálogo
 
 ```text
-Visualización de producto en ultra alta calidad de la prenda que te comparto, centrada y dominante en la composición.
+Portada de catálogo moderna y elegante, composición visual centrada en el producto principal, iluminación profesional tipo estudio, fondo limpio con degradado suave o textura premium, enfoque en detalles y materiales, sombras suaves y realistas, estilo comercial de alta calidad, estética minimalista pero atractiva.
 
-La prenda se muestra con un estilo 3D realista, con textura de tela visible, sombras suaves y pliegues naturales, transmitiendo una sensación premium y táctil.
+El producto debe estar centrado y dominante en la escena, con profundidad de campo ligera y acabado hiperrealista.
 
-Fondo: minimalista, con degradado suave o color sólido inspirado en e-commerce de moda de alta gama (tonos neutros como beige, gris suave, pastel o tonos oscuros elegantes, eligiendo el que mejor contraste con la prenda). Añadir un sutil resplandor de luz detrás del producto para reforzar el enfoque.
+Agregar una leyenda breve y creativa (máximo 3-5 palabras) relacionada con nuevos productos, colocada de forma discreta y elegante, sin robar protagonismo a la imagen.
 
-Composición: limpia y balanceada, con espacio negativo alrededor de la prenda para colocar elementos comerciales definidos por la siguiente configuración JSON:
+Formato vertical 9:16 (ideal para estados de WhatsApp), alta resolución, colores vibrantes pero equilibrados, estilo premium tipo marca reconocida.
+
+Evitar saturación excesiva de texto, evitar elementos distractores, mantener enfoque visual en el producto.
+```
+
+## Dama
+
+```text
+Visualización de producto en ultra alta calidad de una prenda de dama (moda femenina), centrada y dominante en la composición.
+
+La prenda se muestra con un estilo 3D realista o fotografía hiperrealista, con textura de tela visible, caída natural, detalles finos y pliegues suaves que transmitan elegancia, feminidad y una sensación premium y táctil.
+
+Fondo: minimalista, con degradado suave o color sólido inspirado en e-commerce de moda femenina de alta gama (tonos neutros como beige, nude, gris suave, pastel o tonos oscuros elegantes, eligiendo el que mejor contraste con la prenda). Añadir un sutil resplandor de luz detrás del producto para reforzar el enfoque.
+
+Composición: limpia, estética y balanceada, con espacio negativo alrededor de la prenda para colocar elementos comerciales definidos por la siguiente configuración JSON:
 
 {
-  "etiqueta": {
-    "mostrar_precio": true,
+  "label": {
+    "show_precio": true,
     "precio": "00.00",
 
-    "mostrar_marca": false,
+    "show_marca": false,
     "marca": "NOMBRE_MARCA",
-    "talla": "false",
-    "descripción": "false",
+
+    "show_talla": false,
+    "talla": "XG",
+
+    "show_descripcion": false,
+    "descripcion": "tela algodón",
 
     "mostrar_logo": false,
+    "show_logo": "usa el logo que te comparto de manera armónica y bien distribuida en la publicación",
 
     "estilo": "minimalista_premium"
   }
 }
 
-La etiqueta debe ser altamente estilizada según el campo "estilo", con diseño limpio, moderno y elegante. Debe integrarse de forma natural en la composición (por ejemplo: esquina inferior, tipo badge, o etiqueta flotante), sin distraer del producto pero siendo claramente visible para fines de venta. Para los campos en false, no se toman en cuenta para la publicación, de tener valor debes agregarlos de maanera natural y alineado a una publicación de tienda online dinamica y de alta gamma, la etiqueta no debe ser el tipico recuadro con datos, debes distribuir la ifno de manera armonica y elegir la tipografía correcta.
+La etiqueta debe ser altamente estilizada según el campo "estilo", con diseño limpio, moderno, femenino y elegante. Debe integrarse de forma natural en la composición (por ejemplo: esquina inferior, tipo badge, o etiqueta flotante), sin distraer del producto pero siendo claramente visible para fines de venta.
 
-Agregar elementos de diseño modernos y sutiles: formas geométricas suaves, sombras ligeras o reflejos de luz que aporten profundidad sin distraer del producto.
+Para los campos en false, no se deben mostrar. Si están en true, integrar la información de manera natural, evitando recuadros tradicionales; distribuir los datos con tipografía elegante y alineada a una publicación de tienda online dinámica y de alta gama.
 
-Iluminación: tipo estudio, suave pero direccional, generando profundidad y realismo.
+Agregar elementos de diseño modernos y sutiles: formas orgánicas suaves, sombras ligeras, brillos delicados o reflejos de luz que aporten profundidad sin distraer del producto.
 
-Estilo: premium, elegante, moderno, sin saturación visual, pero tampoco demasiado simple — visualmente atractivo y limpio.
+Iluminación: tipo estudio, suave pero direccional, resaltando texturas y volumen.
+
+Estilo general: premium, elegante, femenino, moderno, visualmente atractivo, sin saturación pero con presencia comercial clara.
+
+Formato vertical 9:16, ideal para estados de WhatsApp.
 
 Alta resolución, enfoque nítido, estilo fotografía comercial de producto.
 ```
 
-## Dama
-
 ## Caballero
+
+```text
+Visualización de producto en ultra alta calidad de una prenda de caballero (moda masculina), centrada y dominante en la composición.
+
+La prenda se muestra con un estilo 3D realista o fotografía hiperrealista, con textura de tela visible, estructura definida, cortes precisos y pliegues naturales que transmitan elegancia, carácter y una sensación premium y táctil.
+
+Fondo: minimalista, con degradado suave o color sólido inspirado en e-commerce de moda masculina de alta gama (tonos neutros como gris, negro, azul marino, beige oscuro o tonos sobrios elegantes, eligiendo el que mejor contraste con la prenda). Añadir un sutil resplandor de luz detrás del producto para reforzar el enfoque.
+
+Composición: limpia, sólida y balanceada, con espacio negativo alrededor de la prenda para colocar elementos comerciales definidos por la siguiente configuración JSON:
+
+{
+  "label": {
+    "show_precio": true,
+    "precio": "00.00",
+
+    "show_marca": false,
+    "marca": "NOMBRE_MARCA",
+
+    "show_talla": false,
+    "talla": "XG",
+
+    "show_descripcion": false,
+    "descripcion": "tela algodón",
+
+    "mostrar_logo": false,
+    "show_logo": "usa el logo que te comparto de manera armónica y bien distribuida en la publicación",
+
+    "estilo": "minimalista_premium"
+  }
+}
+
+La etiqueta debe ser altamente estilizada según el campo "estilo", con diseño limpio, moderno y elegante con estética masculina. Debe integrarse de forma natural en la composición (por ejemplo: esquina inferior, tipo badge, o etiqueta flotante), sin distraer del producto pero siendo claramente visible para fines de venta.
+
+Para los campos en false, no se deben mostrar. Si están en true, integrar la información de manera natural, evitando recuadros tradicionales; distribuir los datos con tipografía sobria, fuerte y alineada a una publicación de tienda online dinámica y de alta gama.
+
+Agregar elementos de diseño modernos y sutiles: líneas geométricas discretas, sombras suaves, reflejos controlados o acentos visuales que aporten profundidad sin distraer del producto.
+
+Iluminación: tipo estudio, suave pero direccional, resaltando estructura, textura y volumen.
+
+Estilo general: premium, elegante, masculino, moderno, visualmente atractivo, con presencia sólida sin saturación.
+
+Formato vertical 9:16, ideal para estados de WhatsApp.
+
+Alta resolución, enfoque nítido, estilo fotografía comercial de producto.
+```
 
 ## Infantil
 
+```text
+Visualización de producto en ultra alta calidad de una prenda infantil (moda para niños/niñas), centrada y dominante en la composición.
+
+La prenda se muestra con un estilo 3D realista o fotografía hiperrealista, con textura de tela visible, acabados suaves, formas ligeras y pliegues naturales que transmitan comodidad, frescura y una sensación de calidad.
+
+Fondo: minimalista con un toque alegre, utilizando degradados suaves o colores sólidos inspirados en e-commerce infantil moderno (tonos pastel, colores claros o combinaciones suaves como azul cielo, rosa, menta, beige claro o lavanda). Elegir el fondo que mejor contraste con la prenda. Añadir un sutil resplandor de luz detrás del producto para reforzar el enfoque.
+
+Composición: limpia, equilibrada y amigable, con espacio negativo alrededor de la prenda para colocar elementos comerciales definidos por la siguiente configuración JSON:
+
+{
+  "label": {
+    "show_precio": true,
+    "precio": "00.00",
+
+    "show_marca": false,
+    "marca": "NOMBRE_MARCA",
+
+    "show_talla": false,
+    "talla": "XG",
+
+    "show_descripcion": false,
+    "descripcion": "tela algodón",
+
+    "mostrar_logo": false,
+    "show_logo": "usa el logo que te comparto de manera armónica y bien distribuida en la publicación",
+
+    "estilo": "minimalista_premium"
+  }
+}
+
+La etiqueta debe ser altamente estilizada según el campo "estilo", con diseño limpio, moderno y con un toque amigable y ligero. Debe integrarse de forma natural en la composición (por ejemplo: esquina inferior, tipo badge, o etiqueta flotante), sin distraer del producto pero siendo claramente visible para fines de venta.
+
+Para los campos en false, no se deben mostrar. Si están en true, integrar la información de manera natural, evitando recuadros tradicionales; distribuir los datos con tipografía clara, amigable y legible, alineada a una publicación de tienda online dinámica.
+
+Agregar elementos de diseño modernos y sutiles: formas suaves u orgánicas, ligeros acentos gráficos (curvas, burbujas, brillos suaves) que aporten dinamismo sin saturar la imagen.
+
+Iluminación: tipo estudio, suave y uniforme, resaltando colores y textura sin generar sombras duras.
+
+Estilo general: limpio, moderno, amigable, alegre pero equilibrado, visualmente atractivo sin saturación.
+
+Formato vertical 9:16, ideal para estados de WhatsApp.
+
+Alta resolución, enfoque nítido, estilo fotografía comercial de producto.
+```
+
 ## Accesrios
+
+```text
+Visualización de producto en ultra alta calidad de un accesorio de moda, centrado y dominante en la composición.
+
+El accesorio se muestra con un estilo 3D realista o fotografía hiperrealista, con alto nivel de detalle en materiales (metal, piel, tela, plástico, etc.), acabados finos, reflejos controlados y texturas visibles que transmitan calidad, precisión y una sensación premium.
+
+Fondo: minimalista, con degradado suave o color sólido inspirado en e-commerce de accesorios de alta gama (tonos neutros como negro, gris, beige, blanco o colores elegantes según el producto). Elegir el fondo que mejor contraste con el accesorio. Añadir un sutil resplandor de luz detrás del producto para reforzar el enfoque.
+
+Composición: limpia, precisa y balanceada, con el accesorio perfectamente centrado y con suficiente espacio negativo alrededor para colocar elementos comerciales definidos por la siguiente configuración JSON:
+
+{
+  "label": {
+    "show_precio": true,
+    "precio": "00.00",
+
+    "show_marca": false,
+    "marca": "NOMBRE_MARCA",
+
+    "show_talla": false,
+    "talla": "XG",
+
+    "show_descripcion": false,
+    "descripcion": "material premium",
+
+    "mostrar_logo": false,
+    "show_logo": "usa el logo que te comparto de manera armónica y bien distribuida en la publicación",
+
+    "estilo": "minimalista_premium"
+  }
+}
+
+La etiqueta debe ser altamente estilizada según el campo "estilo", con diseño limpio, moderno y elegante. Debe integrarse de forma natural en la composición (por ejemplo: esquina inferior, tipo badge o elemento flotante), sin distraer del accesorio pero siendo claramente visible para fines de venta.
+
+Para los campos en false, no se deben mostrar. Si están en true, integrar la información de manera natural, evitando recuadros tradicionales; distribuir los datos con tipografía elegante y acorde al tipo de accesorio (lujoso, casual, deportivo, etc.), alineada a una publicación de tienda online dinámica y de alta gama.
+
+Agregar elementos de diseño modernos y sutiles: líneas finas, reflejos suaves, sombras ligeras o acentos visuales que aporten profundidad sin saturar la escena.
+
+Iluminación: tipo estudio, precisa y controlada, resaltando brillos, bordes y textura del accesorio.
+
+Estilo general: premium, limpio, moderno, detallado, visualmente atractivo con enfoque en el producto.
+
+Formato vertical 9:16, ideal para estados de WhatsApp.
+
+Alta resolución, enfoque nítido, estilo fotografía comercial de producto.
+```
