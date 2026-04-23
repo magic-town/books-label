@@ -1,17 +1,27 @@
-## Opciones de prompt para publicar o postear en redes sociales (Fb, Whatsapp)
+# Catálogo de prompt para publicaciones en redes sociales (Fb, Whatsapp, IG).
 
-Este fichero Markdown es para crear publicaciones en estados de WhatsApp, Facebook, IG.
+> Este fichero Markdown es para crear publicaciones en estados de WhatsApp, Facebook, IG.
 
-Para usarlo ocuparemos un contenedor 📦 para archivar las prendas antes y después de la edición. 
+Para usarlo ocuparemos un contenedor 📦 para archivar las prendas antes y después de la edición.
+
+```
+~/boutique_zepeda/pto_montaje/social_media/
+```
+
+Guarda las fotos o toma capturas con `flameshot` para usar como inputo o archivo adjunto en: ChatGPT, Gemmini Nano Banana.
+
 
 Elige el prompt según el público al que esté dirigido el producto:
 
-* Infantil
-* Dama
-* Caballero
-* Accesorios
+* [Catálogo] (#Catálogo)
+* [Dama](#Dama)
+* [Caballero] (#Caballero)
+* [Infantil] (#Infantil)
+* [Accesorios] (#Accesorios)
 
 Una vez seleccionado el prompt adecuado, utilízalo junto con la imagen de la prenda, logo (opcional) para generar una publicación visual atractiva y enfocada en la venta.
+
+## Catálogo
 
 ```text
 Visualización de producto en ultra alta calidad de la prenda que te comparto, centrada y dominante en la composición.
@@ -48,3 +58,11 @@ Estilo: premium, elegante, moderno, sin saturación visual, pero tampoco demasia
 
 Alta resolución, enfoque nítido, estilo fotografía comercial de producto.
 ```
+
+## Dama
+
+## Caballero
+
+## Infantil
+
+## Accesrios
