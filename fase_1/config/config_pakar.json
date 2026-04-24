@@ -4,17 +4,17 @@
 
     "proveedor":       "Pakar",
     
-    "catalogo":        "mujer00",
+    "catalogo":        "catalogo_pk_hombre_rgb.pdf",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/listapakar_mujer.pdf",
-    "excel_output":    "precios/listapakar_mujer.xlsx",
+    "pdf_input":       "lista_cruda/listapakar_hombre.pdf",
+    "excel_output":    "precios/listapakar_hombre.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
     "tol_col":         12,
 
-    "desviacion_alerta": 1.5,
+    "desviacion_alerta": 2,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",
