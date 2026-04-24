@@ -176,10 +176,16 @@ def _tiene_encoding_ps(words: list) -> bool:
 
 def _limpiar_precio(val: str) -> str | None:
     """
-    Acepta formatos:
-        "$579.00"  → "579"
-        "349,00"   → "349"   (Cklass Fashionline / SportBrands)
-        "1,079.00" → "1079"  (miles con coma, decimal con punto)
+    Acepta todos los formatos de precio presentes en el PDF Cklass:
+
+        "$579.00"        → "579"   (Dama, Urban, calzado — decimal con punto)
+        "$1,079.00"      → "1079"  (miles con coma, decimal con punto)
+        "349,00"         → "349"   (Ropa Caballero / Fashionline / SportBrands — decimal con coma)
+        "$1.849,00"      → "1849"  (SportBrands miles con punto, decimal con coma)
+        "$ 69"           → "69"    (Home / WE Cosmetics — entero con espacio tras $)
+        "$1.199,00"      → "1199"
+        "1.799,00"       → "1799"
+
     Descarta cualquier valor que contenga letras (ej. "Precio a tu conveniencia").
     """
     if not val:
@@ -188,17 +194,27 @@ def _limpiar_precio(val: str) -> str | None:
     # Descartar si tiene letras
     if re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', s):
         return None
-    # Eliminar $ y espacios
+    # Eliminar $ y espacios internos
     s = re.sub(r'[$\s]', '', s)
-    # Formato miles con punto decimal: "1,079.00" → eliminar comas de miles
-    if re.match(r'^\d{1,3}(,\d{3})*\.\d+$', s):
-        s = s.replace(',', '')
-    # Formato decimal con coma (europeo/Cklass): "349,00" → "349"
+    if not s:
+        return None
+
+    # ── Normalizar a entero ──────────────────────────────────────────
+    # Caso 1: Miles con punto Y decimal con coma: "1.849,00" o "1.799,00"
+    if re.match(r'^\d{1,3}(\.\d{3})+,\d{2}$', s):
+        s = s.replace('.', '').split(',')[0]
+    # Caso 2: Miles con coma Y decimal con punto: "1,079.00"
+    elif re.match(r'^\d{1,3}(,\d{3})+\.\d+$', s):
+        s = s.replace(',', '').split('.')[0]
+    # Caso 3: Decimal con coma sin miles: "349,00"
     elif re.match(r'^\d+,\d{2}$', s):
         s = s.split(',')[0]
-    # Eliminar decimales .xx restantes
-    s = re.sub(r'\.0+$', '', s)
-    s = re.sub(r'\.\d+$', '', s)
+    # Caso 4: Decimal con punto: "579.00" o "1199.00"
+    elif re.match(r'^\d+\.\d+$', s):
+        s = s.split('.')[0]
+    # Caso 5: Entero puro: "69", "199", "1199"
+    # (ya es correcto)
+
     if re.match(r'^\d+$', s) and s:
         return s
     return None
@@ -632,10 +648,9 @@ class ExtractorCklass:
     """
 
     # Encabezados esperados en el PDF
-    # Sólo se extraen PÁGINA, MODELO y CRÉDITO.
-    # CLAVE (7 dígitos) existe en las páginas 2-29 pero NO se exporta.
     COL_PAG    = "PÁGINA"
     COL_MODELO = "MODELO"
+    COL_CLAVE  = "CLAVE"
     COL_PRECIO = "CRÉDITO"
 
     # Tolerancia horizontal para alinear tokens a columnas (px)
@@ -683,21 +698,28 @@ class ExtractorCklass:
                     continue
 
                 # Detectar/refrescar posiciones X del encabezado
-                nuevo_cx = self._detectar_columnas(words)
-                if nuevo_cx:
-                    col_x = nuevo_cx
-                    self.logger.debug(
-                        f"  Pág {pdf_pag_idx}: encabezado detectado — "
-                        f"pag@x={col_x['pag']:.0f}  modelo@x={col_x['modelo']:.0f}  "
-                        f"precio@x={col_x['precio']:.0f}"
-                    )
+                # Puede haber múltiples encabezados en la misma página
+                # (ej. pág 23: Fashionline + Joyería + Lencería)
+                encabezados = self._detectar_todos_encabezados(words)
+                if encabezados:
+                    col_x = encabezados[0][1]  # primer encabezado de la página
+                    if len(encabezados) > 1:
+                        self.logger.debug(
+                            f"  Pág {pdf_pag_idx}: {len(encabezados)} encabezados detectados"
+                        )
+                    else:
+                        self.logger.debug(
+                            f"  Pág {pdf_pag_idx}: encabezado detectado — "
+                            f"pag@x={col_x['pag']:.0f}  modelo@x={col_x['modelo']:.0f}  "
+                            f"precio@x={col_x['precio']:.0f}"
+                        )
 
                 if col_x is None:
                     self.logger.warning(f"  Pág {pdf_pag_idx}: sin encabezado conocido — omitida")
                     continue
 
-                # Extraer filas brutas con coordenadas
-                filas_brutas = self._extraer_filas_brutas(words, col_x)
+                # Extraer filas brutas con soporte para múltiples encabezados
+                filas_brutas = self._extraer_filas_brutas(words, encabezados if encabezados else [(0.0, col_x)])
 
                 # Si la página pertenece a UN solo catálogo, asignación directa
                 if len(cats_en_pag) == 1:
@@ -735,111 +757,162 @@ class ExtractorCklass:
 
     def _detectar_columnas(self, words: list) -> dict | None:
         """
-        Busca la fila que contiene PÁGINA, MODELO y CRÉDITO y registra
-        sus posiciones X.  Devuelve None si no se encuentra.
+        Detecta el PRIMER encabezado con PÁGINA + MODELO + CRÉDITO y
+        devuelve sus posiciones X.  Se llama para el primer encabezado;
+        _detectar_todos_encabezados maneja páginas con varios.
+        """
+        return self._detectar_todos_encabezados(words)[0][1] if self._detectar_todos_encabezados(words) else None
+
+    def _detectar_todos_encabezados(self, words: list) -> list[tuple[float, dict]]:
+        """
+        Detecta todos los encabezados de tabla en la página.
+        Solo busca las tres columnas que siempre están presentes:
+            PÁGINA → pag
+            MODELO → modelo
+            CRÉDITO → precio
+
+        Devuelve lista de (y_top, col_x) ordenada ascendente.
+        Las posiciones X se calibran desde el encabezado real de cada sub-tabla,
+        lo que cubre tanto el formato estándar (con CLAVE) como los formatos
+        alternativos (Joyería, Bolsos Handbags, WE Cosmetics, Home, SportBrands).
         """
         filas_y: dict[int, list] = {}
         for w in words:
+            if w["x0"] < 0:
+                continue
             filas_y.setdefault(round(w["top"]), []).append(w)
 
+        resultado = []
         for y in sorted(filas_y):
             row_texts = {w["text"].strip(): w for w in filas_y[y]}
-            if self.COL_PAG in row_texts and self.COL_MODELO in row_texts:
-                col_x = {
-                    "pag":    row_texts[self.COL_PAG]["x0"],
-                    "modelo": row_texts[self.COL_MODELO]["x0"],
-                }
-                # CRÉDITO puede estar en la misma fila o ±5 px
-                if self.COL_PRECIO in row_texts:
-                    col_x["precio"] = row_texts[self.COL_PRECIO]["x0"]
-                else:
-                    # Buscar en filas cercanas (encabezado partido en 2 líneas)
-                    for y2 in sorted(filas_y):
-                        if y2 == y:
-                            continue
-                        if abs(y2 - y) > 8:
-                            continue
-                        for w in filas_y[y2]:
-                            if w["text"].strip() == self.COL_PRECIO:
-                                col_x["precio"] = w["x0"]
-                                break
-                        if "precio" in col_x:
-                            break
+            if self.COL_PAG not in row_texts or self.COL_MODELO not in row_texts:
+                continue
 
-                if "precio" in col_x:
-                    return col_x
-        return None
+            col_x: dict = {}
+            for w in filas_y[y]:
+                txt = w["text"].strip()
+                if txt == self.COL_PAG:
+                    col_x["pag"]    = w["x0"]
+                elif txt == self.COL_MODELO:
+                    col_x["modelo"] = w["x0"]
+                elif txt == self.COL_PRECIO:
+                    col_x["precio"] = w["x0"]
+
+            # CRÉDITO puede estar en fila adyacente (encabezado partido en 2 líneas)
+            if "precio" not in col_x:
+                for y2 in sorted(filas_y):
+                    if y2 == y or abs(y2 - y) > 8:
+                        continue
+                    for w in filas_y[y2]:
+                        if w["text"].strip() == self.COL_PRECIO:
+                            col_x["precio"] = w["x0"]
+                            break
+                    if "precio" in col_x:
+                        break
+
+            if "pag" in col_x and "modelo" in col_x and "precio" in col_x:
+                resultado.append((float(y), col_x))
+
+        return resultado
 
     # ── Extracción de filas brutas ────────────────────────────────────
 
-    def _extraer_filas_brutas(self, words: list, col_x: dict) -> list[dict]:
+    def _extraer_filas_brutas(self, words: list, encabezados: list[tuple[float, dict]]) -> list[dict]:
         """
         Agrupa tokens por fila (y) y los asigna a la columna más cercana
-        (pag | modelo | precio).  Incluye la coordenada y_top para
-        poder ordenar filas y detectar transiciones de catálogo.
+        (pag | modelo | precio).
 
-        El modelo puede ser multi-token ("DUO 417", "Combo 040") por eso
-        se concatenan todos los tokens que caen en la columna modelo.
+        Estrategia de asignación de precio (en orden de precedencia):
+        1. Token cuyo x0 está dentro de TOL_X del x_precio del encabezado vigente.
+        2. Si no hay candidato por posición, el token numérico más a la derecha
+           de la fila (los precios siempre son los valores más derechos antes de
+           TALLA/NUMERACIÓN). Esto cubre tablas sin CLAVE donde el encabezado
+           "CRÉDITO" tiene un offset respecto a los datos reales.
+
+        Tokens con x < 0 se descartan (sub-tablas doble columna en SportBrands).
         """
-        x_pag    = col_x["pag"]
-        x_modelo = col_x["modelo"]
-        x_precio = col_x["precio"]
-        tol      = self.TOL_X
+        enc_sorted = sorted(encabezados, key=lambda t: t[0])
 
-        # Ancho estimado de columna modelo (hasta CLAVE)
-        # Cualquier token entre x_modelo y x_precio - tol se considera modelo
+        def _get_col_x(y_fila: float) -> dict:
+            active = enc_sorted[0][1]
+            for y_enc, cx in enc_sorted:
+                if y_fila >= y_enc:
+                    active = cx
+                else:
+                    break
+            return active
+
+        tol    = self.TOL_X
+        # RE para reconocer un token de precio numérico
+        _RE_PRECIO = re.compile(
+            r'^\$?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?$'
+        )
+
+        # Acumular por y_round → {pag, modelo, _precio_candidatos: [(x, tok)]}
         acumulados: dict[int, dict] = {}
 
         for w in words:
             tok = w["text"].strip()
             if not tok:
                 continue
-            x   = w["x0"]
-            y   = round(w["top"])
+            x = w["x0"]
+            y = round(w["top"])
 
-            # Skip encabezados de ambos formatos del PDF
-            # Formato pág 2-29:  PÁGINA MODELO CLAVE COLOR CONTADO CRÉDITO NUMERACIÓN
-            # Formato pág 31-40: PÁGINA MODELO COLOR CONTADO CRÉDITO TALLA OBSERVACIÓN
-            if tok in (self.COL_PAG, self.COL_MODELO, "CLAVE",
+            if x < 0:
+                continue
+
+            # Ignorar encabezados y decorativos
+            if tok in (self.COL_PAG, self.COL_MODELO, self.COL_CLAVE,
                        self.COL_PRECIO, "COLOR", "CONTADO", "NUMERACIÓN",
                        "TALLA", "OBSERVACIÓN"):
                 continue
-            # Ignorar líneas de texto de colección/temporada
+            # Ignorar '$' suelto: WE Cosmetics/Home separan "$ 69" en dos tokens
+            if tok == "$":
+                continue
             if re.search(r'C\s*O\s*L\s*E\s*C\s*C', tok, re.IGNORECASE):
                 continue
             if re.search(r'PRIMAVERA|VERANO', tok, re.IGNORECASE):
                 continue
 
-            # Asignar a columna
+            col_x    = _get_col_x(float(w["top"]))
+            x_pag    = col_x["pag"]
+            x_modelo = col_x["modelo"]
+            x_precio = col_x["precio"]
+
             dist_pag    = abs(x - x_pag)
             dist_modelo = abs(x - x_modelo)
             dist_precio = abs(x - x_precio)
 
-            min_dist = min(dist_pag, dist_modelo, dist_precio)
+            acumulados.setdefault(y, {"y_top": w["top"], "_precio_cands": []})
 
-            if min_dist > tol * 3:
-                # Token demasiado alejado de cualquier columna → ignorar
-                # (numeración, tamaños, "al", "Enteros", etc.)
-                continue
+            if dist_pag <= tol and dist_pag == min(dist_pag, dist_modelo, dist_precio):
+                prev = acumulados[y].get("pag", "")
+                acumulados[y]["pag"] = (prev + " " + tok).strip() if prev else tok
 
-            if min_dist == dist_pag and dist_pag <= tol:
-                col = "pag"
-            elif min_dist == dist_precio and dist_precio <= tol:
-                col = "precio"
+            elif dist_precio <= tol:
+                # En rango exacto del encabezado → precio seguro
+                acumulados[y]["_precio_cands"].append((dist_precio, x, tok))
+
             elif dist_modelo <= tol * 2.5:
-                # Modelo tiene rango más amplio para capturar tokens multi-parte
-                col = "modelo"
-            else:
-                continue
+                prev = acumulados[y].get("modelo", "")
+                acumulados[y]["modelo"] = (prev + " " + tok).strip() if prev else tok
 
-            acumulados.setdefault(y, {"y_top": w["top"]})
-            prev = acumulados[y].get(col, "")
-            # Para modelo: concatenar tokens en orden de aparición
-            acumulados[y][col] = (prev + " " + tok).strip() if prev else tok
+            elif _RE_PRECIO.match(tok):
+                # Token numérico fuera de rango de posición →
+                # candidato de precio por valor (para tablas sin CLAVE)
+                acumulados[y]["_precio_cands"].append((dist_precio, x, tok))
 
-        # Convertir a lista ordenada por y
-        filas = [{"y_top": v["y_top"], **{k: v[k] for k in v if k != "y_top"}}
-                 for v in acumulados.values()]
+        # Resolver precio: tomar el candidato con menor distancia a x_precio
+        filas = []
+        for y, data in acumulados.items():
+            cands = data.pop("_precio_cands", [])
+            if cands:
+                # Ordenar por distancia; si hay empate, elegir el más a la derecha (CRÉDITO)
+                cands.sort(key=lambda c: (c[0], -c[1]))
+                data["precio"] = cands[0][2]
+            data.pop("_precio_dist", None)
+            filas.append(data)
+
         filas.sort(key=lambda r: r["y_top"])
         return filas
 
@@ -947,9 +1020,13 @@ class ExtractorCklass:
             return df
         # Quitar filas sin precio válido
         df = df[df["precio_base"].notna()].copy()
-        # Quitar filas con modelo vacío o que sean números de página del footer
+        # Precio mínimo realista: descartar < 19 (ruido de claves/numeración)
+        df["_pb_num"] = pd.to_numeric(df["precio_base"], errors="coerce")
+        df = df[df["_pb_num"] >= 19].copy()
+        df = df.drop(columns=["_pb_num"])
+        # Quitar modelos vacíos, numéricos puros cortos (footers) o de 1-3 chars
         df = df[df["modelo"].astype(str).str.strip() != ""].copy()
-        df = df[~df["modelo"].astype(str).str.match(r'^\d{1,2}$')].copy()
+        df = df[~df["modelo"].astype(str).str.match(r'^[\d\s]{1,4}$')].copy()
         # Quitar columna interna
         df = df.drop(columns=["_pdf_pag"], errors="ignore")
         return df.reset_index(drop=True)
