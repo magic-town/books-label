@@ -322,7 +322,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 - [ ] Ejecutar el script:
   ```bash
-  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config.json>
+  python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>
   ```
 - [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente si los cambios están reflejados.
 - [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar o cambiar parámetros directamente en el editor de **VSC**.
@@ -358,20 +358,22 @@ gs -dBATCH -dNOPAUSE -dQUIET \
 
 - [ ] Mantener modo prueba activo. Usar entre **20 a 30 páginas**.
 - [ ] Desactivar doble pasada durante esta etapa.
-- [ ] Probar entre 4 y 8 combinaciones. Tabla de referencia:
+- [ ] Probar a lo más las 6 combinaciones siguietes:
 
-| # | DPI | PSM | Doble pasada | Cuándo usarla |
-|---|:---:|:---:|:------------:|---------------|
-| 1 | 200 | 6 | ❌ | Punto de partida — catálogo limpio |
-| 2 | 200 | 11 | ❌ | IDs dispersos o fotos de página completa |
-| 3 | 200 | 4 | ❌ | Catálogo en columnas de texto |
-| 4 | 250 | 6 | ❌ | PDF de baja resolución |
-| 5 | 250 | 11 | ❌ | IDs dispersos con más resolución |
-| 6 | 300 | 11 | ❌ | Máxima resolución |
-| 7 | 250 | 11 | ❌ | IDs en texto blanco sobre fondo oscuro |
+| # | DPI | PSM | Cuándo usarla |
+|---|:---:|:---:|---|
+| 1 | 200 | 6 | Punto de partida — catálogo limpio |
+| 2 | 200 | 11 | IDs dispersos o página completa |
+| 3 | 200 | 4 | Catálogo en columnas de texto |
+| 4 | 250 | 6 | PDF de baja resolución |
+| 5 | 250 | 11 | IDs dispersos con más resolución |
+| 6 | 300 | 11 | Máxima resolución — catálogo muy degradado |
 
 - [ ] El dato clave de cada corrida es **Etiquetas** — no el porcentaje.
 - [ ] Registrar los resultados. Los logs se guardan en `fase_2/diagnosticos/`.
+
+**Última prueba antes de aplicar doble pasada**
+
 - [ ] Si ya encontraste la mejor combinación entre `dpi`, `psm`, puedes intentar cambiar `constraste`, `nitidez` como prueba final (no garantiza mejora).
 
 ```
@@ -406,7 +408,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
 
 - [ ] Ejecutar el script:
   ```bash
-  python3 fase_2/catalogo_base.py --config fase_2/config/<nombre_config.json>
+  python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>
   ```
 ---
 

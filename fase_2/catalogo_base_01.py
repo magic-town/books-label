@@ -98,10 +98,12 @@ class EtiquetadorCatalogo:
         self.output_path = os.path.join(base_dir, config["pdf_output"])
 
         # Proveedor — determina el formato de ID a buscar
-        # PS    → solo dígitos (configurable por longitud)
-        # Pakar → Código xxx-xxx  (dígitos-dígitos, guion fijo)
-        # Cklass → xxx-xx         (dígitos-dígitos, sin prefijo)
-        # Otro  → alfanumérico (configurable por longitud)
+        # PS     → solo dígitos (configurable por longitud)
+        # Pakar  → xxx-xxx  (3 dígitos, guion, 3 dígitos)
+        # Cklass → múltiples formatos: xxx-xx (estándar), DUO/DÚO, COMBO,
+        #          SIX, P\d+-\d+, P\d{5,}, D\d{5,}, PROMO xxx-xx
+        #          Excel de 3 columnas: catalogo | modelo | precio_venta
+        # Otro   → alfanumérico (configurable por longitud)
         self.id_proveedor = config.get("id_proveedor", "PS").strip()
 
         # Parámetros OCR
@@ -300,7 +302,7 @@ class EtiquetadorCatalogo:
         self.logger.info("📊 Cargando base de precios...")
 
         try:
-            df = pd.read_excel(self.excel_path)
+            df = pd.read_excel(self.excel_path, dtype=str)
             df.columns = [str(c).strip() for c in df.columns]
         except FileNotFoundError:
             self.logger.error(f"❌ Excel no encontrado: {self.excel_path}")
@@ -309,12 +311,26 @@ class EtiquetadorCatalogo:
             self.logger.error(f"❌ Error al leer Excel: {e}")
             raise
 
-        col_id     = "ID"
-        col_precio = "precio_venta"
-
-        if col_id not in df.columns or col_precio not in df.columns:
-            self.logger.error(f"❌ Columnas requeridas no encontradas. Disponibles: {df.columns.tolist()}")
-            raise ValueError(f"El Excel debe tener columnas '{col_id}' y '{col_precio}'")
+        # Cklass usa 'modelo' como clave; los demás proveedores usan 'ID'
+        p = self.id_proveedor.upper()
+        if p == "CKLASS":
+            col_id     = "modelo"
+            col_precio = "precio_venta"
+            if col_id not in df.columns or col_precio not in df.columns:
+                self.logger.error(
+                    f"❌ Columnas requeridas para Cklass no encontradas. "
+                    f"Esperadas: '{col_id}', '{col_precio}'. Disponibles: {df.columns.tolist()}"
+                )
+                raise ValueError(
+                    f"El Excel de Cklass debe tener columnas '{col_id}' y '{col_precio}' "
+                    f"(puede incluir también 'catalogo')."
+                )
+        else:
+            col_id     = "ID"
+            col_precio = "precio_venta"
+            if col_id not in df.columns or col_precio not in df.columns:
+                self.logger.error(f"❌ Columnas requeridas no encontradas. Disponibles: {df.columns.tolist()}")
+                raise ValueError(f"El Excel debe tener columnas '{col_id}' y '{col_precio}'")
 
         df[col_id]     = df[col_id].astype(str).str.strip()
         df[col_precio] = df[col_precio].astype(str).str.replace(r"[^\d.]", "", regex=True)
@@ -355,9 +371,34 @@ class EtiquetadorCatalogo:
             return re.compile(r'\d{3}-\d{3}'), True
 
         elif p == "CKLASS":
-            # xxx-xx  (3 dígitos, guion, 2 dígitos)
-            self.logger.info("🔑 Formato ID: Cklass → \\d{3}-\\d{2}")
-            return re.compile(r'\d{3}-\d{2}'), True
+            # Cklass tiene múltiples formatos de modelo. Patrón compuesto que
+            # cubre todos los observados en el catálogo PV26:
+            #   ① \d{3}-\d{2}         → 241-62  (estándar, 84 % de registros)
+            #   ② DUO \d+             → DUO 142
+            #   ③ D[UÚ]O #\d+         → DÚO #394  (con tilde y/o hash)
+            #   ④ COMBO \d+           → Combo 001 / COMBO 003
+            #   ⑤ COMBO #\d+          → COMBO #035
+            #   ⑥ P\d+-\d+            → P27-338
+            #   ⑦ P\d{5,}             → P28106  (P + 5 o más dígitos)
+            #   ⑧ SIX \d+             → SIX 503
+            #   ⑨ D\d{5,}             → D02530  (D + 5 o más dígitos)
+            #   ⑩ PROMO \d{3}-\d{2}   → PROMO 816-69
+            # Formatos con sufijo de color (ej. "601-72 AZUL") se resuelven
+            # por coincidencia exacta o ventana deslizante en _buscar_id.
+            pat = re.compile(
+                r'(?:'
+                r'(?:PROMO\s+)?\d{3}-\d{2}'
+                r'|D[U\xda]O\s*#?\s*\d+'
+                r'|COMBO\s*#?\s*\d+'
+                r'|SIX\s+\d+'
+                r'|P\d+-\d+'
+                r'|P\d{5,}'
+                r'|D\d{5,}'
+                r')',
+                re.IGNORECASE
+            )
+            self.logger.info("🔑 Formato ID: Cklass → patrón múltiple (estándar + DUO/COMBO/SIX/P/D)")
+            return pat, True
 
         elif p == "PS":
             # Solo dígitos, longitud configurable.
@@ -659,6 +700,11 @@ class EtiquetadorCatalogo:
         if p == "PAKAR":
             left_len, right_len = 3, 3
         elif p == "CKLASS":
+            # Cklass tiene formatos múltiples. La reconstrucción de fragmentos
+            # aplica solo al formato estándar \d{3}-\d{2} porque es el único
+            # que Tesseract parte habitualmente. Los formatos textuales
+            # (DUO/COMBO/SIX/P/D) llegan como tokens completos o bien se
+            # capturan directamente por el patrón compuesto en _extraer_id_candidato.
             left_len, right_len = 3, 2
         else:
             return data   # Otro con guion: pendiente definir formato

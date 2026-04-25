@@ -5,7 +5,7 @@
 
 ## El problema que resuelve
 
-Los catálogos de proveedores llegan como PDFs de imágenes —páginas escaneadas o generadas sin texto seleccionable—. Cada producto tiene un código de referencia (ID) impreso junto a la foto. La tarea es leer esos IDs, buscar su precio en un Excel, y escribir el precio encima del PDF en el lugar exacto donde aparece el código.
+Los catálogos de proveedores llegan como PDFs de imágenes —páginas escaneadas o generadas sin texto seleccionable—. Cada producto tiene un código de referencia (ID) impreso junto a la foto. La tarea es leer esos IDs, buscar su precio en un Excel, y escribir el precio encima del PDF en una posión cercana y legible al código/id.
 
 El resultado es un PDF listo para publicar con los precios de Boutique Zepeda superpuestos, sin alterar el diseño original del proveedor.
 
