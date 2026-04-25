@@ -4,11 +4,11 @@
 
     "proveedor":       "Pakar",
     
-    "catalogo":        "catalogo_pk_hombre_rgb.pdf",
+    "catalogo":        "catalogo_pk_coqueta.pdf",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/listapakar_hombre.pdf",
-    "excel_output":    "precios/listapakar_hombre.xlsx",
+    "pdf_input":       "lista_cruda/listapakar_coqueta.pdf",
+    "excel_output":    "precios/listapakar_coqueta.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
