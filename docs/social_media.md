@@ -24,16 +24,38 @@ Una vez seleccionado el prompt adecuado, utilízalo junto con la imagen de la pr
 ## Catálogo
 
 ```text
-Portada de catálogo moderna y elegante, composición visual centrada en el producto principal, iluminación profesional tipo estudio, fondo limpio con degradado suave o textura premium, enfoque en detalles y materiales, sombras suaves y realistas, estilo comercial de alta calidad, estética minimalista pero atractiva.
+Genera una composición visual profesional para promoción de catálogo de ropa.
 
-El producto debe estar centrado y dominante en la escena, con profundidad de campo ligera y acabado hiperrealista.
+INPUT:
+{
+  "mensaje": "Te invitamos a ver nuestro nuevo catálogo de temporada",
+  "tono": "elegante",
+  "publico": "general",
+  "estilo_marca": "moda contemporánea"
+}
 
-Agregar una leyenda breve y creativa (máximo 3-5 palabras) relacionada con nuevos productos, colocada de forma discreta y elegante, sin robar protagonismo a la imagen.
+INSTRUCCIONES:
 
-Formato vertical 9:16 (ideal para estados de WhatsApp), alta resolución, colores vibrantes pero equilibrados, estilo premium tipo marca reconocida.
+- Utiliza la imagen proporcionada como portada principal del catálogo (no modificar su contenido).
+- Agrega un background adicional fuera de la portada (como marco o extensión del lienzo), con un diseño profesional, limpio y coherente con el estilo de moda contemporánea.
+- El background NO debe ser editable ni contener placeholders visibles, debe ser una composición final estética (colores suaves, degradados, formas orgánicas o geométricas sutiles).
+- Integra el mensaje del JSON de forma destacada en el background, fuera de la portada, con tipografía moderna, legible y elegante.
+- El mensaje debe respetar jerarquía visual (frase principal clara, posible énfasis en palabras clave).
+- Mantener equilibrio visual entre portada y fondo.
+- Iluminación suave, sombras sutiles, estilo premium.
+- Evitar saturación visual, mantener estética minimalista.
 
-Evitar saturación excesiva de texto, evitar elementos distractores, mantener enfoque visual en el producto.
+OUTPUT:
+- Imagen en alta resolución
+- Estilo publicitario de marca de ropa
+- Composición lista para uso en redes sociales o impresión
 ```
+
+Ejemplos de mensaje:
+
++ "mensaje": "Descubre la nueva colección primavera-verano"
++ "mensaje": "Renueva tu estilo con nuestra línea exclusiva"
++ "mensaje": "Lo último en moda ya está disponible"
 
 ## Dama
 
