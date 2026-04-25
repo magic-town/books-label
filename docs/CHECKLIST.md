@@ -25,6 +25,14 @@ del proveedor        catálogo            al cliente
        width="65%"/>
 </div>
 
+## Antes de inciar
+
+Sincronizamos las actualizaciones en local (sonia) y remoto (gabriel)
+
+```
+cd books-label && bash sync.sh
+```
+
 ## Fase 1
 
 El módulo está diseñado para ejecutarse de forma automática, iniciando en la extracción de precios hasta la aplicación de precios de nuestra tienda para cada catálogo.
