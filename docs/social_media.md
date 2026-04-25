@@ -8,7 +8,7 @@ Para usarlo ocuparemos un contenedor 📦 para archivar las prendas antes y desp
 ~/boutique_zepeda/pto_montaje/social_media/
 ```
 
-Guarda las fotos o toma capturas con `flameshot` para usar como inputo o archivo adjunto en: ChatGPT, Gemmini Nano Banana.
+Toma las 📷 fotos con tu celular, guardando el `precio`, `marca (opcional)`, `talla`  o toma capturas con `flameshot` en caso de catálogos, para usar como input o archivo adjunto en: ChatGPT, Gemmini Nano Banana.
 
 
 Elige el prompt según el público al que esté dirigido el producto:
