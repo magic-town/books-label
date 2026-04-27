@@ -232,7 +232,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci�
  
 **lista_catalogo_temp.xlsx**
 
-- [ ] Al generarze la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` termina la fase 1.
+- [ ] Al generarze la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` **termina la fase 1** 😉.
 
 ---
 
@@ -286,7 +286,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
   ~/books-label/fase_2/config/configurador.html
   ```
 
-  Elige el **proveedor** primero — determina el patrón de búsqueda del OCR.
+- [ ] Elegir el proveedor del catálogo a etiquetar.
 
 <div align="center">
 <img src="../imagenes/asset_repo/proveedores00.png"
@@ -294,7 +294,34 @@ VSC > File > Open Folder > books-label > Open > fase_2
      width="100%"/>
 </div>
 
-- [ ] Completar los tres campos I/O (inputs / outputs).
+- [ ] Captura los `I/O` inputs/output del programa.
+
+<div align="center">
+<img src="../imagenes/asset_repo/configurador.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+#### Catálogos con ID/Código verticales (para los que aplica).
+
+Para los catálogos que tienen `Códigos` verticales, pueden suceder un par de cosas:
+
+1. Al imprimir el catalógo la página queda identica, y verificamos si se coloco la etiqueta.
+2. La página rotó (giro) y ahora se ve horzontalmente. Esto pasa con los `libros` que se convierte a formato `catalogo_rgb.pdf`
+
+Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto con la funcionalidad `paginas_prueba`
+
+<div align="center">
+<img src="../imagenes/asset_repo/rotación.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Selecciona el rango de páginas donde se encuentran los `Códigos` verticales y aplica una rotación a la vez para saber cual es la que funciona.
+
+> Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas solo para catálogos con códigos verticales.
+
+- [ ] Captura los `I/O` inputs/output del programa.
 
 <div align="center">
 <img src="../imagenes/asset_repo/configurador.png"
