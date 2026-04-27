@@ -27,7 +27,7 @@ del proveedor        catálogo            al cliente
 
 ## Antes de inciar
 
-Sincronizamos las actualizaciones en local (sonia) y remoto (gabriel)
+🔄​ Sincronizamos las actualizaciones en local (sonia) y remoto (gabriel).
 
 ```
 cd 
@@ -312,7 +312,7 @@ Para los catálogos que tienen `Códigos` verticales, pueden suceder un par de c
 Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto con la funcionalidad `paginas_prueba`
 
 <div align="center">
-<img src="../imagenes/asset_repo/rotación.png"
+<img src="../imagenes/asset_repo/rotacion.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
@@ -320,14 +320,6 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto 
 - [ ] Selecciona el rango de páginas donde se encuentran los `Códigos` verticales y aplica una rotación a la vez para saber cual es la que funciona.
 
 > Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas solo para catálogos con códigos verticales.
-
-- [ ] Captura los `I/O` inputs/output del programa.
-
-<div align="center">
-<img src="../imagenes/asset_repo/configurador.png"
-     alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
-</div>
 
 - [ ] Hacer `COPY JSON` del configurador y pegarlo en tu archivo de configuración en VSC.
 
