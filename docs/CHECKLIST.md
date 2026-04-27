@@ -136,7 +136,8 @@ tu decides si usarlo.
 
      - `/fase_1/config_price.json` 
      - `/fase_1/config_pakar.json`
-     - `/fase_1/config_cklass.json`
+
+> Cklass tiene su propia configuración, no se ha implementado al panel pero ya existe y funciona.
 
 <div align="center">
 <img src="../imagenes/asset_repo/config_fase_1.png"
@@ -309,7 +310,7 @@ Para los catálogos que tienen `Códigos` verticales, pueden suceder un par de c
 1. Al imprimir el catalógo la página queda identica, y verificamos si se coloco la etiqueta.
 2. La página rotó (giro) y ahora se ve horzontalmente. Esto pasa con los `libros` que se convierte a formato `catalogo_rgb.pdf`
 
-Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto con la funcionalidad `paginas_prueba`
+Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto con la funcionalidad `paginas_prueba`
 
 <div align="center">
 <img src="../imagenes/asset_repo/rotacion.png"
@@ -319,13 +320,13 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto 
 
 - [ ] Selecciona el rango de páginas donde se encuentran los `Códigos` verticales y aplica una rotación a la vez para saber cual es la que funciona.
 
-> Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas solo para catálogos con códigos verticales.
+> ⚠️ Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas solo para catálogos con códigos verticales.
 
 - [ ] Hacer `COPY JSON` del configurador y pegarlo en tu archivo de configuración en VSC.
 
 ---
 
-### Etapa 1 de pruebas — Logo, etiquetas, combinación de parámetros.
+### Etapa 1 de pruebas — Logo, etiquetas, combinación de parámetros, rotar_ocr (si aplica).
 
 > Colocar el logotipo preferentemente en la parte superior de la portada, alineado con los demás elemenetos 
 > La etiqueta de precio aparezca cerca al ID del producto, visible y lo menos empalmada posible.
@@ -343,8 +344,8 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacios_x°` junto 
   ```bash
   python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>
   ```
-- [ ] Abrir el PDF en `../fase_2/salidas/` y verificar visualmente si los cambios están reflejados.
-- [ ] Ajustar posición en el configurador si es necesario. Copiar JSON y pegar o cambiar parámetros directamente en el editor de **VSC**.
+- [ ] Abrir el PDF en `../fase_2/salidas/catalogo_temp.pdf` y verificar visualmente si los cambios están reflejados.
+- [ ] Ajustar posición en el configurador si es necesario, copiar JSON y pegar. En esta etapa se sugiere editar desde el edito de **VSC**.
 
 ---
 
