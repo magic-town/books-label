@@ -281,7 +281,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 - [ ] Crear una copia de `../fase_2/config/config_base.json`. Desde el panel de directorios de **VSC** o desde **Dolphin**, al hacer: `Ctrl+C` $\to$ `Ctrl+V` en cualquiera de los dos, la copia se genera en automático.
 - [ ] Renombrar la copia con `F2`:
   `config_<proveedor>_<temporada>.json`
-- [ ] Abrir el configurador haciendo doble clic sobre:
+- [ ] Abrir el configurador haciendo doble clic 🖱️:
 
   ```
   ~/books-label/fase_2/config/configurador.html
