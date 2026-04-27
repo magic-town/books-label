@@ -657,61 +657,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </div>
         </div>
 
-        <!-- Toggles de rotaciones OCR -->
-        <div class="sec-divider" style="margin:0.25rem 0;"></div>
-        <div class="tog" id="tog-rot90" style="border-color:var(--sky-l);background:var(--sky-bg);">
-          <div class="tog-info">
-            <div class="tog-name" style="color:var(--sky);">↻ Activar <code style="font-size:11px;background:var(--sky-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_90</code></div>
-            <div class="tog-desc">Rota páginas 90° para OCR adicional</div>
-          </div>
-          <label class="sw sky"><input type="checkbox" id="ocr_rotacion_90" oninput="upd()"/><span class="sw-track" style="background:var(--sky);"></span></label>
-        </div>
-        <div class="tog" id="tog-rot270" style="border-color:var(--sky-l);background:var(--sky-bg);">
-          <div class="tog-info">
-            <div class="tog-name" style="color:var(--sky);">↺ Activar <code style="font-size:11px;background:var(--sky-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_270</code></div>
-            <div class="tog-desc">Rota páginas 270° para OCR adicional</div>
-          </div>
-          <label class="sw sky"><input type="checkbox" id="ocr_rotacion_270" oninput="upd()"/><span class="sw-track" style="background:var(--sky);"></span></label>
-        </div>
 
-        <div id="rango_ids_wrap">
-          <div class="sec-divider" style="margin:0.5rem 0;"></div>
-          <div class="tog active-sky" id="tog-rango" style="border-color:var(--sky-l);background:var(--sky-bg);">
-            <div class="tog-info">
-              <div class="tog-name" style="color:var(--sky);">Rango de dígitos activo</div>
-              <div class="tog-desc">Solo para Price Shoes y Otro — bloqueado para Pakar y Cklass</div>
-            </div>
-            <label class="sw" style="pointer-events:none;opacity:0.5;" id="sw_rango_label">
-              <input type="checkbox" id="rango_activo" checked disabled/><span class="sw-track" style="background:var(--sky);"></span>
-            </label>
-          </div>
-          <div id="rango_sliders" style="margin-top:0.75rem;">
-            <div class="g2">
-              <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span>
-                  <span class="spinbox sky" id="spn_idmin">
-                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',-1)">−</button>
-                    <input class="spinbox-input" id="si_idmin" type="number" step="1" value="4" onchange="sbSet('id_longitud_min',this.value)"/>
-                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',1)">+</button>
-                  </span>
-                </div>
-                <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
-                <div class="slider-hint">IDs más cortos se ignoran</div>
-              </div>
-              <div class="slider-wrap">
-                <div class="slider-top"><span class="slider-name">Máximo de dígitos</span>
-                  <span class="spinbox sky" id="spn_idmax">
-                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',-1)">−</button>
-                    <input class="spinbox-input" id="si_idmax" type="number" step="1" value="8" onchange="sbSet('id_longitud_max',this.value)"/>
-                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',1)">+</button>
-                  </span>
-                </div>
-                <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
-                <div class="slider-hint">IDs más largos se ignoran</div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
 
@@ -766,9 +713,9 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <div class="tog-name">Activar modo prueba</div>
             <div class="tog-desc">Procesa solo un rango de páginas · el PDF original no se toca nunca</div>
           </div>
-          <label class="sw amber"><input type="checkbox" id="prueba_activa" oninput="upd()"/><span class="sw-track"></span></label>
+          <label class="sw amber"><input type="checkbox" id="prueba_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
         </div>
-        <div id="prueba_rango_wrap" style="opacity:0.35;pointer-events:none;">
+        <div id="prueba_rango_wrap" style="opacity:1;pointer-events:auto;">
           <div class="g2">
             <div class="slider-wrap">
               <div class="slider-top"><span class="slider-name">📄 Desde: inicio</span>
@@ -785,7 +732,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
               <div class="slider-top"><span class="slider-name">📄 Hasta: fin</span>
                 <span class="spinbox amber" id="spn_prueba">
                   <button class="spinbox-btn" onclick="sbStep('paginas_prueba',-1)">−</button>
-                  <input class="spinbox-input" id="si_prueba" type="number" step="1" value="0" onchange="sbSet('paginas_prueba',this.value)"/>
+                  <input class="spinbox-input" id="si_prueba" type="number" step="1" value="21" onchange="sbSet('paginas_prueba',this.value)"/>
                   <button class="spinbox-btn" onclick="sbStep('paginas_prueba',1)">+</button>
                 </span>
               </div>
@@ -793,6 +740,22 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
               <div class="slider-hint">⚠️ Con prueba activa no hay semáforo real — tu validación es visual y manual</div>
             </div>
           </div>
+        </div>
+        <!-- Toggles de rotaciones OCR -->
+        <div class="sec-divider" style="margin:0.25rem 0;"></div>
+        <div class="tog" id="tog-rot90" style="border-color:var(--amber-l);background:var(--amber-bg);">
+          <div class="tog-info">
+            <div class="tog-name" style="color:var(--amber);">↻ Activar <code style="font-size:11px;background:var(--amber-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_90</code></div>
+            <div class="tog-desc">Lee texto vertical rotado 90° en el catálogo</div>
+          </div>
+          <label class="sw amber"><input type="checkbox" id="ocr_rotacion_90" oninput="upd()"/><span class="sw-track"></span></label>
+        </div>
+        <div class="tog" id="tog-rot270" style="border-color:var(--amber-l);background:var(--amber-bg);">
+          <div class="tog-info">
+            <div class="tog-name" style="color:var(--amber);">↺ Activar <code style="font-size:11px;background:var(--amber-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_270</code></div>
+            <div class="tog-desc">Lee texto vertical rotado 270° en el catálogo</div>
+          </div>
+          <label class="sw amber"><input type="checkbox" id="ocr_rotacion_270" oninput="upd()"/><span class="sw-track"></span></label>
         </div>
       </div>
     </div>
@@ -1123,7 +1086,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <span class="adv-icon">⚙️</span>
         <div>
           <div style="font-size:13px;">Configuración avanzada</div>
-          <div style="font-size:11px;font-weight:500;color:var(--ink-l);margin-top:1px;">contraste · nitidez · invertir · fuzzy · escala de grises</div>
+          <div style="font-size:11px;font-weight:500;color:var(--ink-l);margin-top:1px;">contraste · nitidez · invertir · fuzzy · escala de grises · rango de dígitos</div>
         </div>
       </div>
       <div class="adv-chevron">▼</div>
@@ -1203,6 +1166,50 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🔢</div>
+          <div><div class="card-title">Rango de dígitos</div><div class="card-sub">Solo para Price Shoes y Otro — bloqueado para Pakar y Cklass</div></div>
+        </div>
+        <div class="card-body">
+          <div class="tog active-sky" id="tog-rango" style="border-color:var(--sky-l);background:var(--sky-bg);">
+            <div class="tog-info">
+              <div class="tog-name" style="color:var(--sky);">Rango de dígitos activo</div>
+              <div class="tog-desc">Filtra IDs fuera del rango configurado</div>
+            </div>
+            <label class="sw" style="pointer-events:none;opacity:0.5;" id="sw_rango_label">
+              <input type="checkbox" id="rango_activo" checked disabled/><span class="sw-track" style="background:var(--sky);"></span>
+            </label>
+          </div>
+          <div id="rango_sliders" style="margin-top:0.75rem;">
+            <div class="g2">
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">Mínimo de dígitos</span>
+                  <span class="spinbox sky" id="spn_idmin">
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',-1)">−</button>
+                    <input class="spinbox-input" id="si_idmin" type="number" step="1" value="4" onchange="sbSet('id_longitud_min',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_min',1)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sky" id="id_longitud_min" min="2" max="8" step="1" value="4" oninput="upd()"/>
+                <div class="slider-hint">IDs más cortos se ignoran</div>
+              </div>
+              <div class="slider-wrap">
+                <div class="slider-top"><span class="slider-name">Máximo de dígitos</span>
+                  <span class="spinbox sky" id="spn_idmax">
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',-1)">−</button>
+                    <input class="spinbox-input" id="si_idmax" type="number" step="1" value="8" onchange="sbSet('id_longitud_max',this.value)"/>
+                    <button class="spinbox-btn" onclick="sbStep('id_longitud_max',1)">+</button>
+                  </span>
+                </div>
+                <input type="range" class="r-sky" id="id_longitud_max" min="4" max="12" step="1" value="8" oninput="upd()"/>
+                <div class="slider-hint">IDs más largos se ignoran</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /adv-panel -->
 
   </div><!-- /left -->
@@ -1314,7 +1321,7 @@ const DEFAULTS = {
   id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
   etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
-  prueba_activa:false, paginas_prueba:21, paginas_prueba_ini:0,
+  prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0,
   portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
@@ -1441,15 +1448,16 @@ function upd() {
     pruebaWrap.style.opacity = pruebaOn ? '1' : '0.35';
     pruebaWrap.style.pointerEvents = pruebaOn ? 'auto' : 'none';
   }
-  sync('paginas_prueba_ini', 'si_prueba_ini', 0);
-  sync('paginas_prueba',     'si_prueba',     0);
-  // Validación: 0 <= desde < hasta
+  // Validación: 0 <= desde < hasta (primero, antes de sync)
   const elIni = $('paginas_prueba_ini'), elFin = $('paginas_prueba');
   let ini = parseInt(elIni.value) || 0, fin = parseInt(elFin.value) || 1;
   ini = Math.max(0, ini);
   if (fin <= ini) fin = ini + 1;
-  if (parseInt(elIni.value) !== ini) { elIni.value = ini; const si=$('si_prueba_ini'); if(si && document.activeElement!==si) si.value=ini; }
-  if (parseInt(elFin.value)  !== fin) { elFin.value  = fin;  const si=$('si_prueba');     if(si && document.activeElement!==si) si.value=fin;  }
+  elIni.value = ini;
+  elFin.value = fin;
+  // Sync spinboxes <- sliders ya validados
+  sync('paginas_prueba_ini', 'si_prueba_ini', 0);
+  sync('paginas_prueba',     'si_prueba',     0);
 
   // Toggle styling
   $('tog-prueba').className = 'tog' + (pruebaOn ? ' active-rose' : '');
@@ -1641,7 +1649,7 @@ function buildCfgStr() {
     "ocr_doble_pasada": ${doble},
     
     "contraste":     ${contra},
-    "nitidez":       ${nitid},
+    "nitidez":       ${nitid.toFixed(1)},
     
     "ocr_grayscale": ${gray},
     "ocr_invertir":  ${invert},
