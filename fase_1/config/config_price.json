@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Perfumes00",
-    "temporada":       "2026",
+    "catalogo":        "Accesorios",
+    "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_perfumes.pdf",
-    "excel_output":    "precios/lista_perfumes_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_accesorios.pdf",
+    "excel_output":    "precios/lista_accesorios_PV26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

@@ -119,7 +119,9 @@ class EtiquetadorCatalogo:
 
         # Doble pasada OCR — resuelve catálogos con fondo mixto
         # (IDs negros sobre blanco + IDs blancos sobre fondo oscuro)
-        self.ocr_doble_pasada = config.get("ocr_doble_pasada", False)
+        self.ocr_doble_pasada  = config.get("ocr_doble_pasada", False)
+        self.ocr_rotacion_90   = config.get("ocr_rotacion_90",  False)
+        self.ocr_rotacion_270  = config.get("ocr_rotacion_270", False)
 
         # Parámetros fuzzy matching
         self.fuzzy_activo   = config.get("fuzzy_activo", True)
@@ -154,9 +156,17 @@ class EtiquetadorCatalogo:
             if isinstance(p, dict) and p.get("path")
         ]
 
-        # Modo prueba — false = catálogo completo, n >= 1 = solo primeras n páginas
-        paginas_prueba_raw  = config.get("paginas_prueba", False)
-        self.paginas_prueba = False if paginas_prueba_raw is False else int(paginas_prueba_raw)
+        # Modo prueba:
+        #   false      → catálogo completo
+        #   n          → primeras n páginas (desde página 1)
+        #   [ini, fin] → rango inclusivo  (ej. [200, 203] → págs. 200-203)
+        paginas_prueba_raw = config.get("paginas_prueba", False)
+        if paginas_prueba_raw is False:
+            self.paginas_prueba = False
+        elif isinstance(paginas_prueba_raw, list) and len(paginas_prueba_raw) == 2:
+            self.paginas_prueba = (int(paginas_prueba_raw[0]), int(paginas_prueba_raw[1]))
+        else:
+            self.paginas_prueba = int(paginas_prueba_raw)
 
         self._cargar_precios()
         self._verificar_tesseract()
@@ -528,30 +538,30 @@ class EtiquetadorCatalogo:
         """
         W, H = img.size
 
-        # 0° — orientación estándar
+        # 0° — orientación estándar (siempre activa)
         data_0 = self._ocr_tokens(img)
+        merged = data_0
 
         # 90° CCW — cubre texto que asciende de abajo hacia arriba en el original
-        # Imagen rotada tiene dimensiones (H, W); mapeo: x_orig=W-1-top_rot, y_orig=left_rot
-        img_90  = img.rotate(90, expand=True)
-        data_90 = self._ocr_tokens(img_90)
-        left_90 = [W - 1 - ry for ry in data_90["top"]]        # x_orig = W-1-top_rot
-        top_90  = list(data_90["left"])                         # y_orig = left_rot
-        data_90["left"] = left_90
-        data_90["top"]  = top_90
+        if self.ocr_rotacion_90:
+            img_90  = img.rotate(90, expand=True)
+            data_90 = self._ocr_tokens(img_90)
+            left_90 = [W - 1 - ry for ry in data_90["top"]]
+            top_90  = list(data_90["left"])
+            data_90["left"] = left_90
+            data_90["top"]  = top_90
+            merged = self._fusionar_tokens(merged, data_90)
 
-        # 270° CCW (90° CW) — cubre texto que desciende de arriba hacia abajo en el original
-        # Imagen rotada tiene dimensiones (H, W); mapeo: x_orig=top_rot, y_orig=H-1-left_rot
-        img_270  = img.rotate(270, expand=True)
-        data_270 = self._ocr_tokens(img_270)
-        left_270 = list(data_270["top"])                                # x_orig = top_rot
-        top_270  = [H - 1 - rx for rx in data_270["left"]]             # y_orig = H-1-left_rot
-        data_270["left"] = left_270
-        data_270["top"]  = top_270
+        # 270° CCW (90° CW) — cubre texto que desciende de arriba hacia abajo
+        if self.ocr_rotacion_270:
+            img_270  = img.rotate(270, expand=True)
+            data_270 = self._ocr_tokens(img_270)
+            left_270 = list(data_270["top"])
+            top_270  = [H - 1 - rx for rx in data_270["left"]]
+            data_270["left"] = left_270
+            data_270["top"]  = top_270
+            merged = self._fusionar_tokens(merged, data_270)
 
-        # Fusionar: 0° como base, 90° y 270° agregan solo tokens sin solapamiento
-        merged = self._fusionar_tokens(data_0, data_90)
-        merged = self._fusionar_tokens(merged, data_270)
         return merged
 
     # ── Fusión de resultados de doble pasada ─────────────────────────────────
@@ -964,6 +974,8 @@ class EtiquetadorCatalogo:
             f"Fuzzy={'ON' if self.fuzzy_activo else 'OFF'} ({self.fuzzy_umbral}%) | "
             f"IDs: {self.id_len_min}–{self.id_len_max} dígitos | "
             f"Grayscale={self.ocr_grayscale} | Invertir={self.ocr_invertir} | "
+            f"Rotaciones=90°:{'ON' if self.ocr_rotacion_90 else 'OFF'}"
+            f" 270°:{'ON' if self.ocr_rotacion_270 else 'OFF'} | "
             f"Modo OCR={modo}"
         )
         self._pdf_tmp_flat = None  # se asigna en _aplanar_pdf si aplica
@@ -979,13 +991,24 @@ class EtiquetadorCatalogo:
             self.logger.error(f"❌ Error al abrir PDF: {e}")
             raise
 
-        writer           = PdfWriter()
-        total_paginas    = len(reader_pdf.pages)
+        writer        = PdfWriter()
+        total_pdf     = len(reader_pdf.pages)
 
-        # Modo prueba
-        if self.paginas_prueba is not False and self.paginas_prueba >= 1:
-            total_paginas = min(self.paginas_prueba, total_paginas)
+        # Modo prueba — determinar rango de páginas a procesar
+        if isinstance(self.paginas_prueba, tuple):
+            pag_ini, pag_fin = self.paginas_prueba
+            pag_ini  = max(1, pag_ini)
+            pag_fin  = min(pag_fin, total_pdf)
+            rango_paginas = range(pag_ini - 1, pag_fin)   # índices 0-based
+            total_paginas = len(rango_paginas)
+            self.logger.info(f"🧪 MODO PRUEBA — páginas {pag_ini} a {pag_fin} ({total_paginas} págs.)")
+        elif self.paginas_prueba is not False and self.paginas_prueba >= 1:
+            total_paginas = min(self.paginas_prueba, total_pdf)
+            rango_paginas = range(total_paginas)
             self.logger.info(f"🧪 MODO PRUEBA — procesando solo {total_paginas} página(s)")
+        else:
+            total_paginas = total_pdf
+            rango_paginas = range(total_paginas)
 
         total_etiquetado = 0
         ids_detectados   = set()
@@ -994,7 +1017,7 @@ class EtiquetadorCatalogo:
         fuzzy_detalle    = []  # (ocr_leyo, excel_matcheo, precio, similitud)
 
         ancho_barra = 28
-        for i in range(total_paginas):
+        for i in rango_paginas:
             pct     = (i + 1) / total_paginas
             bloques = int(pct * ancho_barra)
             barra_p = "█" * bloques + "░" * (ancho_barra - bloques)
@@ -1016,12 +1039,13 @@ class EtiquetadorCatalogo:
 
                 # ── Pasada normal ──────────────────────────────────────────
                 img_normal  = self._mejorar_imagen(img_base.copy())
-                data_normal = self._ocr_con_rotaciones(img_normal)
+                _usar_rot   = self.ocr_rotacion_90 or self.ocr_rotacion_270
+                data_normal = self._ocr_con_rotaciones(img_normal) if _usar_rot else self._ocr_tokens(img_normal)
 
                 # ── Pasada invertida (preprocesado suave para fondo oscuro) ──
                 if self.ocr_doble_pasada:
                     img_inv  = self._mejorar_imagen_invertida(img_base.copy())
-                    data_inv = self._ocr_con_rotaciones(img_inv)
+                    data_inv = self._ocr_con_rotaciones(img_inv) if _usar_rot else self._ocr_tokens(img_inv)
                     data     = self._fusionar_tokens(data_normal, data_inv)
                 else:
                     data = data_normal
@@ -1132,7 +1156,7 @@ class EtiquetadorCatalogo:
         bloques       = int(tasa / 5)
         barra         = "█" * bloques + "░" * (20 - bloques)
         semaforo_key  = "VERDE" if tasa >= 85 else ("AMARILLO" if tasa >= 65 else "ROJO")
-        prueba_activa = self.paginas_prueba is not False and self.paginas_prueba >= 1
+        prueba_activa = self.paginas_prueba is not False
 
         SEP  = "─" * 54
         SEP2 = "═" * 54

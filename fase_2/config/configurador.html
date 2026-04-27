@@ -646,6 +646,34 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           </select>
           <div class="field-hint" id="proveedor_hint" style="font-weight:700;color:var(--sky);">🔑 Patrón: \d{4,8}</div>
         </div>
+
+        <!-- Formatos Cklass (visible solo cuando Cklass está seleccionado) -->
+        <div id="cklass_info_wrap" style="display:none;background:var(--sky-bg);border:1.5px solid var(--sky-l);border-radius:var(--r-sm);padding:0.65rem 1rem;">
+          <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--sky);margin-bottom:0.35rem;">📋 Formatos aceptados por Cklass</div>
+          <div style="font-size:12px;color:var(--ink-m);line-height:1.7;">
+            <span style="font-family:'Courier New',monospace;background:var(--white);padding:1px 5px;border-radius:4px;font-size:11px;">xxx-xx</span> — estándar (3 dígitos guión 2 dígitos)<br/>
+            <span style="font-family:'Courier New',monospace;background:var(--white);padding:1px 5px;border-radius:4px;font-size:11px;">xxx-xxx</span> — extendido (3 dígitos guión 3 dígitos)<br/>
+            <span style="font-family:'Courier New',monospace;background:var(--white);padding:1px 5px;border-radius:4px;font-size:11px;">xxxx-xx</span> — largo (4 dígitos guión 2 dígitos)
+          </div>
+        </div>
+
+        <!-- Toggles de rotaciones OCR -->
+        <div class="sec-divider" style="margin:0.25rem 0;"></div>
+        <div class="tog" id="tog-rot90" style="border-color:var(--sky-l);background:var(--sky-bg);">
+          <div class="tog-info">
+            <div class="tog-name" style="color:var(--sky);">↻ Activar <code style="font-size:11px;background:var(--sky-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_90</code></div>
+            <div class="tog-desc">Rota páginas 90° para OCR adicional</div>
+          </div>
+          <label class="sw sky"><input type="checkbox" id="ocr_rotacion_90" oninput="upd()"/><span class="sw-track" style="background:var(--sky);"></span></label>
+        </div>
+        <div class="tog" id="tog-rot270" style="border-color:var(--sky-l);background:var(--sky-bg);">
+          <div class="tog-info">
+            <div class="tog-name" style="color:var(--sky);">↺ Activar <code style="font-size:11px;background:var(--sky-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_270</code></div>
+            <div class="tog-desc">Rota páginas 270° para OCR adicional</div>
+          </div>
+          <label class="sw sky"><input type="checkbox" id="ocr_rotacion_270" oninput="upd()"/><span class="sw-track" style="background:var(--sky);"></span></label>
+        </div>
+
         <div id="rango_ids_wrap">
           <div class="sec-divider" style="margin:0.5rem 0;"></div>
           <div class="tog active-sky" id="tog-rango" style="border-color:var(--sky-l);background:var(--sky-bg);">
@@ -698,7 +726,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <div class="field-label">📄 PDF del proveedor</div>
           <div style="display:flex;align-items:center;border:1.5px solid var(--cream-d);border-radius:var(--r-sm);overflow:hidden;background:var(--cream);">
             <span style="padding:0.5rem 0.6rem;background:var(--cream-d);font-family:'Courier New',monospace;font-size:12px;color:var(--ink-m);white-space:nowrap;border-right:1px solid var(--borde);">libros/</span>
-            <input type="text" id="pdf_input_name" value="nombre_catalogo.pdf" oninput="upd()" style="border:none;background:transparent;padding:0.5rem 0.6rem;font-family:'Nunito',sans-serif;font-size:13px;color:var(--ink);outline:none;flex:1;min-width:0;"/>
+            <input type="text" id="pdf_input_name" value="catalogo_temp.pdf" oninput="upd()" style="border:none;background:transparent;padding:0.5rem 0.6rem;font-family:'Nunito',sans-serif;font-size:13px;color:var(--ink);outline:none;flex:1;min-width:0;"/>
           </div>
           <div class="field-hint">Solo escribe el nombre del archivo</div>
         </div>
@@ -728,24 +756,43 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <div><div class="card-title">Modo prueba</div><div class="card-sub">Procesa solo las primeras páginas para verificar</div></div>
       </div>
       <div class="card-body">
+        <!-- Opciones disponibles:
+             1) prueba_activa=false → no hay modo prueba, procesa todo el PDF
+             2) prueba_activa=true, valor entero N → procesa las primeras N páginas (ej. 5)
+             3) prueba_activa=true, rango [inicio, fin] → procesa páginas desde inicio hasta fin (ej. [0, 5])
+        -->
         <div class="tog" id="tog-prueba">
           <div class="tog-info">
             <div class="tog-name">Activar modo prueba</div>
-            <div class="tog-desc">Procesa solo N páginas · el PDF original no se toca nunca</div>
+            <div class="tog-desc">Procesa solo un rango de páginas · el PDF original no se toca nunca</div>
           </div>
           <label class="sw amber"><input type="checkbox" id="prueba_activa" oninput="upd()"/><span class="sw-track"></span></label>
         </div>
-        <div class="slider-wrap">
-          <div class="slider-top">
-            <span class="slider-name">📄 Páginas a procesar</span>
-            <span class="spinbox amber" id="spn_prueba">
-              <button class="spinbox-btn" onclick="sbStep('paginas_prueba',-1)">−</button>
-              <input class="spinbox-input" id="si_prueba" type="number" step="1" value="1" onchange="sbSet('paginas_prueba',this.value)"/>
-              <button class="spinbox-btn" onclick="sbStep('paginas_prueba',1)">+</button>
-            </span>
+        <div id="prueba_rango_wrap" style="opacity:0.35;pointer-events:none;">
+          <div class="g2">
+            <div class="slider-wrap">
+              <div class="slider-top"><span class="slider-name">📄 Desde: inicio</span>
+                <span class="spinbox amber" id="spn_prueba_ini">
+                  <button class="spinbox-btn" onclick="sbStep('paginas_prueba_ini',-1)">−</button>
+                  <input class="spinbox-input" id="si_prueba_ini" type="number" step="1" value="0" onchange="sbSet('paginas_prueba_ini',this.value)"/>
+                  <button class="spinbox-btn" onclick="sbStep('paginas_prueba_ini',1)">+</button>
+                </span>
+              </div>
+              <input type="range" class="r-amber" id="paginas_prueba_ini" min="0" max="999" step="1" value="0" oninput="upd()"/>
+              <div class="slider-hint">Página de inicio (0 = primera página)</div>
+            </div>
+            <div class="slider-wrap">
+              <div class="slider-top"><span class="slider-name">📄 Hasta: fin</span>
+                <span class="spinbox amber" id="spn_prueba">
+                  <button class="spinbox-btn" onclick="sbStep('paginas_prueba',-1)">−</button>
+                  <input class="spinbox-input" id="si_prueba" type="number" step="1" value="0" onchange="sbSet('paginas_prueba',this.value)"/>
+                  <button class="spinbox-btn" onclick="sbStep('paginas_prueba',1)">+</button>
+                </span>
+              </div>
+              <input type="range" class="r-amber" id="paginas_prueba" min="1" max="999" step="1" value="21" oninput="upd()"/>
+              <div class="slider-hint">⚠️ Con prueba activa no hay semáforo real — tu validación es visual y manual</div>
+            </div>
           </div>
-          <input type="range" class="r-amber" id="paginas_prueba" min="1" max="40" step="1" value="1" oninput="upd()"/>
-          <div class="slider-hint">⚠️ Con prueba activa no hay semáforo real — tu validación es visual y manual</div>
         </div>
       </div>
     </div>
@@ -977,43 +1024,43 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         </div>
         <div class="sec-divider"></div>
         <div class="color-row">
-          <div class="color-preview" id="colorPreview" style="background:rgb(227,51,59)"></div>
+          <div class="color-preview" id="colorPreview" style="background:rgb(0,0,255)"></div>
           <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
             <div class="g3">
               <div class="slider-wrap">
                 <div class="slider-top"><span class="slider-name">🔴 Rojo</span>
                   <span class="spinbox rose" id="spn_cr">
                     <button class="spinbox-btn" onclick="sbStep('cr',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cr" type="text" inputmode="decimal" data-step="0.01" value="0.89" onchange="sbSet('cr',this.value)"/>
+                    <input class="spinbox-input" id="si_cr" type="text" inputmode="decimal" data-step="0.01" value="0.00" onchange="sbSet('cr',this.value)"/>
                     <button class="spinbox-btn" onclick="sbStep('cr',0.01)">+</button>
                   </span>
                 </div>
-                <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.89" oninput="upd()"/>
+                <input type="range" class="r-rose" id="cr" min="0" max="1" step="0.01" value="0.00" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
                 <div class="slider-top"><span class="slider-name">🟢 Verde</span>
                   <span class="spinbox sage" id="spn_cg">
                     <button class="spinbox-btn" onclick="sbStep('cg',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cg" type="text" inputmode="decimal" data-step="0.01" value="0.20" onchange="sbSet('cg',this.value)"/>
+                    <input class="spinbox-input" id="si_cg" type="text" inputmode="decimal" data-step="0.01" value="0.00" onchange="sbSet('cg',this.value)"/>
                     <button class="spinbox-btn" onclick="sbStep('cg',0.01)">+</button>
                   </span>
                 </div>
-                <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.20" oninput="upd()"/>
+                <input type="range" class="r-sage" id="cg" min="0" max="1" step="0.01" value="0.00" oninput="upd()"/>
               </div>
               <div class="slider-wrap">
                 <div class="slider-top"><span class="slider-name">🔵 Azul</span>
                   <span class="spinbox sky" id="spn_cb">
                     <button class="spinbox-btn" onclick="sbStep('cb',-0.01)">−</button>
-                    <input class="spinbox-input" id="si_cb" type="text" inputmode="decimal" data-step="0.01" value="0.23" onchange="sbSet('cb',this.value)"/>
+                    <input class="spinbox-input" id="si_cb" type="text" inputmode="decimal" data-step="0.01" value="1.00" onchange="sbSet('cb',this.value)"/>
                     <button class="spinbox-btn" onclick="sbStep('cb',0.01)">+</button>
                   </span>
                 </div>
-                <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="0.23" oninput="upd()"/>
+                <input type="range" class="r-sky" id="cb" min="0" max="1" step="0.01" value="1.00" oninput="upd()"/>
               </div>
             </div>
           </div>
         </div>
-        <div class="slider-hint">Rojo retail = R:0.89 G:0.20 B:0.23 &nbsp;·&nbsp; Negro = R:0 G:0 B:0</div>
+        <div class="slider-hint">Azul etiqueta = R:0.0 G:0.0 B:1.0 &nbsp;·&nbsp; Negro = R:0 G:0 B:0</div>
       </div>
     </div>
 
@@ -1260,16 +1307,17 @@ function switchTab(tab) {
 
 // ── DEFAULTS ────────────────────────────────────────────────────────────────
 const DEFAULTS = {
-  pdf_input_name:'nombre_catalogo.pdf', excel_input_name:'lista_catalogo.xlsx', pdf_output_name:'catalogo_precios.pdf',
+  pdf_input_name:'catalogo_temp.pdf', excel_input_name:'lista_catalogo.xlsx', pdf_output_name:'catalogo_precios.pdf',
   dpi:200, psm:6, contraste:2.5, nitidez:2.0,
   ocr_grayscale:true, ocr_invertir:false, ocr_doble_pasada:false,
+  ocr_rotacion_90:false, ocr_rotacion_270:false,
   id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
-  etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.89, cg:0.20, cb:0.23,
+  etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
-  prueba_activa:false, paginas_prueba:1,
+  prueba_activa:false, paginas_prueba:21, paginas_prueba_ini:0,
   portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
-  logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:80, logo_alto_pt:80, logo_transparencia:0.85
+  logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
 };
 
 // ── Proveedor ────────────────────────────────────────────────────────────────
@@ -1297,6 +1345,9 @@ function onProveedorChange() {
     togLabel.style.opacity = '0.3';
     togLabel.style.pointerEvents = 'none';
   }
+  // Mostrar formatos Cklass
+  const cklassInfo = $('cklass_info_wrap');
+  if (cklassInfo) cklassInfo.style.display = (p === 'Cklass') ? '' : 'none';
   upd();
 }
 
@@ -1377,14 +1428,31 @@ function upd() {
   sync('contraste',            'si_contra', 1);
   sync('nitidez',              'si_nitid',  1);
   sync('fuzzy_umbral',         'si_fuzzy',  0);
-  sync('paginas_prueba',       'si_prueba', 0);
+  // paginas_prueba syncs handled in prueba block above
 
   // Color preview
   const r=Math.round(fv('cr')*255), g=Math.round(fv('cg')*255), b=Math.round(fv('cb')*255);
   $('colorPreview').style.background = `rgb(${r},${g},${b})`;
 
+  // Prueba activa: bloquear/desbloquear rango
+  const pruebaOn = bv('prueba_activa');
+  const pruebaWrap = $('prueba_rango_wrap');
+  if (pruebaWrap) {
+    pruebaWrap.style.opacity = pruebaOn ? '1' : '0.35';
+    pruebaWrap.style.pointerEvents = pruebaOn ? 'auto' : 'none';
+  }
+  sync('paginas_prueba_ini', 'si_prueba_ini', 0);
+  sync('paginas_prueba',     'si_prueba',     0);
+  // Validación: 0 <= desde < hasta
+  const elIni = $('paginas_prueba_ini'), elFin = $('paginas_prueba');
+  let ini = parseInt(elIni.value) || 0, fin = parseInt(elFin.value) || 1;
+  ini = Math.max(0, ini);
+  if (fin <= ini) fin = ini + 1;
+  if (parseInt(elIni.value) !== ini) { elIni.value = ini; const si=$('si_prueba_ini'); if(si && document.activeElement!==si) si.value=ini; }
+  if (parseInt(elFin.value)  !== fin) { elFin.value  = fin;  const si=$('si_prueba');     if(si && document.activeElement!==si) si.value=fin;  }
+
   // Toggle styling
-  $('tog-prueba').className = 'tog' + (bv('prueba_activa') ? ' active-rose' : '');
+  $('tog-prueba').className = 'tog' + (pruebaOn ? ' active-rose' : '');
   updPortadas();
   $('tog-logo').className   = 'tog' + (bv('logo_activo')   ? ' active-sage' : '');
   $('tog-doble').className  = 'tog' + (bv('ocr_doble_pasada') ? ' active-teal' : '');
@@ -1491,7 +1559,10 @@ function buildCfgStr() {
   const pdf_in  = 'libros/' + sv('pdf_input_name');
   const xls_in  = 'precios/' + sv('excel_input_name');
   const pdf_out = 'salidas/' + sv('pdf_output_name');
-  const prueba  = bv('prueba_activa') ? parseInt(fv('paginas_prueba')) : false;
+  const pruebaOn = bv('prueba_activa');
+  const prueba_ini = parseInt(fv('paginas_prueba_ini'));
+  const prueba_fin = parseInt(fv('paginas_prueba'));
+  const prueba  = pruebaOn ? prueba_fin : false;
   const font    = sv('etiqueta_font');
   const fs      = parseInt(fv('etiqueta_font_size'));
   const cr      = +fv('cr').toFixed(3), cg = +fv('cg').toFixed(3), cb = +fv('cb').toFixed(3);
@@ -1510,6 +1581,8 @@ function buildCfgStr() {
   const dpi     = parseInt(sv('dpi'));
   const psm     = parseInt(sv('psm'));
   const doble   = bv('ocr_doble_pasada');
+  const rot90   = bv('ocr_rotacion_90');
+  const rot270  = bv('ocr_rotacion_270');
   const contra  = +fv('contraste').toFixed(1);
   const nitid   = +fv('nitidez').toFixed(1);
   const gray    = bv('ocr_grayscale');
@@ -1517,18 +1590,26 @@ function buildCfgStr() {
   const fuz_a   = bv('fuzzy_activo');
   const fuz_u   = parseInt(fv('fuzzy_umbral'));
 
+  // paginas_prueba: si está activo, es número simple o rango según ini
+  const paginasVal = pruebaOn
+    ? (prueba_ini > 0 ? `[${prueba_ini}, ${prueba_fin}]` : prueba_fin)
+    : false;
+
   return `{
     "_comentario": "Configuración para Catalogo — Boutique Zepeda",
-    "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo.json>",
-
+    "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>",
+    
+    "id_proveedor": ${v(id_prov)},
+    
+    "paginas_prueba": ${typeof paginasVal === 'number' ? paginasVal : paginasVal === false ? 'false' : paginasVal},
+    
+    "ocr_rotacion_90":  ${rot90},
+    "ocr_rotacion_270": ${rot270},
+    
     "pdf_input":   ${v(pdf_in)},
     "excel_input": ${v(xls_in)},
     "pdf_output":  ${v(pdf_out)},
-
-    "paginas_prueba": ${v(prueba)},
-
-    "id_proveedor": ${v(id_prov)},
-
+    
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": ${v(pPos(1))}},
         {"path": "../imagenes/logos/portada_02.pdf", "posicion": ${v(pPos(2))}},
@@ -1536,7 +1617,7 @@ function buildCfgStr() {
         {"path": "../imagenes/logos/portada_04.pdf", "posicion": ${v(pPos(4))}},
         {"path": "../imagenes/logos/portada_05.pdf", "posicion": ${v(pPos(5))}}
     ],
-
+    
     "logo_activo":        ${logo_a},
     "logo_path":          ${v(logo_p)},
     "logo_x_pt":          ${lx},
@@ -1544,26 +1625,26 @@ function buildCfgStr() {
     "logo_ancho_pt":      ${lw},
     "logo_alto_pt":       ${lh},
     "logo_transparencia": ${lt},
-
+    
     "etiqueta_font":        ${v(font)},
     "etiqueta_font_size":   ${fs},
     "etiqueta_color_rgb":   [${cr}, ${cg}, ${cb}],
     "etiqueta_offset_x_pt": ${ox},
     "etiqueta_offset_y_pt": ${oy},
-
+    
     "id_longitud_min": ${id_min},
     "id_longitud_max": ${id_max},
-
+    
     "dpi": ${dpi},
     "psm": ${psm},
-
+    
     "ocr_doble_pasada": ${doble},
-
+    
     "contraste":     ${contra},
     "nitidez":       ${nitid},
+    
     "ocr_grayscale": ${gray},
     "ocr_invertir":  ${invert},
-
     "fuzzy_activo": ${fuz_a},
     "fuzzy_umbral": ${fuz_u}
 }`;
@@ -1589,18 +1670,20 @@ function resetear() {
   $('psm').value=DEFAULTS.psm;
   $('logo_filename').value=DEFAULTS.logo_filename;
   ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','fuzzy_umbral',
-   'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba',
+   'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba','paginas_prueba_ini',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
   ].forEach(id => $(id).value = DEFAULTS[id]);
   $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale; $('ocr_invertir').checked=DEFAULTS.ocr_invertir;
   $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada; $('fuzzy_activo').checked=DEFAULTS.fuzzy_activo;
+  $('ocr_rotacion_90').checked=DEFAULTS.ocr_rotacion_90; $('ocr_rotacion_270').checked=DEFAULTS.ocr_rotacion_270;
   $('logo_activo').checked=DEFAULTS.logo_activo; $('prueba_activa').checked=DEFAULTS.prueba_activa;
   if($('portadas_activas')){$('portadas_activas').checked=DEFAULTS.portadas_activas;[1,2,3,4,5].forEach(n=>{$('p'+n+'_activa').checked=DEFAULTS['p'+n+'_activa'];$('p'+n+'_pos').value=DEFAULTS['p'+n+'_pos'];$('si_p'+n).value=DEFAULTS['p'+n+'_pos'];});}
   upd();
 }
 
 function copiar() {
-  navigator.clipboard.writeText(buildCfgStr()).then(() => {
+  const txt = buildCfgStr();
+  navigator.clipboard.writeText(txt).then(() => {
     const btn=$('btnCopy'); btn.textContent='✓ Copiado'; btn.classList.add('ok');
     setTimeout(() => { btn.textContent='Copiar JSON'; btn.classList.remove('ok'); }, 2000);
   });
