@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Accesorios",
-    "temporada":       "PV26",
+    "catalogo":        "Escolar",
+    "temporada":       "25-26",
 
-    "pdf_input":       "lista_cruda/lista_accesorios.pdf",
-    "excel_output":    "precios/lista_accesorios_PV26.xlsx",
+    "pdf_input":       "lista_cruda/lista_escolar.pdf",
+    "excel_output":    "precios/lista_escolar.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
