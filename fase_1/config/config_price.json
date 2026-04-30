@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Escolar",
-    "temporada":       "25-26",
+    "catalogo":        "kids_todoen1",
+    "temporada":       "26",
 
-    "pdf_input":       "lista_cruda/lista_escolar.pdf",
-    "excel_output":    "precios/lista_escolar.xlsx",
+    "pdf_input":       "lista_cruda/lista_kids_todoen1_26.pdf",
+    "excel_output":    "precios/lista_kids_todoen1_26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
