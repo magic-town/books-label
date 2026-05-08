@@ -176,4 +176,8 @@ wheels/
 fase_2/libros/*_decrypt.pdf
 fase_2/libros/*_decrypt.pdf
 fase_1/salidas/lista_precios.bak.xlsx
-.vscode/
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
