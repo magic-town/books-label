@@ -237,6 +237,16 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci�
 
 ---
 
+## Si al ejecutar `extractor.py` da 🚨 ERROR
+
+> Puede haber listas de precios tanto de Price Shoes como de Pakar que no tengan los mismos parametros que los estándar, como diferentes rotulos, formato, alineación, etc.
+
+Para el caso en que al ejecutar `extractor.py` me de `ERROR` entonces sigue los siguientes pasos 👇:
+
+[Ir a EXTRAER_PRECIOS_SIN_SCRIPT](./EXTRAER_PRECIOS_SIN_SCRIPT.md)
+
+---
+
 <div align="center">
 <img src="../imagenes/asset_repo/fase_2_cover.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
