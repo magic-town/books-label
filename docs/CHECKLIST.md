@@ -233,7 +233,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuciÃ
  
 **lista_catalogo_temp.xlsx**
 
-- [ ] Al generarze la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` **termina la fase 1** ðŸ˜‰.
+- [ ] Al generar la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` **termina la fase 1** ðŸ˜‰.
 
 ---
 
@@ -243,7 +243,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuciÃ
 
 Para el caso en que al ejecutar `extractor.py` me de `ERROR` entonces sigue los siguientes pasos ðŸ‘‡:
 
-[Ir a EXTRAER_PRECIOS_SIN_SCRIPT](./EXTRAER_PRECIOS_SIN_SCRIPT.md)
+[Ir a Extraer precios sin script](./EXTRAER_PRECIOS_SIN_SCRIPT.md)
 
 ---
 
