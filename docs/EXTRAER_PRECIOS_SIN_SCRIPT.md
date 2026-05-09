@@ -1,3 +1,11 @@
+# EXTRAER_PRECIOS_SIN_SCRIPT
+
+## Extraer precios sin script
+
+> 
+
+
+
 #### 🔵 Extracción para Price Shoes
 
 **Paso 1 — Extracción inicial**
