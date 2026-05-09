@@ -1,20 +1,19 @@
 {
     "_comentario":     "Configuración Pakar — Extracción Fase 1 · Boutique Zepeda",
-    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/config_pakar.json",
+    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
 
     "proveedor":       "Pakar",
-    
-    "catalogo":        "Men_1",
+    "catalogo":        "Coqueta",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_men1_pv26.pdf",
-    "excel_output":    "precios/lista_men1_pv26.xlsx",
+    "pdf_input":       "lista_cruda/lista_pK_coqueta.pdf",
+    "excel_output":    "precios/lista_coqueta.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
-    "tol_col":         12,
+    "tol_col":          12,
 
-    "desviacion_alerta": 2,
+    "desviacion_alerta": 1.5,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",

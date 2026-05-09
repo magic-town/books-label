@@ -1,6 +1,13 @@
 ## Extraer precios sin script
 
-> 
+> Este es un documento alterno para los casos en que el ejecutar `extractor.py`da `ERROR`.
+
+<div align="center">
+<img src="../imagenes/asset_repo/ERROR.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="45%"/>
+</div>
+
 
 
 #### 🔵 Extracción para Price Shoes
