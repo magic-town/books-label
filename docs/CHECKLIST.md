@@ -1,7 +1,7 @@
 <div align="center">
-<img src="../imagenes/asset_repo/cover00.png"
+<img src="../imagenes/asset_repo/cover_check.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="95%"/>
+     width="85%"/>
 </div>
 
 # ✨ Guía de Etiquetado — Boutique Zepeda
@@ -13,16 +13,16 @@
 
 ## 🗺️ ¿En qué etapa estoy?
 
-```
-FASE 1               FASE 2               FASE 3
-Extraer precios  →  Etiquetar       →   Publicar
-del proveedor        catálogo            al cliente
-```
+<div align="center">
+  <img src="../imagenes/asset_repo/cover_fases.png" 
+       alt="Boutique Zepeda — Taller de Etiquetado"
+       width="85%"/>
+</div>
 
 <div align="center">
-  <img src="../imagenes/asset_repo/cover_modulos.png" 
+  <img src="../imagenes/asset_repo/cover_fase1.png" 
        alt="Boutique Zepeda — Taller de Etiquetado"
-       width="65%"/>
+       width="85%"/>
 </div>
 
 ## Antes de inciar
@@ -248,7 +248,7 @@ Para el caso en que al ejecutar `extractor.py` me de `ERROR` entonces sigue los 
 <div align="center">
 <img src="../imagenes/asset_repo/ERROR.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="45%"/>
+     width="85%"/>
 </div>
 
 ---

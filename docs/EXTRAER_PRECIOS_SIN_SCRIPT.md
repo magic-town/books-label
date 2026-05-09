@@ -5,7 +5,7 @@
 <div align="center">
 <img src="../imagenes/asset_repo/ERROR.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="45%"/>
+     width="85%"/>
 </div>
 
 
