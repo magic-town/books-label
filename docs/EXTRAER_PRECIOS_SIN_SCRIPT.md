@@ -105,3 +105,34 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
      width="65%"/>
 </div>
 
+Al abri el fichero puede verse similar a la siguiete pantalla 👇:
+
+<div align="center">
+<img src="../imagenes/asset_repo/screen_ods.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="65%"/>
+</div>
+
+- [ ] Damos click en `+` para agregar una nueva hoja.
+- [ ] Copia los `rótulos` y la fila `A2` de alguna página anterior, pegalos en la nueva página. El primer registro que copiamos es para copiar las fórmulas
+
+<div align="center">
+<img src="../imagenes/asset_repo/rotulos.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Aplica las transformaciones `REDONDEAR`, `precios_venta`, `LEN`
+- [ ] Copia las columnas `ID`, `precio_venta` en una tabla al costado de la transformada con `pegado especial`
+- [ ] Pega esas columnas en un fichero nuevo:
+
+```
+File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<lista_catalogo_temp.xlsx>
+```
+<div align="center">
+<img src="../imagenes/asset_repo/new_table.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Al guardar el fichero en `../fase_2/precios` termina la `fase_1` de extracción de precios.
