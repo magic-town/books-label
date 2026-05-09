@@ -256,7 +256,7 @@ Para el caso en que al ejecutar `extractor.py` me de `ERROR` entonces sigue los 
 <div align="center">
 <img src="../imagenes/asset_repo/fase_2_cover.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="45%"/>
+     width="35%"/>
 </div>
 
 ## 🏷️ FASE 2 — Etiquetar el catálogo

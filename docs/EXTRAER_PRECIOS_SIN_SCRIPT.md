@@ -8,7 +8,20 @@
      width="85%"/>
 </div>
 
+- [ ] Elegimos algún LLM
 
+<div align="center">
+<img src="../imagenes/asset_repo/llm.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Adjuntamos el fichero `catalogo.pdf` como archivo adjunto + prompt
+
+**NOTA**: Los siguientes son plantillas de `prompt`no significa que es el definitivo. De ser necesario ajusta a que `num_columna` le corresponden los 3 campos que hay que extraer:
+
+- **Price Shoes**: `Pag`, `ID`, `Sug_creditio`
+- **Pakar**: `PÁG`, `CÓDIGO`, `2 PAGOS`
 
 #### 🔵 Extracción para Price Shoes
 
@@ -76,4 +89,19 @@ Del fichero <nombre_archivo> extrae las siguientes columnas de todas las página
 }
 
 IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle fórmula en Calc. Tu output tiene que ser una tabla lista para copiar y pegar.
+```
+
+---
+
+- [ ] Pegamos los datos extraidos en el fichero:
+
+```
+~/boutique_zepeda/pto_montaje/books_label_backup/fase2/precios_tabla.ods 
+```
+
+<div align="center">
+<img src="../imagenes/asset_repo/precios_ods.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="65%"/>
+</div>
 
