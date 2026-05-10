@@ -27,12 +27,11 @@ Sonia trabaja exclusivamente con paneles HTML y consola — sin editar código n
 
 ## Flujo de trabajo
 
-```
-FASE 1                  FASE 2                  FASE 3
-Extraer precios  →  Etiquetar catálogo  →  Publicar al cliente
-del proveedor        (OCR + etiquetas)       (WA Business hoy /
-                                              portal web mañana)
-```
+<div align="center">
+  <img src="./imagenes/asset_repo/cover_fases.png" 
+       alt="Boutique Zepeda — Taller de Etiquetado"
+       width="85%"/>
+</div>
 
 La guía operativa completa para Sonia está en [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
 

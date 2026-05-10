@@ -102,7 +102,7 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 <div align="center">
 <img src="../imagenes/asset_repo/precios_ods.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="65%"/>
+     width="85%"/>
 </div>
 
 Al abri el fichero puede verse similar a la siguiete pantalla 👇:
@@ -110,7 +110,7 @@ Al abri el fichero puede verse similar a la siguiete pantalla 👇:
 <div align="center">
 <img src="../imagenes/asset_repo/screen_ods.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="65%"/>
+     width="85%"/>
 </div>
 
 - [ ] Damos click en `+` para agregar una nueva hoja.
@@ -132,7 +132,7 @@ File > New > Spreadsheet > Paste A1 > Save As > ~/books-label/fase_2/precios/<li
 <div align="center">
 <img src="../imagenes/asset_repo/new_table.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="90%"/>
 </div>
 
 - [ ] Al guardar el fichero en `../fase_2/precios` termina la `fase_1` de extracción de precios.
