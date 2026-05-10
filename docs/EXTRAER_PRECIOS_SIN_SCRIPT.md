@@ -1,6 +1,6 @@
 ## Extraer precios sin script
 
-> Este es un documento alterno para los casos en que el ejecutar `extractor.py`da `ERROR`.
+> Este es un documento alterno para los casos en que al ejecutar `extractor.py`da `ERROR`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/ERROR.png"
@@ -93,19 +93,13 @@ IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valore
 
 ---
 
-- [ ] Pegamos los datos extraidos en el fichero:
+- [ ] Abrir el fichero:
 
 ```
 ~/boutique_zepeda/pto_montaje/books_label_backup/fase2/precios_tabla.ods 
 ```
 
-<div align="center">
-<img src="../imagenes/asset_repo/precios_ods.png"
-     alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
-</div>
-
-Al abri el fichero puede verse similar a la siguiete pantalla 👇:
+puede verse similar a la siguiete pantalla 👇:
 
 <div align="center">
 <img src="../imagenes/asset_repo/screen_ods.png"
@@ -114,7 +108,14 @@ Al abri el fichero puede verse similar a la siguiete pantalla 👇:
 </div>
 
 - [ ] Damos click en `+` para agregar una nueva hoja.
-- [ ] Copia los `rótulos` y la fila `A2` de alguna página anterior, pegalos en la nueva página. El primer registro que copiamos es para copiar las fórmulas
+
+<div align="center">
+<img src="../imagenes/asset_repo/precios_ods.png"
+     alt="Boutique Zepeda — Taller de Etiquetado"
+     width="85%"/>
+</div>
+
+- [ ] Copia los `rotulos` y la fila `A2` de alguna página anterior, pegalos en la nueva página. El primer registro que copiamos es para copiar las fórmulas
 
 <div align="center">
 <img src="../imagenes/asset_repo/rotulos.png"
@@ -122,6 +123,7 @@ Al abri el fichero puede verse similar a la siguiete pantalla 👇:
      width="85%"/>
 </div>
 
+- [ ] Pegamos el la tabla del `LLM` en nuestra nueva hoja de `Calc`
 - [ ] Aplica las transformaciones `REDONDEAR`, `precios_venta`, `LEN`
 - [ ] Copia las columnas `ID`, `precio_venta` en una tabla al costado de la transformada con `pegado especial`
 - [ ] Pega esas columnas en un fichero nuevo:
