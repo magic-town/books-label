@@ -243,13 +243,13 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci�
 
 Para el caso en que al ejecutar `extractor.py` me de `ERROR` entonces sigue los siguientes pasos 👇:
 
-[Ir a Extraer precios sin script](./EXTRAER_PRECIOS_SIN_SCRIPT.md)
-
 <div align="center">
 <img src="../imagenes/asset_repo/ERROR.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
+
+[Ir a Extraer precios sin script](./EXTRAER_PRECIOS_SIN_SCRIPT.md)
 
 ---
 
