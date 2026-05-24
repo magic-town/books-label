@@ -4,7 +4,7 @@
     
     "id_proveedor": "PS",
     
-    "paginas_prueba": 21,
+    "paginas_prueba": false,
     
     "ocr_rotacion_90":  false,
     "ocr_rotacion_270": false,
@@ -16,24 +16,24 @@
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
         {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 300},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 500},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
     
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          445,
-    "logo_y_pt":          337,
-    "logo_ancho_pt":      82,
-    "logo_alto_pt":       82,
+    "logo_x_pt":          460,
+    "logo_y_pt":          308,
+    "logo_ancho_pt":      80,
+    "logo_alto_pt":       80,
     "logo_transparencia": 0.85,
     
     "etiqueta_font":        "Helvetica-BoldOblique",
     "etiqueta_font_size":   12,
     "etiqueta_color_rgb":   [0, 0, 1],
-    "etiqueta_offset_x_pt": -12.5,
-    "etiqueta_offset_y_pt": 4,
+    "etiqueta_offset_x_pt": -11,
+    "etiqueta_offset_y_pt": 3.5,
     
     "id_longitud_min": 4,
     "id_longitud_max": 8,
@@ -41,7 +41,7 @@
     "dpi": 200,
     "psm": 6,
     
-    "ocr_doble_pasada": false,
+    "ocr_doble_pasada": true,
     
     "contraste":     2.5,
     "nitidez":       2.0,
