@@ -1,7 +1,0 @@
-{
-  "python.defaultInterpreterPath": "${workspaceFolder}/venv_catalogo/bin/python",
-  "terminal.integrated.env.linux": {
-    "VIRTUAL_ENV": "${workspaceFolder}/venv_catalogo",
-    "PATH": "${workspaceFolder}/venv_catalogo/bin:${env:PATH}"
-  }
-}
