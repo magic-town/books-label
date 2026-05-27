@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "importados_summer26.pdf",
-    "temporada":       "26",
+    "catalogo":        "caballeros",
+    "temporada":       "26_27",
 
-    "pdf_input":       "lista_cruda/lista_imp_summer_26.pdf",
-    "excel_output":    "precios/lista_importados_summer_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
+    "excel_output":    "precios/lista_caballeros_26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
