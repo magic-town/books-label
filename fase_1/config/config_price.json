@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "caballeros",
-    "temporada":       "26_27",
+    "catalogo":        "botas lluvia",
+    "temporada":       "26",
 
-    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
-    "excel_output":    "precios/lista_caballeros_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_botas_lluvia.pdf",
+    "excel_output":    "precios/lista_botas_lluvia_26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
