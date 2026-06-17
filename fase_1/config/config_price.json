@@ -4,16 +4,16 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "botas lluvia",
-    "temporada":       "26",
+    "catalogo":        "escolar",
+    "temporada":       "26_27",
 
-    "pdf_input":       "lista_cruda/lista_botas_lluvia.pdf",
-    "excel_output":    "precios/lista_botas_lluvia_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_escolar_26_27.pdf",
+    "excel_output":    "precios/lista_escolar_26_27.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
 
-    "desviacion_alerta": 1.5,
+    "desviacion_alerta": 2,
 
     "col_pag":         "Pag",
     "col_id":          "ID",
