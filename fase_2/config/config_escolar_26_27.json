@@ -10,7 +10,7 @@
     "ocr_rotacion_270": false,
     
     "pdf_input":   "libros/escolar_26_27.pdf",
-    "excel_input": "precios/lista_escolar_26_27.xlsx",
+    "excel_input": "precios/lista_escolar_ps_26_27.xlsx",
     "pdf_output":  "salidas/escolar_26_27_precios.pdf",
     
     "presentaciones": [
