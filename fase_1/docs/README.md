@@ -89,16 +89,6 @@ El precio siempre se normaliza a entero sin decimales ni símbolo de moneda, ind
 
 ---
 
-## Semáforo de extracción
-
-| Indicador | Registros | Acción |
-|-----------|-----------|--------|
-| 🟢 Exitosa | ≥ 100 | Validar y pasar a Fase 2 |
-| 🟡 Parcial | 20 – 99 | Revisar columnas en el config |
-| 🔴 Fallida | < 20 | Revisar PDF y configuración |
-
----
-
 ## Dependencias
 
 Solo `pdfplumber`, `pandas` y `openpyxl` — ya incluidas en `requirements.txt`.

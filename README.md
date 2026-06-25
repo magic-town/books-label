@@ -8,20 +8,29 @@
 
 `books-label` tiene dos objetivos en secuencia:
 
-1. **Etiquetar catálogos.** Toma los catálogos PDF de los proveedores y les estampa los precios propios de la boutique mediante OCR y una tabla de precios en Excel. El resultado es un PDF listo para distribuir al cliente.
+1. **Etiquetar catálogos.** Toma los catálogos PDF de los proveedores y les imprime los precios de la Boutique mediante `OCR` auxiliandose con tabla/tabulador de precios en Excel. El resultado es un PDF listo para distribuir al cliente, canales de venta.
 
-2. **Desplegar los catálogos etiquetados a un canal de venta.** Este segundo objetivo está en definición. Las opciones evaluadas son GitHub Pages (visualización directa desde el repositorio) y un portal web desplegado en Vercel. El canal actual — Dropbox + WhatsApp Business — seguirá operando mientras se resuelve esta etapa.
+2. **Desplegar los catálogos etiquetados a un canal de venta.** Este segundo objetivo está en definición. Las opciones evaluadas son:
+
+  - `GitHub Pages` (visualización directa desde el repositorio).
+  - Portal web desplegado en Vercel o equivalente. 
+  - Dropbox + WhatsApp Business.
+
+  De los anteriores ya se probo `Dropbox + Whatsapp Business`, se deshabilito ya que se busca que la descarga sea opcional, i.e., que la visualización sin descarga tenga prioridad lo cual no se conciguio por este canal.
 
 ---
 
-## Equipo
+## Team
 
-| Persona | Rol |
+| Colaborador | Rol |
 |---------|-----|
+| Sonia   | Analista operativa |
 | Gabriel | Desarrollo y mantenimiento técnico |
-| Sonia   | Operación: preparación de precios, etiquetado y publicación |
 
-Sonia trabaja exclusivamente con paneles HTML y consola — sin editar código ni archivos de configuración a mano.
+
+**Sonia** trabaja con paneles `HTML`, ficheros de configuración `JSON` ejecución de `script.py` — sin editar código ni montar infraestructura.
+
+**Gabriel** es responsable del mantenimiento, programación, setup.
 
 ---
 
@@ -33,46 +42,72 @@ Sonia trabaja exclusivamente con paneles HTML y consola — sin editar código n
        width="85%"/>
 </div>
 
-La guía operativa completa para Sonia está en [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
+La guía operativa completa para la `analista_operativa` está en [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
 
 ---
 
 ## Estructura del proyecto
 
-```
-books-label/
-│
-├── scripts/
-│   ├── catalogo_base.py      # Script principal — núcleo del proyecto
-│   └── diagnostico.py        # Diagnóstico de resultados por corrida
-│
-├── configs/
-│   ├── config_base.json      # Plantilla base de configuración
-│   └── configurador.html     # Panel visual para Sonia (genera el JSON)
-│
-├── precios/
-│   └── tabla_precios.ods     # Libro de precios — propiedad de Sonia
-│
-├── libros/                   # Catálogos PDF de entrada (sin versionar)
-├── salidas/                  # PDFs etiquetados generados (sin versionar)
-├── diagnosticos/             # Logs de cada corrida con timestamp
-│
-├── imagenes/
-│   ├── logos/                # Logo de la boutique y carátulas institucionales
-│   └── asset_repo/           # Capturas para la documentación
-│
-├── docs/
-│   ├── CHECKLIST.md          # Guía operativa paso a paso para Sonia
-│   ├── SETUP.md              # Configuración inicial del entorno
-│   ├── DIAGNOSTICO.md        # Referencia del sistema de diagnóstico
-│   └── GIT-ESENCIAL.md       # Git mínimo necesario para el equipo
-│
-├── prompts/
-│   └── extraer_columnas_listas.md   # Prompt de IA para Fase 1
-│
-├── sync.sh                   # Sincronización Git entre Gabriel y Sonia
-├── requirements.txt          # Dependencias Python
-└── README.md
+```text
+.
+├── CLAUDE.md
+├── docs
+│   ├── CHECKLIST.md
+│   ├── EXTRAER_PRECIOS_SIN_SCRIPT.md
+│   ├── GIT-ESENCIAL.md
+│   ├── MANTENIMIENTO.md
+│   └── social_media.md
+├── fase_1
+│   ├── config
+│   │   ├── archivo
+│   │   ├── config_pakar.json
+│   │   ├── config_price.json
+│   │   └── panel_extraer_campos.html
+│   ├── diagnosticos
+│   ├── docs
+│   │   └── README.md
+│   ├── extractor.py
+│   ├── lista_cruda
+│   │   ├── archivo
+│   │   ├── lista_accesorios.pdf
+│   │   └── tabulador.xlsx
+│   └── salida
+│       └── base_precios.xlsx
+├── fase_2
+│   ├── catalogo_base.py
+│   ├── config
+│   │   ├── archivo
+│   │   ├── config_base.json
+│   │   └── configurador.html
+│   ├── diagnosticos
+│   ├── docs
+│   │   ├── ARQUITECTURA.md
+│   │   ├── DIAGNOSTICO.md
+│   │   ├── README.md
+│   │   └── SETUP.md
+│   ├── libros
+│   │   └── perfumes_26.pdf
+│   ├── ocr_diagnostico.sh
+│   ├── precios
+│   │   ├── archivo
+│   │   └── lista_perfumes_26.xlsx
+│   └── salidas
+│       └── mochilas_26_precios.pdf
+├── fase_3
+│   ├── docs
+│   │   └── README.md
+│   └── HISTORY_LINKS.md
+├── imagenes
+│   ├── asset_repo
+│   │   ├── A171.png
+│   │   └── WB.png
+│   └── logos
+│       ├── logo_bz.png
+│       └── logo_ocean.png
+├── README.md
+├── requirements.txt
+├── sync.sh
+└── venv_catalogo
 ```
 
 > `libros/` y `salidas/` no se versionan — contienen archivos de trabajo locales.
