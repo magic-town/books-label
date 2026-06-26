@@ -6,18 +6,22 @@
 
 ## 1. Propósito
 
-`books-label` nace como una herramienta de automatización para Novedades Zepeda, una boutique familiar en Mineral de Angangueo, Michoacán. El negocio opera con catálogos físicos y digitales de múltiples proveedores, y el proceso de etiquetado de precios propios sobre esos catálogos consumía horas de trabajo manual cada temporada.
+`books-label` nace como una herramienta de automatización para `Boutique Zepeda`. El negocio opera con catálogos físicos y digitales de múltiples proveedores, y el proceso de etiquetado de precios propios sobre esos catálogos consumía horas de trabajo manual cada temporada.
 
 El primer objetivo del proyecto fue claro: automatizar ese proceso. El segundo, más ambicioso, es convertir ese esfuerzo en la base de una transformación digital completa — llevando los productos al canal en línea y construyendo una presencia comercial moderna.
 
 ---
+
+**MANTENIMINTO_CLEANING**
+
+Una situación que no se ha logrado concretar es la automatización de los ficheros que ya se oucparon y que no debieran vivir más en el repositorio. Los ficheros `listas_precios.pdf`, `listas_preicos.xlsx`, `catalogo_sin_precios.pdf`, entre otros, ensucian la estructura del proyecto al convertirse en residuos basura. Esto no quiere decir se deban eliminar de inmediato, pero si solucionar donde pueden vivir como respaldo. Hacer un `copiar/pegar` sería la solución clara, pero al pretender una sistema automatizado estamos buscando una solución más limpia.
 
 ## 2. Alcance actual
 
 El proyecto está estructurado en tres fases en distintos estados de madurez:
 
 **Fase 1 — Extracción de datos del proveedor**
-Módulo en desarrollo. Toma las listas de precios crudas de cada proveedor (PDF con encoding propietario, estructura tabular inconsistente) y extrae automáticamente los campos `ID` y `precio_sugerido` en un Excel limpio. Elimina la extracción manual que hoy depende de asistentes de IA y validación visual.
+Módulo testeado y funcional. Esta sujeto a los formatos `pdf` de los proveedores, pero eso esta fuera de la capa de nuestro desarrollo. Si el proveedor edita sus listas de precios, nosotros ajustamos. Aún no esta definido `MANTENIMIENTO_CLEANING` para `../fase_1/lista_cruda/*`y la tabla unica `../fase_!/salida/base_precios.xlsx`.
 
 **Fase 2 — Etiquetado del catálogo**
 Módulo funcional en producción. Toma el catálogo PDF del proveedor y la lista de precios validada, detecta los IDs de producto mediante OCR y estampa el precio de venta de la boutique sobre cada artículo. El resultado es un PDF listo para distribuir. Soporta actualmente Price Shoes, Pakar y Cklass en integración.

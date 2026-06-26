@@ -159,10 +159,20 @@ tu decides si usarlo.
 
 >Por ello, utilizaremos una medida para verificar si alguna(s) página(s) fueron emparejadas incorrectamente. En otras palabras, en este punto debemos saber si contamos con el total completo de precios.
 
-- [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendras un par de tablas:
+#### Ejecuta el programa de extracción de precios
+
+>Las listas de precios crudas, en este caso de Price Shoes pueden cambiar el formato o la alineación de la tabla, por este motivo usaremos un segundo `script.py`. 
+
+- [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
 
 ```bash
 python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
+```
+
+**Si tu extracción está incompleta, prueba el segundo script**
+
+```bash
+python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
 ```
 
 #### 🦋 INFO en la ejecución de extractor.py

@@ -5,6 +5,12 @@ extractor_01.py — Extractor acumulativo de listas de precios  [v01]
 Boutique Zepeda · books-label · Fase 1
 
 Cambios v01 respecto a extractor.py:
+    ExtractorPS._RE_ID y _filtrar (v01b):
+      - Mínimo de dígitos bajado de 6 a 5 para capturar IDs de marcas
+        importadas (Converse: 10102, 72343; Vans: 89807; K-Swiss: 158305…)
+        y accesorios Price Shoes (96395, 63526, 143523…).
+        El filtro pag-numérico introducido en v01 garantiza que los tokens
+        de 5-7 dígitos del encabezado (teléfonos, etc.) siguen descartados.
     _limpiar_precio (función global):
       - Caso 0 nuevo: precio formato PS México "miles.decimal.centavos"
         (ej. "$1.159.00" → 1159). En el PDF anterior Price Shoes no usaba
@@ -261,7 +267,9 @@ class ExtractorPS:
     La detección es automática por página.
     """
 
-    _RE_ID = re.compile(r'^\d{6,8}$')
+    # v01b: mínimo 5 dígitos para capturar IDs de Converse (10102, 72343…),
+    # Vans (89807…) y accesorios Price Shoes (96395, 63526…)
+    _RE_ID = re.compile(r'^\d{5,8}$')
 
     def __init__(self, config: dict, logger: logging.Logger):
         self.config   = config
@@ -325,7 +333,7 @@ class ExtractorPS:
                     if self._RE_ID.match(tok):
                         ids_pdf_col += 1
                     else:
-                        m = re.search(r'(\d{6,8})$', tok)
+                        m = re.search(r'(\d{5,8})$', tok)
                         if m:
                             ids_pdf_col += 1
 
@@ -445,7 +453,7 @@ class ExtractorPS:
                   (x < x_id and x_id <= x1_ + tol)):
                 col = "id"
                 if not self._RE_ID.match(token):
-                    m = re.search(r'(\d{6,8})$', token)
+                    m = re.search(r'(\d{5,8})$', token)
                     if m:
                         token = m.group(1)
                     else:
@@ -492,7 +500,8 @@ class ExtractorPS:
         if df.empty:
             return df
         # Solo IDs con formato numérico 6-8 dígitos
-        df = df[df["id"].astype(str).str.match(r"^\d{6,8}$")].copy()
+        # v01b: mínimo 5 dígitos (Converse, Vans, accesorios PS tienen IDs de 5)
+        df = df[df["id"].astype(str).str.match(r"^\d{5,8}$")].copy()
         # Solo filas con precio_base válido y sin letras
         df = df[df["precio_base"].notna()].copy()
         df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
