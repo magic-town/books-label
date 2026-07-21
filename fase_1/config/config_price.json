@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Caballeros",
-    "temporada":       "26_27",
+    "catalogo":        "Seven_Jeans",
+    "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
-    "excel_output":    "precios/lista_caballeros_26_27.xlsx",
+    "pdf_input":       "lista_cruda/lista_sevenJeans_pv26.pdf",
+    "excel_output":    "precios/lista_sevenjeans_pv26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

@@ -56,9 +56,8 @@ Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor e
 - [ ] Hacer una copia de `~/boutique_zepeda/<proveedor>/catalogos` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp>.pdf ~/books-label/fase_1/lista_cruda/a
+cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp>.pdf ~/books-label/fase_1/lista_cruda/
 cp ~/boutique_zepeda/<proveedor>/catalogos/<catalogo_temp>.pdf ~/books-label/fase_2/libros/
-lista_cruda/
 ```
 
 <div align="center">
@@ -185,14 +184,17 @@ python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
 ```
 
 > [!WARNING]
-> Si ocupaste `extractor.py` con una extracción parcial, eso provoca
-> que cuando logres la extracción exitosa `base_precios.ods`
-> duplique registros. Asegurate de eliminar los registros inclompletos.
+> Si ejecutaste extractor.py y la extracción quedó incompleta o fue parcial, 
+> al realizar posteriormente una extracción exitosa, base_precios.ods puede
+> contener registros duplicados. Antes de volver a ejecutar el proceso, 
+> asegúrate de eliminar los registros incompletos.
 
 
-#### 🦋 INFO en la ejecución de extractor.py
-
-> ✨ Al finalizar la ejecución y maximizar la terminal, se desplegará un conjunto de métricas de rendimiento; este punto constituye el criterio crítico de validación que determina la calidad y la certeza en nuestros datos.
+> [!NOTE]
+> INFO en la ejecución de extractor.py
+> Al finalizar la ejecución y maximizar la terminal, se desplegará un 
+> conjunto de métricas de rendimiento; este punto constituye el criterio
+> crítico de validación que determina la calidad y la certeza en nuestros datos.
 
 <div align="center">
 <img src="../imagenes/asset_repo/desviacion.png"
@@ -200,7 +202,11 @@ python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
      width="100%"/>
 </div>
 
-**Importante**: Tanto los registros por página como las métricas estadísticas (promedio y desviación estándar) permiten validar la calidad del proceso de extracción. En particular, el parámetro desviacion_alerta define el umbral de tolerancia respecto al promedio; cuando este se excede, se genera un **⚠️ Warning**.
+> [!IMPORTANT]
+> Tanto los registros por página como las métricas estadísticas 
+> (promedio y desviación estándar) permiten validar la calidad del proceso de extracción. 
+> En particular, el parámetro desviacion_alerta define el umbral de tolerancia respecto al promedio; 
+> cuando este se excede, se genera un **⚠️ Warning**.
 
 - El número de registros por página permite identificar de forma directa si alguna página presenta inconsistencias en la extracción frente al resto.
 - Estas anomalías se reflejan en la generación del Warning, el cual depende del valor de $\sigma = 0.5, 1.0, 1.5, 2.0$; a menor valor de $\sigma$, menor tolerancia a la variación y, por tanto, mayor sensibilidad en la detección de desviaciones.
@@ -361,7 +367,9 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto 
 
 - [ ] Selecciona el rango de páginas donde se encuentran los `Códigos` verticales y aplica una rotación a la vez para saber cual es la que funciona.
 
-> ⚠️ Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas solo para catálogos con códigos verticales.
+> [!IMPORTANT]
+> Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas
+> solo para catálogos con códigos verticales.
 
 - [ ] Hacer `COPY JSON` del configurador y pegarlo en tu archivo de configuración en VSC.
 
@@ -381,11 +389,11 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto 
 "etiqueta_color_rgb":   [0.00, 0.00, 1.00],
 ```
 
-- [ ] Ejecutar el script:
+- [ ] Ejecutar el script 👇:
   ```bash
-  python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>
+  python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp>.json
   ```
-- [ ] Abrir el PDF en `../fase_2/salidas/catalogo_temp.pdf` y verificar visualmente si los cambios están reflejados.
+- [ ] Abrir el PDF en `fase_2/salidas/catalogo_temp.pdf` y verificar visualmente si los cambios están reflejados.
 - [ ] Ajustar posición en el configurador si es necesario, copiar JSON y pegar. En esta etapa se sugiere editar desde el edito de **VSC**.
 
 ---
