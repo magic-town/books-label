@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "escolar",
+    "catalogo":        "Caballeros",
     "temporada":       "26_27",
 
-    "pdf_input":       "lista_cruda/lista_escolar_26_27.pdf",
-    "excel_output":    "precios/lista_escolar_26_27.xlsx",
+    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
+    "excel_output":    "precios/lista_caballeros_26_27.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

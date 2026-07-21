@@ -47,7 +47,7 @@ Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor e
 <div align="center">
 <img src="../imagenes/asset_repo/download00.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="75%"/>
+     width="85%"/>
 </div>
 
 ### Extractor.py (Nuestra fuente de verdad)
@@ -63,7 +63,7 @@ cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp.pdf> ~/books
 <div align="center">
 <img src="../imagenes/asset_repo/download.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="75%"/>
+     width="85%"/>
 </div>
 
 #### Modulo 1 = Extraer precios del proveedor (PDF) + Aplicar nuestra tabla de precios
@@ -74,7 +74,7 @@ cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp.pdf> ~/books
 VSC > File > Open Folder > books-label > Open > fase_1
 ```
 
-- [ ] Activar el virtual environment `venv`. Para mostraur u oculatar la terminal, puedes usar: `Ctrl + J`
+- [ ] Activar virtual environment `venv`. Para mostraur u oculatar la terminal, puedes usar: `Ctrl + J`
 
 ```bash
 source venv_catalogo/bin/activate
@@ -87,12 +87,12 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
      width="75%"/>
 </div>
 
-- [ ] Debe verse reflejado el fichero `lista_cruda.pdf` en el directorio `../fase_1/liista_cruda/` y el `venv` activado.
+- [ ] Debe verse reflejado el fichero `<lista_catalogo_temp>.pdf` en el directorio `fase_1/liista_cruda/` y el `venv` activado.
 
 <div align="center">
 <img src="../imagenes/asset_repo/init_vsc.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
+     width="90%"/>
 </div>
 
 #### Config JSON FASE 1
@@ -113,7 +113,7 @@ Usamos un solo 🗒️ fichero `config_proveedor.json` por proveedor: `PS`, `Pak
 
 tu decides si usarlo.
 
-- [ ] Da doble click 🖱️ para abrir el panel `panel_extraer_campos.html`
+- [ ] Doble click 🖱️ para abrir en `panel_extraer_campos.html`
 
 <div align="center">
 <img src="../imagenes/asset_repo/panel_extractor.png"
@@ -123,21 +123,22 @@ tu decides si usarlo.
 
 - [ ] LLenamos los campos:
 
-  + `Proveedor` : "Price Shoes", "Pakar", "Cklass", "Otro"
-  + `Catalogo`: "Ella", "Kids", "Urbano", "Tomo_1", ...
-  + `Temporada` "PV26". "OI26", "2026", "Ofertas", ...
-  + `PDF Entrada`: <lista_catalogo_temp.pdf>
-  + `OUTPUT EXCEL`: <lista_catalogo_temp.xlsx> 
-  + `tolerancia_col_X`: "dejamos la que tiene por defecto"
+  + `Proveedor` : Price Shoes, Pakar, Cklass, Otro
+  + `Catalogo`: Ella, Kids, Urbano, Tomo_1, ...
+  + `Temporada` PV26. OI26, 2026, 26-27, Ofertas, ...
+  + `PDF Entrada`: <lista_catalogo_temp>.pdf
+  + `OUTPUT EXCEL`: <lista_catalogo_temp>.xlsx 
+  + `tolerancia_col_X`: Dejamos la que tiene por defecto
   + `desviacion_alarma`: 0.5, 1.0, 1.5, 2.0
 
-- [ ] Damos click a `COPY JSON`
+- [ ] 🖱️ Damos click  en `COPY JSON`
 - [ ] Pegamos la configuración JSON en el fichero correspondiente: 
 
-     - `/fase_1/config_price.json` 
-     - `/fase_1/config_pakar.json`
+     - `fase_1/config_price.json` 
+     - `fase_1/config_pakar.json`
 
-> Cklass tiene su propia configuración, no se ha implementado al panel pero ya existe y funciona.
+> En el caso de Cklass para la temporada OV26 se extrae manualmente 
+> desde los ficheros `xlsx`
 
 <div align="center">
 <img src="../imagenes/asset_repo/config_fase_1.png"
@@ -145,7 +146,7 @@ tu decides si usarlo.
      width="85%"/>
 </div>
 
-- [ ] Si quieres editar el fichero `../fase_1/<config_proveedor.json>` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
+- [ ] Si quieres editar el fichero `fase_1/<config_proveedor>.json` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
@@ -155,9 +156,16 @@ tu decides si usarlo.
 
 #### ¿Qué es `desviación_alerta = x.x`?
 
->Python no sabe cuántos registros hay realmente en la lista de precios del proveedor. Lo que ocurre internamente es que el «Optical Character Recognition» (OCR) reconoce los caracteres en la página y los empata con los criterios que previamente le indicamos: Pag, ID, Sug_Crédito, MODELO, etc.
+> Python no sabe cuántos registros hay realmente en la 
+> lista de precios del proveedor. Lo que ocurre internamente 
+> es que el «Optical Character Recognition» (OCR) reconoce 
+> los caracteres en la página y los empata con los criterios
+> que previamente le indicamos: Pag, ID, Sug_Crédito, MODELO, etc.
 
->Por ello, utilizaremos una medida para verificar si alguna(s) página(s) fueron emparejadas incorrectamente. En otras palabras, en este punto debemos saber si contamos con el total completo de precios.
+> Por ello, utilizaremos una medida para verificar 
+> si alguna(s) página(s) fueron emparejadas incorrectamente. 
+> En otras palabras, en este punto debemos saber si contamos 
+> con el total completo de precios.
 
 #### Ejecuta el programa de extracción de precios
 
@@ -166,7 +174,7 @@ tu decides si usarlo.
 - [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
 
 ```bash
-python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
+python3 fase_1/extractor.py --config fase_1/config/<config_proveedor>.json
 ```
 
 **Si tu extracción está incompleta, prueba el segundo script**
@@ -174,6 +182,12 @@ python3 fase_1/extractor.py --config fase_1/config/<config_proveedor.json>
 ```bash
 python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
 ```
+
+> [!WARNING]
+> Si ocupaste `extractor.py` con una extracción parcial, eso provoca
+> que cuando logres la extracción exitosa `base_precios.ods`
+> duplique registros. Asegurate de eliminar los registros inclompletos.
+
 
 #### 🦋 INFO en la ejecución de extractor.py
 
@@ -243,7 +257,7 @@ La tabla `base_precios.xlsx` se genera y llena automaticamente con cada ejecuci�
  
 **lista_catalogo_temp.xlsx**
 
-- [ ] Al generar la tabla `../fase_2/precios/lista_catalogo_temp.xlsx` **termina la fase 1** 😉.
+- [ ] Al generar la tabla `fase_2/precios/<lista_catalogo_temp>.xlsx` **termina la fase 1** 😉.
 
 ---
 
