@@ -56,8 +56,9 @@ Iniciamos descargando los _catálogos_ y _listas de precios_ de cada proveedor e
 - [ ] Hacer una copia de `~/boutique_zepeda/<proveedor>/catalogos` a `~/books-label/fase_1/libros`
 
 ```bash
-cp ~/boutique_zepeda/<proveedor>/catalogos/<catalogo_temp.pdf> ~/books-label/fase_2/libros/
-cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp.pdf> ~/books-label/fase_1/lista_cruda/
+cp ~/boutique_zepeda/<proveedor>/lista_precios/<lista_catalogo_temp>.pdf ~/books-label/fase_1/lista_cruda/a
+cp ~/boutique_zepeda/<proveedor>/catalogos/<catalogo_temp>.pdf ~/books-label/fase_2/libros/
+lista_cruda/
 ```
 
 <div align="center">
