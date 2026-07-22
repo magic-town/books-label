@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Seven_Jeans",
+    "catalogo":        "LEVI'S",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_sevenJeans_pv26.pdf",
-    "excel_output":    "precios/lista_sevenjeans_pv26.xlsx",
+    "pdf_input":       "lista_cruda/lista_levis_PV26.pdf",
+    "excel_output":    "precios/lista_levis_PV26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

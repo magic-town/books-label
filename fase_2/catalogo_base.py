@@ -56,25 +56,19 @@ def parse_args():
 #  Configuración de logging
 # ─────────────────────────────────────────────
 
-def setup_logging(base_dir: str, nombre_catalogo: str) -> str:
+def setup_logging(base_dir: str, nombre_catalogo: str) -> None:
     """
-    Crea el archivo de log con timestamp en diagnosticos/.
-    Retorna la ruta del log generado.
+    Configura el logging solo por consola (stdout).
+    No se genera ningún archivo .log en disco.
     """
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"{nombre_catalogo}_{timestamp}.log"
-    log_path = os.path.join(base_dir, "diagnosticos", log_filename)
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(log_path, encoding="utf-8"),
             logging.StreamHandler(sys.stdout)
         ]
     )
-    return log_path
+    return None
 
 
 # ─────────────────────────────────────────────
@@ -813,7 +807,7 @@ class EtiquetadorCatalogo:
         """
         # 1. Exacto
         if id_detectado in self.precios_dict:
-            return self.precios_dict[id_detectado], "exacto", None, None
+            return self.precios_dict[id_detectado], "exacto", id_detectado, None
 
         # 2. Ventana deslizante — recupera IDs cuando el OCR agrega o fusiona
         #    un dígito extra al inicio, al final o mezcla texto adyacente.
@@ -827,7 +821,7 @@ class EtiquetadorCatalogo:
                     ventana = id_detectado[inicio:inicio + largo]
                     if ventana in self.precios_dict:
                         self.logger.debug(f"   ✂️  Ventana: '{id_detectado}' → '{ventana}'")
-                        return self.precios_dict[ventana], "recorte", None, None
+                        return self.precios_dict[ventana], "recorte", ventana, None
 
         # 3. Fuzzy
         if self.fuzzy_activo:
@@ -852,15 +846,11 @@ class EtiquetadorCatalogo:
         El archivo queda pareado con el log: mismo nombre base + _fuzzy.csv
         """
         import csv
-        log_handlers = [h for h in logging.getLogger().handlers if hasattr(h, 'baseFilename')]
-        if log_handlers:
-            log_base = os.path.splitext(log_handlers[0].baseFilename)[0]
-        else:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            nombre    = os.path.splitext(os.path.basename(self.output_path))[0]
-            log_base  = os.path.join(self.base_dir, "diagnosticos", f"{nombre}_{timestamp}")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        nombre    = os.path.splitext(os.path.basename(self.output_path))[0]
+        csv_base  = os.path.join(os.path.dirname(self.output_path), f"{nombre}_{timestamp}")
 
-        csv_path = log_base + "_fuzzy.csv"
+        csv_path = csv_base + "_fuzzy.csv"
         os.makedirs(os.path.dirname(csv_path), exist_ok=True)
 
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
@@ -1065,7 +1055,9 @@ class EtiquetadorCatalogo:
                 can.setFont(self.etiqueta_font, self.etiqueta_font_size)
                 can.setFillColorRGB(*self.etiqueta_color)
 
-                ids_en_pagina = set()   # guard por página — evita etiquetar el mismo ID dos veces
+                ids_en_pagina       = set()   # candidatos OCR ya probados en esta página
+                catalogo_en_pagina  = set()   # IDs de catálogo ya estampados — evita doble etiqueta
+                                               # cuando la doble pasada lee el mismo ID con variantes distintas
 
                 for j in range(len(data["text"])):
                     texto = data["text"][j]
@@ -1083,13 +1075,20 @@ class EtiquetadorCatalogo:
                     precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
 
                     if precio and precio > 0:
+                        clave_catalogo = id_match if id_match else id_detectado
+                        if clave_catalogo in catalogo_en_pagina:
+                            # Mismo artículo ya etiquetado — típico cuando la doble
+                            # pasada OCR detecta el mismo ID con una variante distinta
+                            continue
+
                         x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
                         y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
 
                         can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
                         total_etiquetado += 1
                         ids_en_pagina.add(id_detectado)
-                        ids_detectados.add(id_detectado)
+                        catalogo_en_pagina.add(clave_catalogo)
+                        ids_detectados.add(clave_catalogo)
                         if tipo_match == "fuzzy":
                             fuzzy_matches += 1
                             fuzzy_detalle.append((id_detectado, id_match, precio, score, i + 1))
@@ -1258,10 +1257,9 @@ if __name__ == "__main__":
         config = json.load(f)
 
     nombre_catalogo = os.path.splitext(os.path.basename(config_path))[0]
-    log_path = setup_logging(BASE, nombre_catalogo)
+    setup_logging(BASE, nombre_catalogo)
     logger   = logging.getLogger(__name__)
     logger.info(f"📁 Config cargada: {args.config}")
-    logger.info(f"📝 Log guardado en: {log_path}")
 
     try:
         app = EtiquetadorCatalogo(config, BASE)

@@ -80,12 +80,12 @@ IMPORTANTE: los datos de toda la tabla deben ser de tipo número.
 #### 🟡 Extacción de Pakar
 
 ```
-Del fichero <nombre_archivo> extrae las siguientes columnas de todas las páginas del documento:
+Del fichero <name>.pdf extrae las siguientes columnas de todas las páginas del documento:
 
 {
-  "columna_1":  "PÁG.",     // type: numeric
-  "columna_2":  "CÓDIGO",   // type: "text"
-  "columna_11": "2 PAGOS"   // type: numeric
+  "columna_1":  "PÁGINA",     // type: int
+  "columna_2":  "CÓDIGO",   // type: "String"
+  "columna_11": "2 PAGOS"   // type: int
 }
 
 IMPORTANTE: El tipo de datos para "CÓDIGO" debe ser texto, es decir, los valores tienen este formato "xxx-xxx". Para "2 PAGO" el formato debe ser número ya que debo aplicarle fórmula en Calc. Tu output tiene que ser una tabla lista para copiar y pegar.
