@@ -9,31 +9,31 @@
     "ocr_rotacion_90":  false,
     "ocr_rotacion_270": false,
     
-    "pdf_input":   "libros/LEVIS_PV26.pdf",
-    "excel_input": "precios/lista_levis_pv26.xlsx",
-    "pdf_output":  "salidas/levis_pv26_precios.pdf",
+    "pdf_input":   "libros/botas_26_27.pdf",
+    "excel_input": "precios/lista_botas_26_27.xlsx",
+    "pdf_output":  "salidas/botas_26_27_precios.pdf",
     
     "presentaciones": [
         {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
         {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 20},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 30},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": 4},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": 230},
         {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
     ],
     
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          213,
-    "logo_y_pt":          430,
-    "logo_ancho_pt":      80,
-    "logo_alto_pt":       80,
-    "logo_transparencia": 0.85,
+    "logo_x_pt":          784,
+    "logo_y_pt":          395,
+    "logo_ancho_pt":      81,
+    "logo_alto_pt":       81,
+    "logo_transparencia": 0.90,
     
     "etiqueta_font":        "Helvetica-BoldOblique",
     "etiqueta_font_size":   12,
     "etiqueta_color_rgb":   [0, 0, 1],
-    "etiqueta_offset_x_pt": -4,
-    "etiqueta_offset_y_pt": 34,
+    "etiqueta_offset_x_pt": -2.5,
+    "etiqueta_offset_y_pt": 5.5,
     
     "id_longitud_min": 4,
     "id_longitud_max": 8,

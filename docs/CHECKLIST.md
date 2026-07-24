@@ -174,13 +174,13 @@ tu decides si usarlo.
 - [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
 
 ```bash
-python3 fase_1/extractor.py --config fase_1/config/<config_proveedor>.json
+python3 fase_1/extractor.py --config fase_1/config/config_<proveedor>.json
 ```
 
 **Si tu extracción está incompleta, prueba el segundo script**
 
 ```bash
-python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
+python3 fase_1/extractor_01.py --config fase_1/config/config_<proveedor>.json
 ```
 
 > [!WARNING]
@@ -211,9 +211,9 @@ python3 fase_1/extractor_01.py --config fase_1/config/<config_proveedor.json>
 - El número de registros por página permite identificar de forma directa si alguna página presenta inconsistencias en la extracción frente al resto.
 - Estas anomalías se reflejan en la generación del Warning, el cual depende del valor de $\sigma = 0.5, 1.0, 1.5, 2.0$; a menor valor de $\sigma$, menor tolerancia a la variación y, por tanto, mayor sensibilidad en la detección de desviaciones.
 
-- [ ] Se genera el fichero `../fase_2/lista_catalog_temp.xlsx` 
+- [ ] Se genera el fichero `fase_2/lista_catalog_temp.xlsx` 
 
-#### Generación de 2 ficheros: ../fase_1/salida/base_precios.xlsx y ../fase_2/precios/lista_catalogo_temp.xlsx
+#### Generación de 2 ficheros: fase_1/salida/base_precios.xlsx y fase_2/precios/lista_catalogo_temp.xlsx
 
 - **base_precios.xlsx**
 
