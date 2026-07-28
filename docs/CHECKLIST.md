@@ -177,12 +177,6 @@ tu decides si usarlo.
 python3 fase_1/extractor.py --config fase_1/config/config_<proveedor>.json
 ```
 
-**Si tu extracción está incompleta, prueba el segundo script**
-
-```bash
-python3 fase_1/extractor_01.py --config fase_1/config/config_<proveedor>.json
-```
-
 > [!WARNING]
 > Si ejecutaste extractor.py y la extracción quedó incompleta o fue parcial, 
 > al realizar posteriormente una extracción exitosa, base_precios.ods puede
