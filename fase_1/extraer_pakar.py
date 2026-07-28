@@ -1,63 +1,45 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extractor_ps_pk.py — Extractor de listas de precios: Price Shoes + Pakar
+extraer_lista_pakar.py — Extractor de lista de precios: Pakar
 Boutique Zepeda · books-label · Fase 1
 
 Especificaciones OCR
 ─────────────────────────────────────────────────────────────────
 Coordenadas X:
     pdfplumber extrae words con x0/x1/top.  El encabezado de columnas
-    (Pag, ID, Sug_credito para PS; PÁG., CÓDIGO, 2 PAGOS para Pakar)
-    calibra las posiciones X de referencia para toda la página.
+    (PÁG., CÓDIGO, 2 PAGOS) calibra las posiciones X de referencia
+    para toda la página.
 
 Tolerancia horizontal (tol_x):
     Margen en px para asignar un token a su columna.
     Default: 20 px.  Configurable vía JSON.
 
-Merge vertical (merge_y, solo PS):
-    Tokens de la misma fila lógica pueden tener tops separados hasta
-    16 px por fragmentación del glifo.  Cuando dos sub-filas caen
-    dentro de merge_y px, se fusionan priorizando:
-      - ID: token que matchea ^\d{5,8}$
-      - Precio: token que empieza con $\d
-      - Pag: token numérico puro
+Detección de encabezado:
+    Búsqueda del token col_pag ("PÁG.") por igualdad o subcadena.
+    Tolerancia Y de ±15 px para mapear las columnas.
+    Soporta encabezados partidos en dos líneas adyacentes (ej. "2 PAGOS"
+    como token compuesto de dos words consecutivos).
 
-Encoding propietario (solo PS):
-    Algunos PDFs codifican dígitos como (cid:19)–(cid:28) → 0–9 y
-    desplazan ASCII +offset (default 29).  La detección es automática
-    por página.
-
-Regex ID (solo PS):  ^\d{5,8}$
-    Mínimo 5 dígitos para capturar IDs de marcas importadas y
-    accesorios con IDs cortos (Converse, Vans, K-Swiss…).
-
-Filtro pag numérico (solo PS):
-    Descarta filas donde `pag` contiene texto (encabezados / pies de
-    página que se cuelan como registros).
-
-Detección de encabezado (PS):
-    Tolerancia Y de ±15 px al buscar Sug_credito.
-    Fallback: cualquier token que contenga la subcadena de col_precio.
-
-Formato precio PS México:
-    Miles.decimal.centavos ("$1.159.00" → 1159).
+Encoding opcional:
+    Si encoding_offset > 0 en el config, los tokens se decodifican
+    antes de procesarse (mismo mecanismo que Price Shoes).
 
 ─────────────────────────────────────────────────────────────────
-Proveedores soportados:
-    PS    → Price Shoes  (encoding propietario OR texto limpio, auto)
-    Pakar → Pakar        (texto limpio, tabular por coordenadas X)
-
 Uso:
-    python3 fase_1/extractor_ps_pk.py --config fase_1/config/config_price.json
+    python3 fase_1/extraer_lista_pakar.py --config fase_1/config/config_pakar.json
 
 Dependencias:
     pdfplumber, pandas, openpyxl
 
 ─────────────────────────────────────────────────────────────────
-Estructura base_precios.xlsx  (pestaña por proveedor, acumulativa)
+Outputs
 ─────────────────────────────────────────────────────────────────
+fase_1/salida/tabla_pakar.xlsx   (acumulativo, pestaña por config)
     catalogo | temp | pag | id | precio_base | redondea | precio_venta | fecha
+
+fase_2/precios/<excel_output>.xlsx
+    ID | precio_venta
 ─────────────────────────────────────────────────────────────────
 """
 
@@ -81,7 +63,7 @@ from openpyxl.styles import Alignment, PatternFill, Font
 
 TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
-INTEGRACION_PATH  = os.path.expanduser("~/books-label/fase_1/salida/base_precios.xlsx")
+SALIDA_PAKAR_PATH = os.path.expanduser("~/books-label/fase_1/salida/tabla_pakar.xlsx")
 
 COLUMNAS_STD = ["catalogo", "temp", "pag", "id", "precio_base", "redondea", "precio_venta", "fecha"]
 
@@ -130,7 +112,7 @@ def _calcular_pv(precio_base, tab: pd.DataFrame):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Extractor de listas de precios PS/Pakar — Boutique Zepeda"
+        description="Extractor de lista de precios Pakar — Boutique Zepeda"
     )
     parser.add_argument("--config", required=True, help="Ruta al archivo JSON de configuración")
     return parser.parse_args()
@@ -141,7 +123,7 @@ def parse_args():
 # ─────────────────────────────────────────────
 
 def setup_logger(nombre: str, base_dir: str) -> logging.Logger:
-    logger = logging.getLogger("extractor_ps_pk")
+    logger = logging.getLogger("extraer_pakar")
     logger.setLevel(logging.DEBUG)
     logger.handlers.clear()
     fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -153,7 +135,7 @@ def setup_logger(nombre: str, base_dir: str) -> logging.Logger:
 
 
 # ─────────────────────────────────────────────
-#  Decodificador Price Shoes
+#  Decodificador (encoding opcional)
 # ─────────────────────────────────────────────
 
 def _decodificar(txt: str, offset: int) -> str:
@@ -178,10 +160,6 @@ def _decodificar(txt: str, offset: int) -> str:
     return ''.join(resultado)
 
 
-def _tiene_encoding_ps(words: list) -> bool:
-    return any('(cid:' in w['text'] for w in words)
-
-
 # ─────────────────────────────────────────────
 #  Limpieza de precio
 # ─────────────────────────────────────────────
@@ -190,31 +168,24 @@ def _limpiar_precio(val: str) -> str | None:
     """
     Normaliza cualquier formato de precio presente en los PDFs a entero:
 
-        "$579.00"        → "579"   (decimal con punto)
-        "$1,079.00"      → "1079"  (miles con coma, decimal con punto)
-        "349,00"         → "349"   (decimal con coma)
-        "$1.849,00"      → "1849"  (miles con punto, decimal con coma)
-        "$ 69"           → "69"    (entero con espacio tras $)
-        "$1.159.00"      → "1159"  (miles.decimal.centavos — Price Shoes México)
-        "$1.199,00"      → "1199"
+        "$579.00"    → "579"   (decimal con punto)
+        "$1,079.00"  → "1079"  (miles con coma, decimal con punto)
+        "349,00"     → "349"   (decimal con coma sin miles)
+        "$1.849,00"  → "1849"  (miles con punto, decimal con coma)
+        "$ 69"       → "69"    (entero con espacio tras $)
 
     Descarta cualquier valor que contenga letras.
     """
     if not val:
         return None
     s = str(val).strip()
-    # Descartar si tiene letras
     if re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', s):
         return None
-    # Eliminar $ y espacios internos
     s = re.sub(r'[$\s]', '', s)
     if not s:
         return None
 
-    # ── Normalizar a entero ──────────────────────────────────────────
-    # Caso 0 (Price Shoes México): Miles con punto Y decimal con punto
-    #   "$1.159.00" → "1159"   "$2.099.00" → "2099"
-    #   Patrón: \d{1,3} seguido de grupos .\d{3} y terminado en .\d{2}
+    # Caso 0: Miles con punto Y decimal con punto: "1.159.00"
     if re.match(r'^\d{1,3}(\.\d{3})+\.\d{2}$', s):
         s = s.rsplit('.', 1)[0].replace('.', '')
     # Caso 1: Miles con punto Y decimal con coma: "1.849,00"
@@ -226,11 +197,10 @@ def _limpiar_precio(val: str) -> str | None:
     # Caso 3: Decimal con coma sin miles: "349,00"
     elif re.match(r'^\d+,\d{2}$', s):
         s = s.split(',')[0]
-    # Caso 4: Decimal con punto: "579.00" o "1199.00"
+    # Caso 4: Decimal con punto: "579.00"
     elif re.match(r'^\d+\.\d+$', s):
         s = s.split('.')[0]
-    # Caso 5: Entero puro: "69", "199", "1199"
-    # (ya es correcto)
+    # Caso 5: Entero puro: "69", "199" (ya es correcto)
 
     if re.match(r'^\d+$', s) and s:
         return s
@@ -263,245 +233,6 @@ def _log_estadisticas_pagina(
         logger.warning(f"  ⚠️  Páginas fuera del rango: {detalle}")
     else:
         logger.info("  ✔ Todas las páginas dentro del rango esperado")
-
-
-# ─────────────────────────────────────────────
-#  Extractor Price Shoes
-# ─────────────────────────────────────────────
-
-class ExtractorPS:
-    """
-    Price Shoes: soporta AMBOS formatos del mismo proveedor:
-      - PDFs con encoding propietario (cid: / offset ASCII)
-      - PDFs con texto limpio y seleccionable
-    La detección es automática por página.
-    """
-
-    # Mínimo 5 dígitos para capturar IDs de marcas importadas
-    # (Converse: 10102, 72343; Vans: 89807…) y accesorios PS (96395, 63526…)
-    _RE_ID = re.compile(r'^\d{5,8}$')
-
-    def __init__(self, config: dict, logger: logging.Logger):
-        self.config   = config
-        self.logger   = logger
-        self.offset   = config.get("encoding_offset", 29)
-        self.tol_x    = config.get("tolerancia_x", 20.0)
-        self.col_pag  = config.get("col_pag",    "Pag")
-        self.col_id   = config.get("col_id",     "ID")
-        self.col_prec = config.get("col_precio", "Sug_credito")
-        # Tolerancia vertical para fusionar sub-filas fragmentadas
-        # (marcas partidas en múltiples líneas).
-        self._merge_y = config.get("merge_y", 16)
-
-    def extraer(self, pdf_path: str) -> pd.DataFrame:
-        registros   = []
-        col_x       = None
-        ids_pdf_col = 0
-
-        registros_por_pagina = []
-        with pdfplumber.open(pdf_path) as pdf:
-            self.logger.info(f"📄 Total páginas: {len(pdf.pages)}")
-            self.logger.info("═" * 45)
-
-            for i, page in enumerate(pdf.pages, 1):
-                raw = page.extract_words(x_tolerance=3, y_tolerance=5, keep_blank_chars=False)
-                if not raw:
-                    self.logger.info(f"  Pág {i}: sin palabras — omitida")
-                    continue
-
-                if _tiene_encoding_ps(raw):
-                    words = [{**w, "text": _decodificar(w["text"], self.offset)} for w in raw]
-                    self.logger.debug(f"  Pág {i}: encoding PS → offset={self.offset}")
-                else:
-                    words = raw
-                    self.logger.debug(f"  Pág {i}: texto limpio")
-
-                nuevo_cx = self._detectar_encabezado(words)
-                if nuevo_cx:
-                    col_x = nuevo_cx
-                    self.logger.debug(
-                        f"  Pág {i}: encabezado OK — "
-                        f"Pag@x={col_x['pag']:.1f}  ID@x={col_x['id']:.1f}  Precio@x={col_x['precio']:.1f}"
-                    )
-                else:
-                    self.logger.debug(f"  Pág {i}: encabezado no encontrado en esta página")
-
-                if not col_x:
-                    self.logger.warning(f"  Pág {i}: encabezado NO encontrado — omitida")
-                    continue
-
-                x_id = col_x["id"]
-                for w in words:
-                    tok = w["text"].strip()
-                    x0_ = w["x0"]
-                    x1_ = w.get("x1", x0_)
-                    near_id = (abs(x0_ - x_id) <= self.tol_x or
-                               (x0_ < x_id and x_id <= x1_ + self.tol_x))
-                    if not near_id:
-                        continue
-                    if self._RE_ID.match(tok):
-                        ids_pdf_col += 1
-                    else:
-                        m = re.search(r'(\d{5,8})$', tok)
-                        if m:
-                            ids_pdf_col += 1
-
-                filas = self._extraer_filas(words, col_x)
-                antes = len(registros)
-                for fila in filas:
-                    registros.append({
-                        "pag":         fila.get("pag", "").strip(),
-                        "id":          fila.get("id",  "").strip(),
-                        "precio_base": _limpiar_precio(fila.get("precio", "")),
-                    })
-                df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
-                validos = len(df_pag)
-                registros_por_pagina.append((i, validos))
-                self.logger.info(f"  Pág {i}: {validos} registros")
-
-        _log_estadisticas_pagina(self.logger, self.config, registros_por_pagina, "registros")
-
-        df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
-        df = self._filtrar(df)
-        df.attrs["ids_esperados_pdf"] = ids_pdf_col
-        return df
-
-    def _detectar_encabezado(self, words: list) -> dict | None:
-        """
-        Detecta la fila de encabezado y devuelve las coordenadas X de
-        las columnas Pag, ID y Sug_credito.
-
-        Búsqueda de precio:
-        - Tolerancia Y de ±15 px para Sug_credito (encabezado en sub-filas).
-        - Fallback: cualquier token que contenga la subcadena de col_precio
-          (variaciones tipográficas menores).
-        """
-        filas_y = {}
-        for w in words:
-            filas_y.setdefault(round(w["top"]), []).append(w)
-
-        ys_sorted = sorted(filas_y.keys())
-
-        for y, tokens in sorted(filas_y.items()):
-            textos = [t["text"].strip() for t in tokens]
-            if self.col_pag not in textos or self.col_id not in textos:
-                continue
-
-            col_x = {}
-            for t in tokens:
-                txt = t["text"].strip()
-                if txt == self.col_pag:
-                    col_x["pag"] = t["x0"]
-                elif txt == self.col_id:
-                    col_x["id"] = t["x0"]
-                elif txt == self.col_prec:
-                    col_x["precio"] = t["x0"]
-
-            # Búsqueda ampliada de precio: ±15 px en Y
-            if "precio" not in col_x:
-                for y2 in ys_sorted:
-                    if y2 == y or abs(y2 - y) > 15:
-                        continue
-                    for t in filas_y[y2]:
-                        txt2 = t["text"].strip()
-                        if txt2 == self.col_prec:
-                            col_x["precio"] = t["x0"]
-                            break
-                    if "precio" in col_x:
-                        break
-
-            # Fallback: buscar token que contenga la subcadena clave del precio
-            if "precio" not in col_x:
-                prec_lower = self.col_prec.lower()
-                for y2 in ys_sorted:
-                    if abs(y2 - y) > 15:
-                        continue
-                    for t in filas_y[y2]:
-                        if prec_lower in t["text"].lower():
-                            col_x["precio"] = t["x0"]
-                            break
-                    if "precio" in col_x:
-                        break
-
-            if "pag" in col_x and "id" in col_x and "precio" in col_x:
-                return col_x
-
-        return None
-
-    def _extraer_filas(self, words: list, col_x: dict) -> list:
-        x_pag    = col_x["pag"]
-        x_id     = col_x["id"]
-        x_precio = col_x["precio"]
-        tol      = self.tol_x
-
-        filas_raw = {}
-        for w in words:
-            x     = w["x0"]
-            x1_   = w.get("x1", x)
-            token = w["text"].strip()
-            if not token:
-                continue
-            if abs(x - x_pag) <= tol:
-                col = "pag"
-            elif (abs(x - x_id) <= tol or
-                  (x < x_id and x_id <= x1_ + tol)):
-                col = "id"
-                if not self._RE_ID.match(token):
-                    m = re.search(r'(\d{5,8})$', token)
-                    if m:
-                        token = m.group(1)
-                    else:
-                        continue
-            elif abs(x - x_precio) <= tol:
-                col = "precio"
-            else:
-                continue
-            y_key = round(w["top"])
-            filas_raw.setdefault(y_key, {})
-            prev = filas_raw[y_key].get(col, "")
-            filas_raw[y_key][col] = (prev + " " + token).strip() if prev else token
-
-        bloques = []
-        ys = sorted(filas_raw.keys())
-        if not ys:
-            return []
-
-        bloque = dict(filas_raw[ys[0]])
-        y_ini  = ys[0]
-
-        for y in ys[1:]:
-            if y - y_ini <= self._merge_y:
-                for col, val in filas_raw[y].items():
-                    if col not in bloque:
-                        bloque[col] = val
-                    else:
-                        cur = bloque[col]
-                        if col == "id" and self._RE_ID.match(val) and not self._RE_ID.match(cur):
-                            bloque[col] = val
-                        elif col == "precio" and re.match(r'^\$?\d', val) and not re.match(r'^\$?\d', cur):
-                            bloque[col] = val
-                        elif col == "pag" and re.match(r'^\d+$', val) and not re.match(r'^\d+$', cur):
-                            bloque[col] = val
-            else:
-                bloques.append(bloque)
-                bloque = dict(filas_raw[y])
-                y_ini  = y
-
-        bloques.append(bloque)
-        return bloques
-
-    def _filtrar(self, df: pd.DataFrame) -> pd.DataFrame:
-        if df.empty:
-            return df
-        # Solo IDs con formato numérico 5-8 dígitos
-        df = df[df["id"].astype(str).str.match(r"^\d{5,8}$")].copy()
-        # Solo filas con precio_base válido y sin letras
-        df = df[df["precio_base"].notna()].copy()
-        df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
-        # Descartar filas donde pag contiene texto (encabezado/pie de página)
-        # Los números de página del catálogo son siempre enteros puros.
-        df = df[df["pag"].astype(str).str.match(r"^\d+$")].copy()
-        return df.reset_index(drop=True)
 
 
 # ─────────────────────────────────────────────
@@ -561,14 +292,14 @@ class ExtractorPakar:
         df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
         return self._filtrar(df)
 
-    def _detectar_encabezado(self, words):
+    def _detectar_encabezado(self, words) -> float | None:
         for w in words:
             txt = w["text"].strip()
             if txt == self.col_pag or self.col_pag in txt:
                 return w["top"]
         return None
 
-    def _mapear_columnas(self, words, header_y):
+    def _mapear_columnas(self, words, header_y) -> dict:
         col_x         = {}
         tol_y         = 15
         mapa          = {self.col_pag: "pag", self.col_id: "id", self.col_prec: "precio"}
@@ -592,7 +323,7 @@ class ExtractorPakar:
                             break
         return col_x
 
-    def _agrupar_filas(self, words, header_y, col_x):
+    def _agrupar_filas(self, words, header_y, col_x) -> list:
         filas   = {}
         aliases = list(col_x.keys())
         xs      = [col_x[a] for a in aliases]
@@ -612,7 +343,7 @@ class ExtractorPakar:
             filas[y_key][col] = (prev + " " + token).strip() if prev else token
         return list(filas.values())
 
-    def _filtrar(self, df):
+    def _filtrar(self, df) -> pd.DataFrame:
         if df.empty:
             return df
         df = df[df["precio_base"].notna()].copy()
@@ -634,7 +365,7 @@ def _abrir_o_crear_xlsx(path: str):
 
 
 def _obtener_o_crear_pestaña(wb, nombre: str, columnas: list):
-    """Devuelve la hoja del proveedor; la crea con encabezado si no existe."""
+    """Devuelve la hoja; la crea con encabezado si no existe."""
     if nombre in wb.sheetnames:
         return wb[nombre]
     ws = wb.create_sheet(title=nombre)
@@ -653,20 +384,20 @@ def _estilizar_encabezado(ws):
             cell.alignment = Alignment(horizontal="right")
 
 
-def escribir_acumulativo_std(
+def escribir_tabla_pakar(
     df: pd.DataFrame,
     config: dict,
     tab: pd.DataFrame,
     logger: logging.Logger,
 ):
-    """Escritura para PS / Pakar (columna `id`)."""
-    os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
-    proveedor = config.get("proveedor", "PS").strip()
+    """Escritura acumulativa en tabla_pakar.xlsx (pestaña por proveedor)."""
+    os.makedirs(os.path.dirname(SALIDA_PAKAR_PATH), exist_ok=True)
+    proveedor = config.get("proveedor", "Pakar").strip()
     catalogo  = config.get("catalogo", "")
     temporada = config.get("temporada", "")
     fecha     = datetime.now().strftime("%Y-%m-%d")
 
-    wb = _abrir_o_crear_xlsx(INTEGRACION_PATH)
+    wb = _abrir_o_crear_xlsx(SALIDA_PAKAR_PATH)
     ws = _obtener_o_crear_pestaña(wb, proveedor, COLUMNAS_STD)
 
     nuevos = 0
@@ -684,16 +415,16 @@ def escribir_acumulativo_std(
         nuevos += 1
 
     _estilizar_encabezado(ws)
-    wb.save(INTEGRACION_PATH)
-    logger.info(f"✅ {nuevos} registros → pestaña '{proveedor}' en {INTEGRACION_PATH}")
+    wb.save(SALIDA_PAKAR_PATH)
+    logger.info(f"✅ {nuevos} registros → '{proveedor}' en {SALIDA_PAKAR_PATH}")
     return nuevos
 
 
 # ─────────────────────────────────────────────
-#  Clase principal
+#  Procesador principal
 # ─────────────────────────────────────────────
 
-class ExtractorCatalogoPSPK:
+class ProcesadorPakar:
 
     def __init__(self, config: dict, base_dir: str):
         nombre = os.path.splitext(
@@ -702,31 +433,16 @@ class ExtractorCatalogoPSPK:
         self.logger    = setup_logger(nombre, base_dir)
         self.config    = config
         self.base_dir  = base_dir
-        self.proveedor = config.get("proveedor", "PS").strip()
+        self.proveedor = config.get("proveedor", "Pakar").strip()
 
         self.pdf_path = os.path.join(base_dir, config.get("pdf_input", ""))
-        os.makedirs(os.path.dirname(INTEGRACION_PATH), exist_ok=True)
+        os.makedirs(os.path.dirname(SALIDA_PAKAR_PATH), exist_ok=True)
 
         self.logger.info("═" * 45)
         self.logger.info(f"🏭 Proveedor:       {self.proveedor}")
         self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
-        self.logger.info(f"🛢️  Base Precios:    {INTEGRACION_PATH}")
+        self.logger.info(f"🛢️  Salida:          {SALIDA_PAKAR_PATH}")
         self.logger.info(f"📅 Temporada:       {config.get('temporada', '')}")
-
-    def _factory(self):
-        p = self.proveedor.upper()
-        if p == "PS":
-            self.logger.info("🔧 Modo: Price Shoes (auto-detect encoding + coordenadas X)")
-            return ExtractorPS(self.config, self.logger)
-        elif p == "PAKAR":
-            self.logger.info("🔧 Modo: Pakar (texto limpio, tabular)")
-            return ExtractorPakar(self.config, self.logger)
-        else:
-            self.logger.warning(
-                f"⚠️  Proveedor '{self.proveedor}' no reconocido — "
-                "usa PS o Pakar"
-            )
-            raise ValueError(f"Proveedor desconocido: {self.proveedor}")
 
     def ejecutar(self):
         if not os.path.isfile(self.pdf_path):
@@ -737,10 +453,9 @@ class ExtractorCatalogoPSPK:
             self.logger.error(f"❌ Tabulador no encontrado: {TABULADOR_PATH}")
             raise FileNotFoundError(TABULADOR_PATH)
 
-        tab       = _cargar_tabulador(TABULADOR_PATH)
-        extractor = self._factory()
+        tab = _cargar_tabulador(TABULADOR_PATH)
         self.logger.info("🚀 Iniciando extracción...")
-        df = extractor.extraer(self.pdf_path)
+        df = ExtractorPakar(self.config, self.logger).extraer(self.pdf_path)
 
         if df.empty:
             self.logger.warning("⚠️  No se extrajeron registros.")
@@ -751,30 +466,16 @@ class ExtractorCatalogoPSPK:
         n    = len(df)
         pmin = df["precio_base"].min()
         pmax = df["precio_base"].max()
+        u    = df["id"].nunique()
 
         self.logger.info("═" * 45)
         self.logger.info(f"   Registros extraídos  : {n}")
-
-        u            = df["id"].nunique()
-        esperados    = df.attrs.get("ids_esperados_pdf")
         self.logger.info(f"   IDs únicos           : {u}  {'(hay IDs repetidos)' if u < n else '(sin duplicados)'}")
-        if esperados is not None:
-            diff = esperados - n
-            pct  = f"{n / esperados * 100:.1f}%"
-            self.logger.info(f"   IDs en PDF (columna) : {esperados}")
-            self.logger.info(f"   Cobertura            : {pct}  ({n}/{esperados})")
-            if diff == 0:
-                self.logger.info("   ✔ COMPLETO — todos los registros capturados")
-            elif diff > 0:
-                self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
-            else:
-                self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados")
-
         self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
         self.logger.info("═" * 45)
 
-        # ── Escritura en base_precios.xlsx ────────────────────────────
-        escribir_acumulativo_std(df, self.config, tab, self.logger)
+        # ── fase_1/salida/tabla_pakar.xlsx ────────────────────────────
+        escribir_tabla_pakar(df, self.config, tab, self.logger)
 
         # ── fase_2/precios/ ───────────────────────────────────────────
         self._escribir_fase2(df, tab)
@@ -825,8 +526,7 @@ if __name__ == "__main__":
     config["_config_path"] = config_path
 
     try:
-        app = ExtractorCatalogoPSPK(config, BASE)
-        app.ejecutar()
+        ProcesadorPakar(config, BASE).ejecutar()
     except Exception as e:
-        logging.getLogger("extractor_ps_pk").error(f"🔥 Error crítico: {e}", exc_info=True)
+        logging.getLogger("extraer_pakar").error(f"🔥 Error crítico: {e}", exc_info=True)
         sys.exit(1)

@@ -8,7 +8,7 @@
     "temporada":       "26-27",
 
     "pdf_input":       "lista_cruda/lista_botas_26_27.pdf",
-    "excel_output":    "precios/lista_botas_26_27.xlsx",
+    "excel_output":    "precios/lista_basicos_oi26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,

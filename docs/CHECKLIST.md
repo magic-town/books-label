@@ -169,12 +169,18 @@ tu decides si usarlo.
 
 #### Ejecuta el programa de extracción de precios
 
->Las listas de precios crudas, en este caso de Price Shoes pueden cambiar el formato o la alineación de la tabla, por este motivo usaremos un segundo `script.py`. 
+- [ ] Ejecuta el fichero 🐍 `extracter_<proveedor>.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
 
-- [ ] Ejecuta el fichero 🐍 `extractor.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
+**🔵 Price Shoes**
 
 ```bash
-python3 fase_1/extractor.py --config fase_1/config/config_<proveedor>.json
+python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
+```
+
+**🟡 Pakar Shoes**
+
+```bash
+python3 fase_1/extraer_pakar.py --config fase_1/config/config_pakar.json
 ```
 
 > [!WARNING]

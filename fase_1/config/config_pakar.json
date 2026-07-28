@@ -3,15 +3,15 @@
     "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
 
     "proveedor":       "Pakar",
-    "catalogo":        "Coqueta",
+    "catalogo":        "Mujer",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_pK_coqueta.pdf",
-    "excel_output":    "precios/lista_coqueta.xlsx",
+    "pdf_input":       "lista_cruda/listapakar_mujer.pdf",
+    "excel_output":    "precios/lista_mujer.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
-    "tol_col":          12,
+    "tol_col":         12,
 
     "desviacion_alerta": 1.5,
 
