@@ -1,14 +1,14 @@
 {
     "_comentario":     "Configuración Price Shoes — Extracción Fase 1 · Boutique Zepeda",
-    "_uso":            "python3 fase_1/extractor.py --config fase_1/config/config_price.json",
+    "_uso":            "python3 fase_1/extraer_price.py --config fase_1/config/config_price.json",
 
     "proveedor":       "PS",
     
-    "catalogo":        "Botas",
+    "catalogo":        "CABALLEROS",
     "temporada":       "26-27",
 
-    "pdf_input":       "lista_cruda/lista_botas_26_27.pdf",
-    "excel_output":    "precios/lista_basicos_oi26.xlsx",
+    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
+    "excel_output":    "precios/lista_caballeros_26_27.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
@@ -17,5 +17,9 @@
 
     "col_pag":         "Pag",
     "col_id":          "ID",
+    "col_marca":       "Marca",
+    "col_corrida":     "Corrida",
+    "col_claves":      "Claves",
+    "col_sug_contado": "Sug_contado",
     "col_precio":      "Sug_credito"
 }

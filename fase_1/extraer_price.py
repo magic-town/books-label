@@ -45,7 +45,7 @@ Formato precio PS México:
 
 ─────────────────────────────────────────────────────────────────
 Uso:
-    python3 fase_1/extraer_lista_price.py --config fase_1/config/config_price.json
+    python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
 
 Dependencias:
     pdfplumber, pandas, openpyxl
@@ -53,8 +53,16 @@ Dependencias:
 ─────────────────────────────────────────────────────────────────
 Outputs
 ─────────────────────────────────────────────────────────────────
-fase_1/salida/tabla_price.xlsx   (acumulativo, pestaña por config)
-    catalogo | temp | pag | id | precio_base | redondea | precio_venta | fecha
+fase_1/salida/tabla_price.xlsx   (acumulativo, pestaña por proveedor)
+    id | catalogo | temp | pag | marca | corrida | claves | precio_base |
+    contado_antes | contado_despues | precio_venta | fecha
+
+    `claves` se extrae del PDF, se normaliza a numérico y se oculta en
+    el spreadsheet (se usa solo como base de cálculo).
+
+    `precio_base`, `contado_antes`, `contado_despues` y `precio_venta`
+    ya NO se extraen del PDF: se calculan a partir de `claves` mediante
+    tablas de incrementos fijos (ver TABLA_* más abajo).
 
 fase_2/precios/<excel_output>.xlsx
     ID | precio_venta
@@ -74,24 +82,86 @@ import pandas as pd
 import pdfplumber
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, PatternFill, Font
+from openpyxl.utils import get_column_letter
 
 # ─────────────────────────────────────────────
 #  Rutas fijas
 # ─────────────────────────────────────────────
 
-TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
 SALIDA_PRICE_PATH = os.path.expanduser("~/books-label/fase_1/salida/tabla_price.xlsx")
 
-COLUMNAS_STD = ["catalogo", "temp", "pag", "id", "precio_base", "redondea", "precio_venta", "fecha"]
+COLUMNAS_STD = [
+    "id", "catalogo", "temp", "pag", "marca", "corrida", "claves",
+    "precio_base", "contado_antes", "contado_despues", "precio_venta",
+    "fecha",
+]
+
+# Columna que se oculta en el spreadsheet de salida (se usa solo como
+# base de cálculo, no necesita mostrarse).
+COLUMNAS_OCULTAS = {"claves"}
+
+# Columnas cuyo valor puede venir partido en 2+ renglones dentro del
+# mismo bloque de fila (p.ej. "Marca" ocupa 2 líneas) y por lo tanto
+# deben concatenarse en vez de conservar solo el primer valor visto.
+COLUMNAS_MULTILINEA = {"marca"}
 
 
 # ─────────────────────────────────────────────
-#  Helpers precio_venta
+#  Helpers de cálculo (precio_base, contado_antes/despues, precio_venta)
 # ─────────────────────────────────────────────
+#
+# Todas las tablas usan rangos [desde, hasta] inclusivos; el último
+# rango (desde=2001, hasta=None) cubre "2001 en adelante".
+
+# precio_base = claves + % según rango de `claves`
+TABLA_PRECIO_BASE_PCT = [
+    (1,    170,  0.50),
+    (171,  600,  0.55),
+    (601,  1000, 0.58),
+    (1001, 1500, 0.58),
+    (1501, 2000, 0.60),
+    (2001, None, 0.60),
+]
+
+# contado_antes = precio_base + monto fijo según rango de `precio_base`
+TABLA_CONTADO_ANTES_ADD = [
+    (1,    170,  10),
+    (171,  600,  20),
+    (601,  1000, 40),
+    (1001, 1500, 50),
+    (1501, 2000, 70),
+    (2001, None, 80),
+]
+
+# contado_despues = precio_base + monto fijo según rango de `precio_base`
+TABLA_CONTADO_DESPUES_ADD = [
+    (1,    170,  30),
+    (171,  600,  40),
+    (601,  1000, 80),
+    (1001, 1500, 100),
+    (1501, 2000, 120),
+    (2001, None, 120),
+]
+
+# precio_venta = claves + % según rango de `claves`
+TABLA_PRECIO_VENTA_PCT = [
+    (1,    170,  0.75),
+    (171,  600,  0.78),
+    (601,  1000, 0.80),
+    (1001, 1500, 0.83),
+    (1501, 2000, 0.86),
+    (2001, None, 0.90),
+]
+
 
 def _round_excel(value: float, digits: int) -> float:
-    """ROUND con redondeo 'half away from zero', igual que Excel."""
+    """ROUND con redondeo 'half away from zero', igual que Excel.
+
+    Con digits=-1 esto implementa exactamente la regla del negocio:
+    unidad < 5 → redondea al decimal inferior; unidad >= 5 → redondea
+    al decimal superior.
+    """
     if digits < 0:
         factor = 10 ** (-digits)
         return math.floor(float(value) / factor + 0.5) * factor
@@ -99,29 +169,24 @@ def _round_excel(value: float, digits: int) -> float:
     return math.floor(float(value) * factor + 0.5) / factor
 
 
-def _cargar_tabulador(path: str) -> pd.DataFrame:
-    df = pd.read_excel(path, header=0)
-    df.columns = ["desde", "hasta", "sumar"]
-    df = df.dropna(subset=["desde"]).copy()
-    df["desde"] = pd.to_numeric(df["desde"], errors="coerce")
-    df["sumar"] = pd.to_numeric(df["sumar"], errors="coerce")
-    return df.sort_values("desde").reset_index(drop=True)
+def _buscar_en_tabla(valor: float, tabla: list):
+    """Devuelve el dato (% o monto) cuyo rango [desde, hasta] contiene
+    `valor`. `hasta=None` significa "en adelante".
 
-
-def _calcular_pv(precio_base, tab: pd.DataFrame):
-    """Replica: =ROUND(IF(pb<200, ROUND(pb,-1)*1.5, pb+VLOOKUP(pb,tab,3,1)), -1)"""
-    try:
-        pb = float(precio_base)
-    except (TypeError, ValueError):
-        return None
-    redondea = _round_excel(pb, -1)
-    if pb < 200:
-        return int(_round_excel(redondea * 1.5, -1))
-    mask = tab["desde"] <= pb
-    if not mask.any():
-        return None
-    sumar = float(tab.loc[mask.values.nonzero()[0][-1], "sumar"])
-    return int(_round_excel(pb + sumar, -1))
+    Selecciona el tramo por el mayor `desde` que sea <= valor (equivalente
+    a un VLOOKUP aproximado), en vez de depender del orden de iteración
+    de la lista, para evitar cualquier ambigüedad en los límites
+    compartidos entre tramos (p.ej. 600/601).
+    """
+    mejor = None
+    for desde, hasta, dato in tabla:
+        if valor < desde:
+            continue
+        if hasta is not None and valor > hasta:
+            continue
+        if mejor is None or desde > mejor[0]:
+            mejor = (desde, dato)
+    return mejor[1] if mejor is not None else None
 
 
 # ─────────────────────────────────────────────
@@ -183,50 +248,29 @@ def _tiene_encoding_ps(words: list) -> bool:
 
 
 # ─────────────────────────────────────────────
-#  Limpieza de precio
+#  Extracción y normalización de `claves`
 # ─────────────────────────────────────────────
 
-def _limpiar_precio(val: str) -> str | None:
+def _extraer_claves(val: str) -> int | None:
     """
-    Normaliza cualquier formato de precio presente en los PDFs a entero:
+    Formato en PDF: dígito(s) + separador no numérico + dígito(s)
+    (p.ej. "1PS23", "'123", "'1234"), de 3 o 4 dígitos en total.
+    Regla: eliminar todos los caracteres no numéricos y concatenar los
+    dígitos restantes en su orden original, devolviendo un entero.
 
-        "$579.00"    → "579"   (decimal con punto)
-        "$1,079.00"  → "1079"  (miles con coma, decimal con punto)
-        "$1.159.00"  → "1159"  (miles.decimal.centavos — Price Shoes México)
-        "$ 69"       → "69"    (entero con espacio tras $)
+        "1PS23"  → 123
+        "1PS234" → 1234
+        "'123"   → 123
 
-    Descarta cualquier valor que contenga letras.
+    `claves` debe ser numérico (no texto) porque se usa para calcular
+    precio_base, contado_antes, contado_despues y precio_venta.
     """
     if not val:
         return None
-    s = str(val).strip()
-    if re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', s):
+    digitos = re.sub(r'[^0-9]', '', str(val))
+    if not digitos:
         return None
-    s = re.sub(r'[$\s]', '', s)
-    if not s:
-        return None
-
-    # Caso 0 (Price Shoes México): Miles con punto Y decimal con punto
-    #   "$1.159.00" → "1159"  Patrón: \d{1,3} seguido de grupos .\d{3} y terminado en .\d{2}
-    if re.match(r'^\d{1,3}(\.\d{3})+\.\d{2}$', s):
-        s = s.rsplit('.', 1)[0].replace('.', '')
-    # Caso 1: Miles con punto Y decimal con coma: "1.849,00"
-    elif re.match(r'^\d{1,3}(\.\d{3})+,\d{2}$', s):
-        s = s.replace('.', '').split(',')[0]
-    # Caso 2: Miles con coma Y decimal con punto: "1,079.00"
-    elif re.match(r'^\d{1,3}(,\d{3})+\.\d+$', s):
-        s = s.replace(',', '').split('.')[0]
-    # Caso 3: Decimal con coma sin miles: "349,00"
-    elif re.match(r'^\d+,\d{2}$', s):
-        s = s.split(',')[0]
-    # Caso 4: Decimal con punto: "579.00"
-    elif re.match(r'^\d+\.\d+$', s):
-        s = s.split('.')[0]
-    # Caso 5: Entero puro: "69", "199" (ya es correcto)
-
-    if re.match(r'^\d+$', s) and s:
-        return s
-    return None
+    return int(digitos)
 
 
 # ─────────────────────────────────────────────
@@ -278,9 +322,17 @@ class ExtractorPS:
         self.logger   = logger
         self.offset   = config.get("encoding_offset", 29)
         self.tol_x    = config.get("tolerancia_x", 20.0)
-        self.col_pag  = config.get("col_pag",    "Pag")
-        self.col_id   = config.get("col_id",     "ID")
-        self.col_prec = config.get("col_precio", "Sug_credito")
+
+        # Etiquetas de encabezado tal como aparecen en el PDF, mapeadas
+        # al nombre interno de cada columna. "pag" e "id" son las
+        # columnas ancla usadas para localizar la fila de encabezado.
+        self.col_labels = {
+            "pag":     config.get("col_pag",     "Pag"),
+            "id":      config.get("col_id",      "ID"),
+            "marca":   config.get("col_marca",   "Marca"),
+            "corrida": config.get("col_corrida", "Corrida"),
+            "claves":  config.get("col_claves",  "Claves"),
+        }
         # Tolerancia vertical para fusionar sub-filas fragmentadas
         # (marcas partidas en múltiples líneas).
         self._merge_y = config.get("merge_y", 16)
@@ -311,10 +363,8 @@ class ExtractorPS:
                 nuevo_cx = self._detectar_encabezado(words)
                 if nuevo_cx:
                     col_x = nuevo_cx
-                    self.logger.debug(
-                        f"  Pág {i}: encabezado OK — "
-                        f"Pag@x={col_x['pag']:.1f}  ID@x={col_x['id']:.1f}  Precio@x={col_x['precio']:.1f}"
-                    )
+                    resumen = "  ".join(f"{k}@x={v:.1f}" for k, v in col_x.items())
+                    self.logger.debug(f"  Pág {i}: encabezado OK — {resumen}")
                 else:
                     self.logger.debug(f"  Pág {i}: encabezado no encontrado en esta página")
 
@@ -342,9 +392,13 @@ class ExtractorPS:
                 antes = len(registros)
                 for fila in filas:
                     registros.append({
-                        "pag":         fila.get("pag", "").strip(),
-                        "id":          fila.get("id",  "").strip(),
-                        "precio_base": _limpiar_precio(fila.get("precio", "")),
+                        "pag":     fila.get("pag", "").strip(),
+                        "id":      fila.get("id",  "").strip(),
+                        "marca":   fila.get("marca", "").strip(),
+                        "corrida": fila.get("corrida", "").strip(),
+                        # claves: numérico, base de cálculo de precio_base,
+                        # contado_antes, contado_despues y precio_venta.
+                        "claves":  _extraer_claves(fila.get("claves", "")),
                     })
                 df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
                 validos = len(df_pag)
@@ -353,20 +407,46 @@ class ExtractorPS:
 
         _log_estadisticas_pagina(self.logger, self.config, registros_por_pagina)
 
-        df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
+        df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=[
+            "pag", "id", "marca", "corrida", "claves"
+        ])
         df = self._filtrar(df)
         df.attrs["ids_esperados_pdf"] = ids_pdf_col
         return df
 
+    # Columnas obligatorias: sin ellas no se acepta la fila como encabezado.
+    _COLS_OBLIGATORIAS = ("pag", "id", "claves")
+
+    def _buscar_columna(self, label: str, y: int, filas_y: dict, ys_sorted: list) -> float | None:
+        """Busca `label` en la fila y, con tolerancia ±15px en Y, y como
+        último recurso por subcadena (variaciones tipográficas)."""
+        for t in filas_y.get(y, []):
+            if t["text"].strip() == label:
+                return t["x0"]
+        for y2 in ys_sorted:
+            if y2 == y or abs(y2 - y) > 15:
+                continue
+            for t in filas_y[y2]:
+                if t["text"].strip() == label:
+                    return t["x0"]
+        label_lower = label.lower()
+        for y2 in ys_sorted:
+            if abs(y2 - y) > 15:
+                continue
+            for t in filas_y[y2]:
+                if label_lower in t["text"].lower():
+                    return t["x0"]
+        return None
+
     def _detectar_encabezado(self, words: list) -> dict | None:
         """
-        Detecta la fila de encabezado y devuelve las coordenadas X de
-        las columnas Pag, ID y Sug_credito.
+        Detecta la fila de encabezado y devuelve, para cada columna
+        configurada (pag, id, marca, corrida, claves), la coordenada X
+        de referencia.
 
-        Búsqueda de precio:
-        - Tolerancia Y de ±15 px para Sug_credito (encabezado en sub-filas).
-        - Fallback: cualquier token que contenga la subcadena de col_precio
-          (variaciones tipográficas menores).
+        "pag" e "id" en la misma fila anclan la búsqueda del encabezado.
+        pag/id/claves son obligatorias; el resto se agrega si se
+        encuentra (tolerancia Y ±15px, con fallback por subcadena).
         """
         filas_y = {}
         for w in words:
@@ -376,54 +456,26 @@ class ExtractorPS:
 
         for y, tokens in sorted(filas_y.items()):
             textos = [t["text"].strip() for t in tokens]
-            if self.col_pag not in textos or self.col_id not in textos:
+            if self.col_labels["pag"] not in textos or self.col_labels["id"] not in textos:
                 continue
 
             col_x = {}
-            for t in tokens:
-                txt = t["text"].strip()
-                if txt == self.col_pag:
-                    col_x["pag"] = t["x0"]
-                elif txt == self.col_id:
-                    col_x["id"] = t["x0"]
-                elif txt == self.col_prec:
-                    col_x["precio"] = t["x0"]
+            for nombre, label in self.col_labels.items():
+                x = self._buscar_columna(label, y, filas_y, ys_sorted)
+                if x is not None:
+                    col_x[nombre] = x
 
-            # Búsqueda ampliada de precio: ±15 px en Y
-            if "precio" not in col_x:
-                for y2 in ys_sorted:
-                    if y2 == y or abs(y2 - y) > 15:
-                        continue
-                    for t in filas_y[y2]:
-                        if t["text"].strip() == self.col_prec:
-                            col_x["precio"] = t["x0"]
-                            break
-                    if "precio" in col_x:
-                        break
-
-            # Fallback: token que contenga la subcadena clave del precio
-            if "precio" not in col_x:
-                prec_lower = self.col_prec.lower()
-                for y2 in ys_sorted:
-                    if abs(y2 - y) > 15:
-                        continue
-                    for t in filas_y[y2]:
-                        if prec_lower in t["text"].lower():
-                            col_x["precio"] = t["x0"]
-                            break
-                    if "precio" in col_x:
-                        break
-
-            if "pag" in col_x and "id" in col_x and "precio" in col_x:
+            if all(c in col_x for c in self._COLS_OBLIGATORIAS):
+                faltantes = [c for c in self.col_labels if c not in col_x]
+                if faltantes:
+                    self.logger.warning(f"  ⚠️  Encabezado sin columnas: {', '.join(faltantes)}")
                 return col_x
 
         return None
 
     def _extraer_filas(self, words: list, col_x: dict) -> list:
-        x_pag    = col_x["pag"]
-        x_id     = col_x["id"]
-        x_precio = col_x["precio"]
-        tol      = self.tol_x
+        tol = self.tol_x
+        x_id = col_x["id"]
 
         filas_raw = {}
         for w in words:
@@ -432,20 +484,26 @@ class ExtractorPS:
             token = w["text"].strip()
             if not token:
                 continue
-            if abs(x - x_pag) <= tol:
-                col = "pag"
-            elif (abs(x - x_id) <= tol or (x < x_id and x_id <= x1_ + tol)):
+
+            # Columna más cercana entre las configuradas para esta página.
+            col, mejor_dist = None, None
+            for nombre, x_col in col_x.items():
+                dist = abs(x - x_col)
+                if dist <= tol and (mejor_dist is None or dist < mejor_dist):
+                    col, mejor_dist = nombre, dist
+            if col is None and x < x_id and x_id <= x1_ + tol:
                 col = "id"
+            if col is None:
+                continue
+
+            if col == "id":
                 if not self._RE_ID.match(token):
                     m = re.search(r'(\d{5,8})$', token)
                     if m:
                         token = m.group(1)
                     else:
                         continue
-            elif abs(x - x_precio) <= tol:
-                col = "precio"
-            else:
-                continue
+
             y_key = round(w["top"])
             filas_raw.setdefault(y_key, {})
             prev = filas_raw[y_key].get(col, "")
@@ -466,9 +524,11 @@ class ExtractorPS:
                         bloque[col] = val
                     else:
                         cur = bloque[col]
-                        if col == "id" and self._RE_ID.match(val) and not self._RE_ID.match(cur):
+                        if col in COLUMNAS_MULTILINEA:
+                            bloque[col] = (cur + " " + val).strip()
+                        elif col == "id" and self._RE_ID.match(val) and not self._RE_ID.match(cur):
                             bloque[col] = val
-                        elif col == "precio" and re.match(r'^\$?\d', val) and not re.match(r'^\$?\d', cur):
+                        elif col == "claves" and re.match(r'^\W*\d', val) and not re.match(r'^\W*\d', cur):
                             bloque[col] = val
                         elif col == "pag" and re.match(r'^\d+$', val) and not re.match(r'^\d+$', cur):
                             bloque[col] = val
@@ -485,9 +545,8 @@ class ExtractorPS:
             return df
         # Solo IDs con formato numérico 5-8 dígitos
         df = df[df["id"].astype(str).str.match(r"^\d{5,8}$")].copy()
-        # Solo filas con precio_base válido y sin letras
-        df = df[df["precio_base"].notna()].copy()
-        df = df[~df["precio_base"].astype(str).str.contains(r'[a-zA-Z]', na=False)].copy()
+        # Solo filas con `claves` numérico válido (base de todos los cálculos)
+        df = df[df["claves"].notna()].copy()
         # Descartar filas donde pag contiene texto (encabezado/pie de página)
         df = df[df["pag"].astype(str).str.match(r"^\d+$")].copy()
         return df.reset_index(drop=True)
@@ -525,10 +584,54 @@ def _estilizar_encabezado(ws):
             cell.alignment = Alignment(horizontal="right")
 
 
+def _calcular_derivados(record) -> dict:
+    """Calcula precio_base, contado_antes, contado_despues y precio_venta
+    a partir de `claves`, usando las tablas de incrementos fijos.
+
+    - precio_base    = round10(claves * (1 + %precio_base(claves)))
+    - contado_antes  = precio_base + monto(precio_base)
+    - contado_despues= precio_base + monto(precio_base)
+    - precio_venta   = round10(claves * (1 + %precio_venta(claves)))
+    """
+    claves = getattr(record, "claves", None)
+    try:
+        claves_num = int(float(claves))
+    except (TypeError, ValueError):
+        return {
+            "precio_base": None, "contado_antes": None,
+            "contado_despues": None, "precio_venta": None,
+        }
+
+    pct_pb = _buscar_en_tabla(claves_num, TABLA_PRECIO_BASE_PCT)
+    precio_base = (
+        int(_round_excel(claves_num * (1 + pct_pb), -1)) if pct_pb is not None else None
+    )
+
+    contado_antes = contado_despues = None
+    if precio_base is not None:
+        add_antes = _buscar_en_tabla(precio_base, TABLA_CONTADO_ANTES_ADD)
+        add_despues = _buscar_en_tabla(precio_base, TABLA_CONTADO_DESPUES_ADD)
+        if add_antes is not None:
+            contado_antes = precio_base + add_antes
+        if add_despues is not None:
+            contado_despues = precio_base + add_despues
+
+    pct_pv = _buscar_en_tabla(claves_num, TABLA_PRECIO_VENTA_PCT)
+    precio_venta = (
+        int(_round_excel(claves_num * (1 + pct_pv), -1)) if pct_pv is not None else None
+    )
+
+    return {
+        "precio_base": precio_base,
+        "contado_antes": contado_antes,
+        "contado_despues": contado_despues,
+        "precio_venta": precio_venta,
+    }
+
+
 def escribir_tabla_price(
     df: pd.DataFrame,
     config: dict,
-    tab: pd.DataFrame,
     logger: logging.Logger,
 ):
     """Escritura acumulativa en tabla_price.xlsx (pestaña por proveedor)."""
@@ -543,22 +646,39 @@ def escribir_tabla_price(
 
     nuevos = 0
     for record in df.itertuples(index=False):
+        d = _calcular_derivados(record)
+
+        claves_val = getattr(record, "claves", None)
         try:
-            pb = int(float(record.precio_base))
+            claves_val = int(float(claves_val)) if claves_val not in (None, "") else None
         except (TypeError, ValueError):
-            pb = record.precio_base
+            claves_val = None
 
-        pv       = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-        redondea = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
-
-        ws.append([catalogo, temporada, record.pag, record.id,
-                   pb, redondea, pv, fecha])
+        ws.append([
+            record.id, catalogo, temporada, record.pag,
+            getattr(record, "marca", None), getattr(record, "corrida", None),
+            claves_val,
+            d["precio_base"], d["contado_antes"], d["contado_despues"], d["precio_venta"],
+            fecha,
+        ])
         nuevos += 1
 
+    _ocultar_columnas(ws)
     _estilizar_encabezado(ws)
     wb.save(SALIDA_PRICE_PATH)
     logger.info(f"✅ {nuevos} registros → '{proveedor}' en {SALIDA_PRICE_PATH}")
     return nuevos
+
+
+def _ocultar_columnas(ws):
+    """Oculta en el spreadsheet las columnas listadas en COLUMNAS_OCULTAS
+    (p.ej. `claves`, que se conserva solo como base de cálculo)."""
+    for nombre in COLUMNAS_OCULTAS:
+        if nombre not in COLUMNAS_STD:
+            continue
+        idx = COLUMNAS_STD.index(nombre) + 1  # 1-based
+        letra = get_column_letter(idx)
+        ws.column_dimensions[letra].hidden = True
 
 
 # ─────────────────────────────────────────────
@@ -590,11 +710,6 @@ class ProcesadorPrice:
             self.logger.error(f"❌ PDF no encontrado: {self.pdf_path}")
             raise FileNotFoundError(self.pdf_path)
 
-        if not os.path.isfile(TABULADOR_PATH):
-            self.logger.error(f"❌ Tabulador no encontrado: {TABULADOR_PATH}")
-            raise FileNotFoundError(TABULADOR_PATH)
-
-        tab = _cargar_tabulador(TABULADOR_PATH)
         self.logger.info("🚀 Iniciando extracción...")
         df = ExtractorPS(self.config, self.logger).extraer(self.pdf_path)
 
@@ -605,10 +720,16 @@ class ProcesadorPrice:
 
         # ── Estadísticas generales ────────────────────────────────────
         n         = len(df)
-        pmin      = df["precio_base"].min()
-        pmax      = df["precio_base"].max()
         u         = df["id"].nunique()
         esperados = df.attrs.get("ids_esperados_pdf")
+
+        precios_base = [
+            d["precio_base"] for d in (
+                _calcular_derivados(r) for r in df.itertuples(index=False)
+            ) if d["precio_base"] is not None
+        ]
+        pmin = min(precios_base) if precios_base else None
+        pmax = max(precios_base) if precios_base else None
 
         self.logger.info("═" * 45)
         self.logger.info(f"   Registros extraídos  : {n}")
@@ -624,19 +745,19 @@ class ProcesadorPrice:
                 self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
             else:
                 self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados")
-        self.logger.info(f"   Rango precios        : ${pmin} – ${pmax}")
+        self.logger.info(f"   Rango precio_base    : ${pmin} – ${pmax}")
         self.logger.info("═" * 45)
 
         # ── fase_1/salida/tabla_price.xlsx ────────────────────────────
-        escribir_tabla_price(df, self.config, tab, self.logger)
+        escribir_tabla_price(df, self.config, self.logger)
 
         # ── fase_2/precios/ ───────────────────────────────────────────
-        self._escribir_fase2(df, tab)
+        self._escribir_fase2(df)
 
         self.logger.info(f"[STAT] proveedor={self.proveedor}")
         self.logger.info(f"[STAT] registros={n}")
 
-    def _escribir_fase2(self, df: pd.DataFrame, tab: pd.DataFrame):
+    def _escribir_fase2(self, df: pd.DataFrame):
         nombre_base = os.path.splitext(
             os.path.basename(self.config.get("excel_output", "salida.xlsx"))
         )[0]
@@ -649,12 +770,8 @@ class ProcesadorPrice:
 
         ws2.append(["ID", "precio_venta"])
         for record in df.itertuples(index=False):
-            try:
-                pb = int(float(record.precio_base))
-            except (TypeError, ValueError):
-                pb = record.precio_base
-            pv = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-            ws2.append([record.id, pv])
+            d = _calcular_derivados(record)
+            ws2.append([record.id, d["precio_venta"]])
 
         wb2.save(fase2_path)
         self.logger.info(f"✅ Excel (fase 2) generado: {fase2_path}")

@@ -27,7 +27,7 @@ Encoding opcional:
 
 ─────────────────────────────────────────────────────────────────
 Uso:
-    python3 fase_1/extraer_lista_pakar.py --config fase_1/config/config_pakar.json
+    python3 fase_1/extraer_pakar.py --config fase_1/config/config_pakar.json
 
 Dependencias:
     pdfplumber, pandas, openpyxl
