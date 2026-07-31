@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "CABALLEROS",
-    "temporada":       "26-27",
+    "catalogo":        "Mochilas",
+    "temporada":       "26",
 
-    "pdf_input":       "lista_cruda/lista_caballeros_26_27.pdf",
-    "excel_output":    "precios/lista_caballeros_26_27.xlsx",
+    "pdf_input":       "lista_cruda/lista_mochilas_26.pdf",
+    "excel_output":    "precios/lista_mochilas_26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
