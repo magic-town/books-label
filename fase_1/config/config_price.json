@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
     
-    "catalogo":        "Mochilas",
-    "temporada":       "26",
+    "catalogo":        "Botas",
+    "temporada":       "26-27",
 
-    "pdf_input":       "lista_cruda/lista_mochilas_26.pdf",
-    "excel_output":    "precios/lista_mochilas_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_botas_26_27.pdf",
+    "excel_output":    "precios/lista_botas_26_27.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
