@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extraer_lista_price.py — Extractor de lista de precios: Price Shoes
-Boutique Zepeda · books-label · Fase 1
+extrae_importados_price.py — Extractor de lista de precios: Price Shoes
+Boutique Zepeda · books-label · Fase 1 · Catálogo Importados
 
 Especificaciones OCR
 ─────────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ Formato precio PS México:
 
 ─────────────────────────────────────────────────────────────────
 Uso:
-    python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
+    python3 fase_1/extrae_importados_price.py --config fase_1/config/config_price.json
 
 Dependencias:
     pdfplumber, pandas, openpyxl
@@ -54,15 +54,24 @@ Dependencias:
 Outputs
 ─────────────────────────────────────────────────────────────────
 fase_1/salida/tabla_price.xlsx   (acumulativo, pestaña por proveedor)
-    id | catalogo | temp | pag | marca | corrida | claves | precio_base |
+    id | catalogo | temp | pag | marca | corrida |
     contado_antes | contado_despues | precio_venta | fecha
 
-    `claves` se extrae del PDF, se normaliza a numérico y se oculta en
-    el spreadsheet (se usa solo como base de cálculo).
+    `claves` se extrae del PDF y se normaliza a numérico, pero ya NO
+    vive en el spreadsheet (ni siquiera como columna oculta): es una
+    variable privada del programa, usada únicamente como base de
+    cálculo de `contado_antes`, `contado_despues` y `precio_venta`.
 
-    `precio_base`, `contado_antes`, `contado_despues` y `precio_venta`
-    ya NO se extraen del PDF: se calculan a partir de `claves` mediante
-    tablas de incrementos fijos (ver TABLA_* más abajo).
+    `precio_base` se elimina por completo (ya no se calcula ni se
+    escribe).
+
+    `contado_antes`, `contado_despues` y `precio_venta` se calculan
+    directamente a partir de `claves` (VLOOKUP por rango) mediante la
+    tabla única de incrementos porcentuales TABLA_INCREMENTOS (ver
+    más abajo):
+        contado_antes   = round10(claves * (1 + %contado_completo))
+        contado_despues = round10(claves * (1 + %contado_al_recibir))
+        precio_venta    = round10(claves * (1 + %precio_venta))
 
 fase_2/precios/<excel_output>.xlsx
     ID | precio_venta
@@ -82,7 +91,6 @@ import pandas as pd
 import pdfplumber
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, PatternFill, Font
-from openpyxl.utils import get_column_letter
 
 # ─────────────────────────────────────────────
 #  Rutas fijas
@@ -92,14 +100,10 @@ FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
 SALIDA_PRICE_PATH = os.path.expanduser("~/books-label/fase_1/salida/tabla_price.xlsx")
 
 COLUMNAS_STD = [
-    "id", "catalogo", "temp", "pag", "marca", "corrida", "claves",
-    "precio_base", "contado_antes", "contado_despues", "precio_venta",
+    "id", "catalogo", "temp", "pag", "marca", "corrida",
+    "contado_antes", "contado_despues", "precio_venta",
     "fecha",
 ]
-
-# Columna que se oculta en el spreadsheet de salida (se usa solo como
-# base de cálculo, no necesita mostrarse).
-COLUMNAS_OCULTAS = {"claves"}
 
 # Columnas cuyo valor puede venir partido en 2+ renglones dentro del
 # mismo bloque de fila (p.ej. "Marca" ocupa 2 líneas) y por lo tanto
@@ -108,50 +112,33 @@ COLUMNAS_MULTILINEA = {"marca"}
 
 
 # ─────────────────────────────────────────────
-#  Helpers de cálculo (precio_base, contado_antes/despues, precio_venta)
+#  Helpers de cálculo (contado_antes, contado_despues, precio_venta)
 # ─────────────────────────────────────────────
 #
-# Todas las tablas usan rangos [desde, hasta] inclusivos; el último
-# rango (desde=2001, hasta=None) cubre "2001 en adelante".
-
-# precio_base = claves + % según rango de `claves`
-TABLA_PRECIO_BASE_PCT = [
-    (1,    170,  0.50),
-    (171,  600,  0.55),
-    (601,  1000, 0.58),
-    (1001, 1500, 0.58),
-    (1501, 2000, 0.60),
-    (2001, None, 0.60),
-]
-
-# contado_antes = precio_base + monto fijo según rango de `precio_base`
-TABLA_CONTADO_ANTES_ADD = [
-    (1,    170,  10),
-    (171,  600,  20),
-    (601,  1000, 40),
-    (1001, 1500, 50),
-    (1501, 2000, 70),
-    (2001, None, 80),
-]
-
-# contado_despues = precio_base + monto fijo según rango de `precio_base`
-TABLA_CONTADO_DESPUES_ADD = [
-    (1,    170,  30),
-    (171,  600,  40),
-    (601,  1000, 80),
-    (1001, 1500, 100),
-    (1501, 2000, 120),
-    (2001, None, 120),
-]
-
-# precio_venta = claves + % según rango de `claves`
-TABLA_PRECIO_VENTA_PCT = [
-    (1,    170,  0.75),
-    (171,  600,  0.78),
-    (601,  1000, 0.80),
-    (1001, 1500, 0.83),
-    (1501, 2000, 0.86),
-    (2001, None, 0.90),
+# `contado_antes`, `contado_despues` y `precio_venta` ya NO se derivan
+# de `precio_base` (eliminado). Las tres se calculan directamente a
+# partir de `claves` (VLOOKUP por rango [desde, hasta] inclusivo)
+# usando la tabla única de incrementos porcentuales:
+#
+#   contado_antes   = round10(claves * (1 + pct_contado_completo))
+#   contado_despues = round10(claves * (1 + pct_contado_al_recibir))
+#   precio_venta    = round10(claves * (1 + pct_precio_venta))
+#
+# Cada tupla: (desde, hasta, pct_contado_completo, pct_contado_al_recibir, pct_precio_venta)
+TABLA_INCREMENTOS = [
+    (0,    199,  0.42, 0.50, 0.80),
+    (200,  399,  0.36, 0.45, 0.82),
+    (400,  599,  0.39, 0.46, 0.80),
+    (600,  799,  0.39, 0.46, 0.78),
+    (800,  999,  0.35, 0.45, 0.72),
+    (1000, 1199, 0.34, 0.45, 0.65),
+    (1200, 1399, 0.33, 0.42, 0.63),
+    (1400, 1599, 0.32, 0.42, 0.60),
+    (1600, 1799, 0.30, 0.45, 0.58),
+    (1800, 1999, 0.31, 0.45, 0.58),
+    (2000, 2199, 0.32, 0.44, 0.55),
+    (2200, 2399, 0.33, 0.42, 0.54),
+    (2400, 5700, 0.33, 0.42, 0.52),
 ]
 
 
@@ -186,6 +173,22 @@ def _buscar_en_tabla(valor: float, tabla: list):
             continue
         if mejor is None or desde > mejor[0]:
             mejor = (desde, dato)
+    return mejor[1] if mejor is not None else None
+
+
+def _buscar_fila_incrementos(valor: float, tabla: list):
+    """Igual que `_buscar_en_tabla`, pero para filas con 3 porcentajes
+    (contado_completo, contado_al_recibir, precio_venta). Devuelve una
+    tupla (pct_completo, pct_recibir, pct_venta) o None si no hay match.
+    """
+    mejor = None
+    for desde, hasta, pct_completo, pct_recibir, pct_venta in tabla:
+        if valor < desde:
+            continue
+        if hasta is not None and valor > hasta:
+            continue
+        if mejor is None or desde > mejor[0]:
+            mejor = (desde, (pct_completo, pct_recibir, pct_venta))
     return mejor[1] if mejor is not None else None
 
 
@@ -263,7 +266,7 @@ def _extraer_claves(val: str) -> int | None:
         "'123"   → 123
 
     `claves` debe ser numérico (no texto) porque se usa para calcular
-    precio_base, contado_antes, contado_despues y precio_venta.
+    contado_antes, contado_despues y precio_venta.
     """
     if not val:
         return None
@@ -396,8 +399,9 @@ class ExtractorPS:
                         "id":      fila.get("id",  "").strip(),
                         "marca":   fila.get("marca", "").strip(),
                         "corrida": fila.get("corrida", "").strip(),
-                        # claves: numérico, base de cálculo de precio_base,
-                        # contado_antes, contado_despues y precio_venta.
+                        # claves: numérico, variable privada — base de
+                        # cálculo de contado_antes, contado_despues y
+                        # precio_venta (no se escribe en el spreadsheet).
                         "claves":  _extraer_claves(fila.get("claves", "")),
                     })
                 df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
@@ -585,44 +589,34 @@ def _estilizar_encabezado(ws):
 
 
 def _calcular_derivados(record) -> dict:
-    """Calcula precio_base, contado_antes, contado_despues y precio_venta
-    a partir de `claves`, usando las tablas de incrementos fijos.
+    """Calcula contado_antes, contado_despues y precio_venta a partir de
+    `claves` (variable privada, no vive en el spreadsheet), buscando en
+    TABLA_INCREMENTOS el tramo [desde, hasta] que contiene a `claves` y
+    aplicando el porcentaje correspondiente:
 
-    - precio_base    = round10(claves * (1 + %precio_base(claves)))
-    - contado_antes  = precio_base + monto(precio_base)
-    - contado_despues= precio_base + monto(precio_base)
-    - precio_venta   = round10(claves * (1 + %precio_venta(claves)))
+        contado_antes   = round10(claves * (1 + %contado_completo))
+        contado_despues = round10(claves * (1 + %contado_al_recibir))
+        precio_venta    = round10(claves * (1 + %precio_venta))
+
+    `precio_base` ya no existe: se eliminó del cálculo y del output.
     """
     claves = getattr(record, "claves", None)
     try:
         claves_num = int(float(claves))
     except (TypeError, ValueError):
-        return {
-            "precio_base": None, "contado_antes": None,
-            "contado_despues": None, "precio_venta": None,
-        }
+        return {"contado_antes": None, "contado_despues": None, "precio_venta": None}
 
-    pct_pb = _buscar_en_tabla(claves_num, TABLA_PRECIO_BASE_PCT)
-    precio_base = (
-        int(_round_excel(claves_num * (1 + pct_pb), -1)) if pct_pb is not None else None
-    )
+    fila_pct = _buscar_fila_incrementos(claves_num, TABLA_INCREMENTOS)
+    if fila_pct is None:
+        return {"contado_antes": None, "contado_despues": None, "precio_venta": None}
 
-    contado_antes = contado_despues = None
-    if precio_base is not None:
-        add_antes = _buscar_en_tabla(precio_base, TABLA_CONTADO_ANTES_ADD)
-        add_despues = _buscar_en_tabla(precio_base, TABLA_CONTADO_DESPUES_ADD)
-        if add_antes is not None:
-            contado_antes = precio_base + add_antes
-        if add_despues is not None:
-            contado_despues = precio_base + add_despues
+    pct_completo, pct_recibir, pct_venta = fila_pct
 
-    pct_pv = _buscar_en_tabla(claves_num, TABLA_PRECIO_VENTA_PCT)
-    precio_venta = (
-        int(_round_excel(claves_num * (1 + pct_pv), -1)) if pct_pv is not None else None
-    )
+    contado_antes = int(_round_excel(claves_num * (1 + pct_completo), -1))
+    contado_despues = int(_round_excel(claves_num * (1 + pct_recibir), -1))
+    precio_venta = int(_round_excel(claves_num * (1 + pct_venta), -1))
 
     return {
-        "precio_base": precio_base,
         "contado_antes": contado_antes,
         "contado_despues": contado_despues,
         "precio_venta": precio_venta,
@@ -646,39 +640,22 @@ def escribir_tabla_price(
 
     nuevos = 0
     for record in df.itertuples(index=False):
+        # `claves` es privada del programa: se usa como base de cálculo
+        # pero NUNCA se escribe en tabla_price.xlsx (ni siquiera oculta).
         d = _calcular_derivados(record)
-
-        claves_val = getattr(record, "claves", None)
-        try:
-            claves_val = int(float(claves_val)) if claves_val not in (None, "") else None
-        except (TypeError, ValueError):
-            claves_val = None
 
         ws.append([
             record.id, catalogo, temporada, record.pag,
             getattr(record, "marca", None), getattr(record, "corrida", None),
-            claves_val,
-            d["precio_base"], d["contado_antes"], d["contado_despues"], d["precio_venta"],
+            d["contado_antes"], d["contado_despues"], d["precio_venta"],
             fecha,
         ])
         nuevos += 1
 
-    _ocultar_columnas(ws)
     _estilizar_encabezado(ws)
     wb.save(SALIDA_PRICE_PATH)
     logger.info(f"✅ {nuevos} registros → '{proveedor}' en {SALIDA_PRICE_PATH}")
     return nuevos
-
-
-def _ocultar_columnas(ws):
-    """Oculta en el spreadsheet las columnas listadas en COLUMNAS_OCULTAS
-    (p.ej. `claves`, que se conserva solo como base de cálculo)."""
-    for nombre in COLUMNAS_OCULTAS:
-        if nombre not in COLUMNAS_STD:
-            continue
-        idx = COLUMNAS_STD.index(nombre) + 1  # 1-based
-        letra = get_column_letter(idx)
-        ws.column_dimensions[letra].hidden = True
 
 
 # ─────────────────────────────────────────────
@@ -723,13 +700,13 @@ class ProcesadorPrice:
         u         = df["id"].nunique()
         esperados = df.attrs.get("ids_esperados_pdf")
 
-        precios_base = [
-            d["precio_base"] for d in (
-                _calcular_derivados(r) for r in df.itertuples(index=False)
-            ) if d["precio_base"] is not None
+        claves_validas = [
+            int(float(getattr(r, "claves")))
+            for r in df.itertuples(index=False)
+            if getattr(r, "claves", None) not in (None, "")
         ]
-        pmin = min(precios_base) if precios_base else None
-        pmax = max(precios_base) if precios_base else None
+        pmin = min(claves_validas) if claves_validas else None
+        pmax = max(claves_validas) if claves_validas else None
 
         self.logger.info("═" * 45)
         self.logger.info(f"   Registros extraídos  : {n}")
@@ -745,7 +722,7 @@ class ProcesadorPrice:
                 self.logger.warning(f"   ⚠ Faltan {diff} registro(s) — revisar manualmente")
             else:
                 self.logger.warning(f"   ⚠ Extraídos {-diff} de más — posibles duplicados")
-        self.logger.info(f"   Rango precio_base    : ${pmin} – ${pmax}")
+        self.logger.info(f"   Rango claves          : ${pmin} – ${pmax}")
         self.logger.info("═" * 45)
 
         # ── fase_1/salida/tabla_price.xlsx ────────────────────────────

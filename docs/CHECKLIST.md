@@ -174,13 +174,19 @@ tu decides si usarlo.
 **🔵 Price Shoes**
 
 ```bash
-python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
+python3 fase_1/extract_price.py --config fase_1/config/config_price.json
+```
+
+**🔵🇺🇲 Price Shoes Impotados**
+
+```bash
+python3 fase_1/extract_importados_price.py --config fase_1/config/config_price.json
 ```
 
 **🟡 Pakar Shoes**
 
 ```bash
-python3 fase_1/extraer_pakar.py --config fase_1/config/config_pakar.json
+python3 fase_1/extract_pakar.py --config fase_1/config/config_pakar.json
 ```
 
 > [!WARNING]
@@ -461,7 +467,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
 "presentaciones": [
     {"path": "../imagenes/logos/portada_01.pdf", "posicion": 2},
     {"path": "../imagenes/logos/portada_02.pdf", "posicion": 3},
-    {"path": "../imagenes/logos/portada_03.pdf", "posicion": 150},
+    {"path": "../imagenes/logos/portada_03.pdf", "posicion": 4},
     {"path": "../imagenes/logos/portada_04.pdf", "posicion": 250},
     {"path": "../imagenes/logos/portada_05.pdf", "posicion": -1}
 ]
