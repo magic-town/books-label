@@ -183,7 +183,7 @@ python3 fase_1/extract_price.py --config fase_1/config/config_price.json
 python3 fase_1/extract_importados_price.py --config fase_1/config/config_price.json
 ```
 
-**🟡 Pakar Shoes**
+**🟡 Pakar**
 
 ```bash
 python3 fase_1/extract_pakar.py --config fase_1/config/config_pakar.json
