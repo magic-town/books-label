@@ -190,14 +190,14 @@ python3 fase_1/extract_pakar.py --config fase_1/config/config_pakar.json
 ```
 
 > [!WARNING]
-> Si ejecutaste extractor.py y la extracción quedó incompleta o fue parcial, 
-> al realizar posteriormente una extracción exitosa, base_precios.ods puede
-> contener registros duplicados. Antes de volver a ejecutar el proceso, 
-> asegúrate de eliminar los registros incompletos.
+> Si la ejecución de `extract_<proveedor>.py` se interrumpe o finaliza de forma parcial,
+> una ejecución posterior exitosa puede generar registros duplicados en
+> `base_precios.ods`. Antes de volver a ejecutar el proceso, asegúrate de
+> eliminar los registros generados por la ejecución incompleta.
 
 
 > [!NOTE]
-> INFO en la ejecución de extractor.py
+> INFO en la ejecución de `extract_<proveedor>.py`
 > Al finalizar la ejecución y maximizar la terminal, se desplegará un 
 > conjunto de métricas de rendimiento; este punto constituye el criterio
 > crítico de validación que determina la calidad y la certeza en nuestros datos.
