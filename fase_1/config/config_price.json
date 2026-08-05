@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Escolar",
-    "temporada":       "26-27",
+    "catalogo":        "Cierre_Temporada",
+    "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/lista_escolar_26_27.pdf",
-    "excel_output":    "precios/lista_escolar_26_27.xlsx",
+    "pdf_input":       "lista_cruda/lista_cierre_temp_pv26.pdf",
+    "excel_output":    "precios/lista_cierre_temp_pv26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
