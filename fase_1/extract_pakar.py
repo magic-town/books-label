@@ -36,7 +36,12 @@ Dependencias:
 Outputs
 ─────────────────────────────────────────────────────────────────
 fase_1/salida/tabla_pakar.xlsx   (acumulativo, pestaña por config)
-    catalogo | temp | pag | id | precio_base | redondea | precio_venta | fecha
+    id | catalogo | temp | pag | marca | talla | precio_socio |
+    precio_base | redondea | precio_venta | fecha
+
+    precio_socio se deriva de la columna CLAVE del PDF (formato
+    CxxPx / CxxxPx), extrayendo únicamente los dígitos y
+    concatenándolos, ej. "C108P7" → 1087, "C47P5" → 475.
 
 fase_2/precios/<excel_output>.xlsx
     ID | precio_venta
@@ -65,7 +70,8 @@ TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulad
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
 SALIDA_PAKAR_PATH = os.path.expanduser("~/books-label/fase_1/salida/tabla_pakar.xlsx")
 
-COLUMNAS_STD = ["catalogo", "temp", "pag", "id", "precio_base", "redondea", "precio_venta", "fecha"]
+COLUMNAS_STD = ["id", "catalogo", "temp", "pag", "marca", "talla",
+                "precio_socio", "precio_base", "redondea", "precio_venta", "fecha"]
 
 
 # ─────────────────────────────────────────────
@@ -88,6 +94,27 @@ def _cargar_tabulador(path: str) -> pd.DataFrame:
     df["desde"] = pd.to_numeric(df["desde"], errors="coerce")
     df["sumar"] = pd.to_numeric(df["sumar"], errors="coerce")
     return df.sort_values("desde").reset_index(drop=True)
+
+
+def _extraer_precio_socio(clave: str):
+    """
+    Extrae los dígitos de CLAVE (formato CxxPx / CxxxPx) y los concatena
+    en un entero:
+
+        "C108P7" → 1087
+        "C47P5"  → 475
+
+    Cualquier valor sin dígitos (p. ej. "CANCELADO" o vacío) devuelve None.
+    """
+    if not clave:
+        return None
+    digitos = re.sub(r'\D', '', str(clave))
+    if not digitos:
+        return None
+    try:
+        return int(digitos)
+    except ValueError:
+        return None
 
 
 def _calcular_pv(precio_base, tab: pd.DataFrame):
@@ -247,10 +274,13 @@ class ExtractorPakar:
         self.logger   = logger
         self.tol_x    = config.get("tolerancia_x", 20.0)
         self.tol_col  = config.get("tol_col", 0)
-        self.col_pag  = config.get("col_pag",    "PÁG.")
-        self.col_id   = config.get("col_id",     "CÓDIGO")
-        self.col_prec = config.get("col_precio", "2 PAGOS")
-        self.offset   = config.get("encoding_offset", 0)
+        self.col_pag   = config.get("col_pag",    "PÁG.")
+        self.col_id    = config.get("col_id",     "CÓDIGO")
+        self.col_marca = config.get("col_marca",  "MARCA")
+        self.col_talla = config.get("col_talla",  "TALLA")
+        self.col_clave = config.get("col_clave",  "CLAVE")
+        self.col_prec  = config.get("col_precio", "2 PAGOS")
+        self.offset    = config.get("encoding_offset", 0)
 
     def extraer(self, pdf_path: str) -> pd.DataFrame:
         registros = []
@@ -278,8 +308,11 @@ class ExtractorPakar:
                 antes = len(registros)
                 for fila in filas:
                     registros.append({
-                        "pag":         fila.get("pag", "").strip(),
-                        "id":          fila.get("id",  "").strip(),
+                        "pag":         fila.get("pag",   "").strip(),
+                        "id":          fila.get("id",    "").strip(),
+                        "marca":       fila.get("marca", "").strip(),
+                        "talla":       fila.get("talla", "").strip(),
+                        "clave":       fila.get("clave", "").strip(),
                         "precio_base": _limpiar_precio(fila.get("precio", "")),
                     })
                 df_pag = self._filtrar(pd.DataFrame(registros[antes:]))
@@ -289,7 +322,8 @@ class ExtractorPakar:
 
         _log_estadisticas_pagina(self.logger, self.config, registros_por_pagina, "filas")
 
-        df = pd.DataFrame(registros) if registros else pd.DataFrame(columns=["pag", "id", "precio_base"])
+        df = pd.DataFrame(registros) if registros else pd.DataFrame(
+            columns=["pag", "id", "marca", "talla", "clave", "precio_base"])
         return self._filtrar(df)
 
     def _detectar_encabezado(self, words) -> float | None:
@@ -302,7 +336,14 @@ class ExtractorPakar:
     def _mapear_columnas(self, words, header_y) -> dict:
         col_x         = {}
         tol_y         = 15
-        mapa          = {self.col_pag: "pag", self.col_id: "id", self.col_prec: "precio"}
+        mapa          = {
+            self.col_pag:   "pag",
+            self.col_id:    "id",
+            self.col_marca: "marca",
+            self.col_talla: "talla",
+            self.col_clave: "clave",
+            self.col_prec:  "precio",
+        }
         zona          = [w for w in words if abs(w["top"] - header_y) < tol_y]
         zona_por_fila = {}
         for w in zona:
@@ -316,7 +357,13 @@ class ExtractorPakar:
                     if txt == nombre or nombre in txt:
                         col_x[alias] = w["x0"]
                         break
-                    if i + 1 < len(fila_tokens):
+                    # Combinación de dos tokens (ej. "2" + "PAGOS" → "2 PAGOS").
+                    # Solo aplica si "nombre" es en sí un encabezado compuesto
+                    # (contiene un espacio); de lo contrario, un encabezado de
+                    # una sola palabra como "TALLA" o "CLAVE" podría matchear
+                    # por error contra la cola de un par adyacente como
+                    # "COLOR TALLA" o "*DESCUENTO CLAVE".
+                    if " " in nombre and i + 1 < len(fila_tokens):
                         txt2 = txt + " " + fila_tokens[i + 1]["text"].strip()
                         if txt2 == nombre or nombre in txt2:
                             col_x[alias] = w["x0"]
@@ -407,10 +454,12 @@ def escribir_tabla_pakar(
         except (TypeError, ValueError):
             pb = record.precio_base
 
-        pv       = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-        redondea = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
+        pv            = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
+        redondea      = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
+        precio_socio  = _extraer_precio_socio(getattr(record, "clave", None))
 
-        ws.append([catalogo, temporada, record.pag, record.id,
+        ws.append([record.id, catalogo, temporada, record.pag,
+                   record.marca, record.talla, precio_socio,
                    pb, redondea, pv, fecha])
         nuevos += 1
 

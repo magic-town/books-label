@@ -6,16 +6,19 @@
     "catalogo":        "Mujer",
     "temporada":       "PV26",
 
-    "pdf_input":       "lista_cruda/listapakar_mujer.pdf",
-    "excel_output":    "precios/lista_mujer.xlsx",
+    "pdf_input":       "lista_cruda/lista_mujer_oi26.pdf",
+    "excel_output":    "precios/lista_mujer_oi26.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
-    "tol_col":         12,
+    "tol_col":         18,
 
     "desviacion_alerta": 1.5,
 
     "col_pag":         "PÁG.",
     "col_id":          "CÓDIGO",
+    "col_marca":       "MARCA",
+    "col_talla":       "TALLA",
+    "col_clave":       "CLAVE",
     "col_precio":      "2 PAGOS"
 }
