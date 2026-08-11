@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Cierre_Temporada",
-    "temporada":       "PV26",
+    "catalogo":        "Basicos",
+    "temporada":       "OI26",
 
-    "pdf_input":       "lista_cruda/lista_cierre_temp_pv26.pdf",
-    "excel_output":    "precios/lista_cierre_temp_pv26.xlsx",
+    "pdf_input":       "lista_cruda/lista_basicos_oi26.pdf",
+    "excel_output":    "precios/lista_basicos_oi26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
