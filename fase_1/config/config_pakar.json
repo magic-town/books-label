@@ -3,11 +3,11 @@
     "_uso":            "python3 fase_1/extractor.py --config fase_1/config/<este_archivo>.json",
 
     "proveedor":       "Pakar",
-    "catalogo":        "Mujer",
-    "temporada":       "PV26",
+    "catalogo":        "Hombre",
+    "temporada":       "OI26",
 
-    "pdf_input":       "lista_cruda/lista_mujer_oi26.pdf",
-    "excel_output":    "precios/lista_mujer_oi26.xlsx",
+    "pdf_input":       "lista_cruda/lista_hombre_oi26.pdf",
+    "excel_output":    "precios/lista_hombre_oi26.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,

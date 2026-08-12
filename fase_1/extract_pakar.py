@@ -274,6 +274,13 @@ class ExtractorPakar:
         self.logger   = logger
         self.tol_x    = config.get("tolerancia_x", 20.0)
         self.tol_col  = config.get("tol_col", 0)
+        # Tolerancia (px) para agrupar tokens de una misma fila por proximidad
+        # vertical. Antes se usaba round(top) exacto, lo cual fallaba cuando
+        # una columna (ej. CLAVE) usa una fuente ligeramente distinta y su
+        # "top" queda ~0.3px por debajo del resto de la fila: si el top base
+        # caía cerca de un límite .5, round() lo mandaba a la fila siguiente
+        # (y_key fantasma sin "id" → la fila real perdía su CLAVE).
+        self.tol_row  = config.get("tol_row", 1.0)
         self.col_pag   = config.get("col_pag",    "PÁG.")
         self.col_id    = config.get("col_id",     "CÓDIGO")
         self.col_marca = config.get("col_marca",  "MARCA")
@@ -371,24 +378,54 @@ class ExtractorPakar:
         return col_x
 
     def _agrupar_filas(self, words, header_y, col_x) -> list:
-        filas   = {}
+        """
+        Agrupa tokens en filas por proximidad vertical (clustering), no por
+        round(top) exacto.
+
+        round(top) falla cuando una columna (ej. CLAVE) usa una fuente
+        ligeramente distinta a la del resto de la fila: su "top" queda
+        ~0.3px por debajo. Si el top base de la fila cae cerca de un límite
+        .5 (ej. 157.28 vs 157.58 → round 157 vs 158), el token de esa
+        columna "salta" a un y_key distinto, generando una fila fantasma sin
+        "id"/"pag" (descartada en _filtrar) y dejando la fila real sin CLAVE
+        → precio_socio vacío.
+
+        En vez de eso: se ordenan todos los tokens por "top" y se agrupan
+        consecutivamente mientras la diferencia respecto al primer "top" del
+        cluster (ancla) sea <= self.tol_row. Como el espaciado real entre
+        filas es de varios px (≈13px en este PDF) y el desfase entre
+        columnas de una misma fila es de décimas de px, una tolerancia
+        pequeña (default 1.0px) separa filas reales sin fusionar filas
+        distintas.
+        """
         aliases = list(col_x.keys())
         xs      = [col_x[a] for a in aliases]
-        for w in words:
-            if w["top"] <= header_y + 5:
-                continue
-            y_key = round(w["top"])
-            token = w["text"].strip()
-            if not token:
-                continue
-            idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
-            if self.tol_col > 0 and abs(w["x0"] - xs[idx]) > self.tol_col:
-                continue
-            col = aliases[idx]
-            filas.setdefault(y_key, {})
-            prev = filas[y_key].get(col, "")
-            filas[y_key][col] = (prev + " " + token).strip() if prev else token
-        return list(filas.values())
+
+        candidatos = [w for w in words
+                      if w["top"] > header_y + 5 and w["text"].strip()]
+        candidatos.sort(key=lambda w: w["top"])
+
+        clusters = []  # cada item: {"anchor": top, "words": [...]}
+        for w in candidatos:
+            top = w["top"]
+            if clusters and abs(top - clusters[-1]["anchor"]) <= self.tol_row:
+                clusters[-1]["words"].append(w)
+            else:
+                clusters.append({"anchor": top, "words": [w]})
+
+        filas = []
+        for cluster in clusters:
+            fila = {}
+            for w in cluster["words"]:
+                token = w["text"].strip()
+                idx = min(range(len(xs)), key=lambda k: abs(w["x0"] - xs[k]))
+                if self.tol_col > 0 and abs(w["x0"] - xs[idx]) > self.tol_col:
+                    continue
+                col = aliases[idx]
+                prev = fila.get(col, "")
+                fila[col] = (prev + " " + token).strip() if prev else token
+            filas.append(fila)
+        return filas
 
     def _filtrar(self, df) -> pd.DataFrame:
         if df.empty:
