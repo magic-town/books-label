@@ -180,7 +180,7 @@ python3 fase_1/extract_price.py --config fase_1/config/config_price.json
 **🔵🇺🇲 Price Shoes Impotados**
 
 ```bash
-python3 fase_1/extract_importados_price.py --config fase_1/config/config_price.json
+python3 fase_1/extract_price_importados.py --config fase_1/config/config_price.json
 ```
 
 **🟡 Pakar**

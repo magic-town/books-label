@@ -36,15 +36,24 @@ Dependencias:
 Outputs
 ─────────────────────────────────────────────────────────────────
 fase_1/salida/tabla_pakar.xlsx   (acumulativo, pestaña por config)
-    id | catalogo | temp | pag | marca | talla | precio_socio |
-    precio_base | redondea | precio_venta | fecha
+    id | catalogo | temp | pag | marca | talla | contado_completo |
+    contado_al_recibir | precio_en_pagos | fecha
+
+    precio_socio y precio_base son variables privadas del sistema
+    interno: se calculan/extraen pero NUNCA se escriben en este
+    archivo.
 
     precio_socio se deriva de la columna CLAVE del PDF (formato
     CxxPx / CxxxPx), extrayendo únicamente los dígitos y
     concatenándolos, ej. "C108P7" → 1087, "C47P5" → 475.
 
+    contado_completo, contado_al_recibir y precio_en_pagos se
+    calculan a partir de precio_base mediante búsqueda tipo VLOOKUP
+    (aproximada, por rango) sobre INCREMENTOS_POR_RANGO — ver más
+    abajo.
+
 fase_2/precios/<excel_output>.xlsx
-    ID | precio_venta
+    ID | precio_venta   (mismo valor que precio_en_pagos)
 ─────────────────────────────────────────────────────────────────
 """
 
@@ -55,6 +64,7 @@ import sys
 import json
 import logging
 import argparse
+from collections import namedtuple
 from datetime import datetime
 
 import pandas as pd
@@ -66,12 +76,11 @@ from openpyxl.styles import Alignment, PatternFill, Font
 #  Rutas fijas
 # ─────────────────────────────────────────────
 
-TABULADOR_PATH    = os.path.expanduser("~/books-label/fase_1/lista_cruda/tabulador.xlsx")
 FASE2_PRECIOS_DIR = os.path.expanduser("~/books-label/fase_2/precios")
 SALIDA_PAKAR_PATH = os.path.expanduser("~/books-label/fase_1/salida/tabla_pakar.xlsx")
 
 COLUMNAS_STD = ["id", "catalogo", "temp", "pag", "marca", "talla",
-                "precio_socio", "precio_base", "redondea", "precio_venta", "fecha"]
+                "contado_completo", "contado_al_recibir", "precio_en_pagos", "fecha"]
 
 
 # ─────────────────────────────────────────────
@@ -85,15 +94,6 @@ def _round_excel(value: float, digits: int) -> float:
         return math.floor(float(value) / factor + 0.5) * factor
     factor = 10 ** digits
     return math.floor(float(value) * factor + 0.5) / factor
-
-
-def _cargar_tabulador(path: str) -> pd.DataFrame:
-    df = pd.read_excel(path, header=0)
-    df.columns = ["desde", "hasta", "sumar"]
-    df = df.dropna(subset=["desde"]).copy()
-    df["desde"] = pd.to_numeric(df["desde"], errors="coerce")
-    df["sumar"] = pd.to_numeric(df["sumar"], errors="coerce")
-    return df.sort_values("desde").reset_index(drop=True)
 
 
 def _extraer_precio_socio(clave: str):
@@ -117,20 +117,65 @@ def _extraer_precio_socio(clave: str):
         return None
 
 
-def _calcular_pv(precio_base, tab: pd.DataFrame):
-    """Replica: =ROUND(IF(pb<200, ROUND(pb,-1)*1.5, pb+VLOOKUP(pb,tab,3,1)), -1)"""
+RangoIncremento = namedtuple(
+    "RangoIncremento",
+    ["desde", "hasta", "pct_contado_completo", "pct_contado_al_recibir", "pct_precio_en_pagos"],
+)
+
+# Porcentajes de incremento sobre precio_base, por rango de precio.
+# Búsqueda tipo VLOOKUP aproximada: se ubica el renglón cuyo rango
+# [desde, hasta] contiene a precio_base.
+INCREMENTOS_POR_RANGO = [
+    RangoIncremento(0,    199,  0.14, 0.18, 0.25),
+    RangoIncremento(200,  399,  0.09, 0.14, 0.25),
+    RangoIncremento(400,  599,  0.09, 0.14, 0.27),
+    RangoIncremento(600,  799,  0.07, 0.14, 0.26),
+    RangoIncremento(800,  999,  0.07, 0.14, 0.23),
+    RangoIncremento(1000, 1199, 0.07, 0.14, 0.21),
+    RangoIncremento(1200, 1399, 0.07, 0.14, 0.21),
+    RangoIncremento(1400, 1599, 0.06, 0.10, 0.14),
+    RangoIncremento(1600, 1799, 0.06, 0.10, 0.14),
+    RangoIncremento(1800, 1999, 0.06, 0.10, 0.14),
+    RangoIncremento(2000, 2999, 0.01, 0.06, 0.11),
+    RangoIncremento(3000, 6500, 0.00, 0.04, 0.07),
+]
+
+
+def _buscar_rango_incremento(precio_base: float) -> RangoIncremento | None:
+    """VLOOKUP aproximado: ubica el rango [desde, hasta] que contiene pb."""
+    for rango in INCREMENTOS_POR_RANGO:
+        if rango.desde <= precio_base <= rango.hasta:
+            return rango
+    return None
+
+
+def _calcular_precios(precio_base) -> tuple:
+    """
+    A partir de precio_base y su rango en INCREMENTOS_POR_RANGO calcula:
+        contado_completo    = pb * (1 + pct_contado_completo)
+        contado_al_recibir  = pb * (1 + pct_contado_al_recibir)
+        precio_en_pagos     = pb * (1 + pct_precio_en_pagos)
+
+    Los tres resultados se redondean a la decena más cercana (mismo
+    criterio de redondeo, ej. 143 → 140, 165 → 170).
+
+    Devuelve (contado_completo, contado_al_recibir, precio_en_pagos),
+    cada uno None si precio_base es inválido o está fuera de rango.
+    """
     try:
         pb = float(precio_base)
     except (TypeError, ValueError):
-        return None
-    redondea = _round_excel(pb, -1)
-    if pb < 200:
-        return int(_round_excel(redondea * 1.5, -1))
-    mask = tab["desde"] <= pb
-    if not mask.any():
-        return None
-    sumar = float(tab.loc[mask.values.nonzero()[0][-1], "sumar"])
-    return int(_round_excel(pb + sumar, -1))
+        return None, None, None
+
+    rango = _buscar_rango_incremento(pb)
+    if rango is None:
+        return None, None, None
+
+    contado_completo   = int(_round_excel(pb * (1 + rango.pct_contado_completo), -1))
+    contado_al_recibir = int(_round_excel(pb * (1 + rango.pct_contado_al_recibir), -1))
+    precio_en_pagos     = int(_round_excel(pb * (1 + rango.pct_precio_en_pagos), -1))
+
+    return contado_completo, contado_al_recibir, precio_en_pagos
 
 
 # ─────────────────────────────────────────────
@@ -471,10 +516,13 @@ def _estilizar_encabezado(ws):
 def escribir_tabla_pakar(
     df: pd.DataFrame,
     config: dict,
-    tab: pd.DataFrame,
     logger: logging.Logger,
 ):
-    """Escritura acumulativa en tabla_pakar.xlsx (pestaña por proveedor)."""
+    """Escritura acumulativa en tabla_pakar.xlsx (pestaña por proveedor).
+
+    precio_socio y precio_base se calculan/leen pero son variables
+    privadas del sistema interno: no se exponen en este spreadsheet.
+    """
     os.makedirs(os.path.dirname(SALIDA_PAKAR_PATH), exist_ok=True)
     proveedor = config.get("proveedor", "Pakar").strip()
     catalogo  = config.get("catalogo", "")
@@ -487,17 +535,18 @@ def escribir_tabla_pakar(
     nuevos = 0
     for record in df.itertuples(index=False):
         try:
-            pb = int(float(record.precio_base))
+            _precio_base = int(float(record.precio_base))
         except (TypeError, ValueError):
-            pb = record.precio_base
+            _precio_base = record.precio_base
 
-        pv            = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-        redondea      = int(_round_excel(pb, -1)) if isinstance(pb, (int, float)) else None
-        precio_socio  = _extraer_precio_socio(getattr(record, "clave", None))
+        contado_completo, contado_al_recibir, precio_en_pagos = (
+            _calcular_precios(_precio_base) if isinstance(_precio_base, (int, float)) else (None, None, None)
+        )
+        _precio_socio = _extraer_precio_socio(getattr(record, "clave", None))  # privado, no se escribe
 
         ws.append([record.id, catalogo, temporada, record.pag,
-                   record.marca, record.talla, precio_socio,
-                   pb, redondea, pv, fecha])
+                   record.marca, record.talla,
+                   contado_completo, contado_al_recibir, precio_en_pagos, fecha])
         nuevos += 1
 
     _estilizar_encabezado(ws)
@@ -535,11 +584,6 @@ class ProcesadorPakar:
             self.logger.error(f"❌ PDF no encontrado: {self.pdf_path}")
             raise FileNotFoundError(self.pdf_path)
 
-        if not os.path.isfile(TABULADOR_PATH):
-            self.logger.error(f"❌ Tabulador no encontrado: {TABULADOR_PATH}")
-            raise FileNotFoundError(TABULADOR_PATH)
-
-        tab = _cargar_tabulador(TABULADOR_PATH)
         self.logger.info("🚀 Iniciando extracción...")
         df = ExtractorPakar(self.config, self.logger).extraer(self.pdf_path)
 
@@ -561,15 +605,15 @@ class ProcesadorPakar:
         self.logger.info("═" * 45)
 
         # ── fase_1/salida/tabla_pakar.xlsx ────────────────────────────
-        escribir_tabla_pakar(df, self.config, tab, self.logger)
+        escribir_tabla_pakar(df, self.config, self.logger)
 
         # ── fase_2/precios/ ───────────────────────────────────────────
-        self._escribir_fase2(df, tab)
+        self._escribir_fase2(df)
 
         self.logger.info(f"[STAT] proveedor={self.proveedor}")
         self.logger.info(f"[STAT] registros={n}")
 
-    def _escribir_fase2(self, df: pd.DataFrame, tab: pd.DataFrame):
+    def _escribir_fase2(self, df: pd.DataFrame):
         nombre_base = os.path.splitext(
             os.path.basename(self.config.get("excel_output", "salida.xlsx"))
         )[0]
@@ -586,8 +630,8 @@ class ProcesadorPakar:
                 pb = int(float(record.precio_base))
             except (TypeError, ValueError):
                 pb = record.precio_base
-            pv = _calcular_pv(pb, tab) if isinstance(pb, (int, float)) else None
-            ws2.append([record.id, pv])
+            _, _, precio_en_pagos = _calcular_precios(pb) if isinstance(pb, (int, float)) else (None, None, None)
+            ws2.append([record.id, precio_en_pagos])
 
         wb2.save(fase2_path)
         self.logger.info(f"✅ Excel (fase 2) generado: {fase2_path}")
