@@ -408,13 +408,6 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto 
 
 Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal en:`~/books-label/`
 
-Antes de ejecutar edita el libro que vas a convertir:
-
-```text
-<catalogo_temp_rgb.pdf> por nombre del catalogo corregido
-<catalogo_temp.pdf> por el nombre del catalogo corrupto
-```
-
 ```
 gs -dBATCH -dNOPAUSE -dQUIET \
    -sDEVICE=pdfwrite \
@@ -424,6 +417,8 @@ gs -dBATCH -dNOPAUSE -dQUIET \
    -sOutputFile=fase_2/libros/<catalogo_temp_rgb.pdf> \
    fase_2/libros/<catalogo_temp.pdf>
 ```
+
+Antes de ejecutar, edita `<catalogo_temp_rgb.pdf>` por el nombre del nuevo catalogo, y `<catalogo_temp.pdf>` por el catalogo con el `forms` (el que se imprime en blanco y negro).
 
 ---
 
