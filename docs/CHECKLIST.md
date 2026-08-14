@@ -406,7 +406,7 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto 
 
 #### 🚨 El catálogo se imprimio en blanco y negro
 
-Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando en terminal en:`~/books-label/`
+Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando posecionada en: `~/books-label/`. Usa el comando change directory `cd` para navegar entre directorios.
 
 ```
 gs -dBATCH -dNOPAUSE -dQUIET \
