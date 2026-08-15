@@ -126,18 +126,18 @@ RangoIncremento = namedtuple(
 # Búsqueda tipo VLOOKUP aproximada: se ubica el renglón cuyo rango
 # [desde, hasta] contiene a precio_base.
 INCREMENTOS_POR_RANGO = [
-    RangoIncremento(0,    199,  0.14, 0.18, 0.25),
-    RangoIncremento(200,  399,  0.09, 0.14, 0.25),
-    RangoIncremento(400,  599,  0.09, 0.14, 0.27),
-    RangoIncremento(600,  799,  0.07, 0.14, 0.26),
-    RangoIncremento(800,  999,  0.07, 0.14, 0.23),
-    RangoIncremento(1000, 1199, 0.07, 0.14, 0.21),
-    RangoIncremento(1200, 1399, 0.07, 0.14, 0.21),
-    RangoIncremento(1400, 1599, 0.06, 0.10, 0.14),
-    RangoIncremento(1600, 1799, 0.06, 0.10, 0.14),
-    RangoIncremento(1800, 1999, 0.06, 0.10, 0.14),
-    RangoIncremento(2000, 2999, 0.01, 0.06, 0.11),
-    RangoIncremento(3000, 6500, 0.00, 0.04, 0.07),
+    RangoIncremento(0,    199,  0.01, 0.06, 0.18),
+    RangoIncremento(200,  399,  0.01, 0.06, 0.18),
+    RangoIncremento(400,  599,  0.01, 0.06, 0.18),
+    RangoIncremento(600,  799,  0.01, 0.06, 0.20),
+    RangoIncremento(800,  999,  0.01, 0.06, 0.20),
+    RangoIncremento(1000, 1199, 0.01, 0.06, 0.20),
+    RangoIncremento(1200, 1399, 0.01, 0.07, 0.21),
+    RangoIncremento(1400, 1599, 0.01, 0.07, 0.21),
+    RangoIncremento(1600, 1799, 0.01, 0.07, 0.20),
+    RangoIncremento(1800, 1999, 0.01, 0.07, 0.19),
+    RangoIncremento(2000, 2999, 0.01, 0.07, 0.18),
+    RangoIncremento(3000, 6500, 0.01, 0.07, 0.18),
 ]
 
 
