@@ -126,7 +126,7 @@ COLUMNAS_MULTILINEA = {"marca"}
 #
 # Cada tupla: (desde, hasta, pct_contado_completo, pct_contado_al_recibir, pct_precio_venta)
 TABLA_INCREMENTOS = [
-    (0,    199,  0.42, 0.50, 0.70),
+    (0,    199,  0.42, 0.50, 0.68),
     (200,  399,  0.36, 0.42, 0.68),
     (400,  599,  0.40, 0.46, 0.70),
     (600,  799,  0.39, 0.46, 0.72),
