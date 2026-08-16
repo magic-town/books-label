@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Jeans",
+    "catalogo":        "Urbano",
     "temporada":       "OI26",
 
-    "pdf_input":       "lista_cruda/lista_jeans_oi26.pdf",
-    "excel_output":    "precios/lista_jeans_oi26.xlsx",
+    "pdf_input":       "lista_cruda/lista_urbano_oi26.pdf",
+    "excel_output":    "precios/lista_urbano_oi26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
