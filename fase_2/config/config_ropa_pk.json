@@ -10,7 +10,7 @@
     "ocr_rotacion_270": false,
     
     "pdf_input":   "libros/ropa_pk_oi26_rgb.pdf",
-    "excel_input": "precios/lista_ropa_oi26.xlsx",
+    "excel_input": "precios/lista_ropa_pk_oi26.xlsx",
     "pdf_output":  "salidas/ropa_pk_precios.pdf",
     
     "presentaciones": [
@@ -23,8 +23,8 @@
     
     "logo_activo":        true,
     "logo_path":          "../imagenes/logos/logo_bz.png",
-    "logo_x_pt":          261,
-    "logo_y_pt":          591,
+    "logo_x_pt":          315,
+    "logo_y_pt":          653,
     "logo_ancho_pt":      82,
     "logo_alto_pt":       82,
     "logo_transparencia": 0.85,
