@@ -7,7 +7,7 @@
     "temporada":       "OI26",
 
     "pdf_input":       "lista_cruda/lista_ropa_oi26.pdf",
-    "excel_output":    "precios/lista_ropa_oi26.xlsx",
+    "excel_output":    "precios/lista_ropa_pk_oi26.xlsx",
 
     "encoding_offset": 0,
     "tolerancia_x":    3,
