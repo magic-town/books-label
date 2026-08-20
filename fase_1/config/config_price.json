@@ -4,11 +4,11 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Mochilas",
-    "temporada":       "2026",
+    "catalogo":        "Importados",
+    "temporada":       "Fall 2026",
 
-    "pdf_input":       "lista_cruda/lista_mochilas_26.pdf",
-    "excel_output":    "precios/lista_mochilas_26.xlsx",
+    "pdf_input":       "lista_cruda/lista_importados_fall26.pdf",
+    "excel_output":    "precios/lista_importados_fall26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
