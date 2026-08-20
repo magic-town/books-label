@@ -419,7 +419,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
    fase_2/libros/<cat_blanco_negor>.pdf
 ```
 
-Antes de ejecutar, edita `<cat_nuevo_rgb.pdf>` por el nombre del nuevo catalogo, y `<cat_blanco_negro>.pdf` por el catalogo con el `forms` (el que se imprime en blanco y negro).
+Antes de ejecutar, edita `<cat_nuevo_rgb>.pdf` por el nombre del nuevo catalogo, y `<cat_blanco_negro>.pdf` por el catalogo con el `forms` (el que se imprime en blanco y negro).
 
 ---
 
