@@ -30,8 +30,7 @@
 🔄​ Sincronizamos las actualizaciones en local (sonia) y remoto (gabriel).
 
 ```
-cd 
-cd books-label && bash sync.sh
+cd ~/books-label/ && bash sync.sh
 ```
 
 ## Fase 1
