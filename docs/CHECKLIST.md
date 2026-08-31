@@ -411,7 +411,7 @@ Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto 
 
 #### 🚨 El catálogo se imprimio en blanco y negro
 
-Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente comando posecionada en: `~/books-label/`. Usa el comando change directory `cd` para navegar entre directorios.
+Si el libro despues de pasar por el ejecutable `../catalogo_base.py` notas que se ve en blanco y negro. Entonces es necesario ejecutar el siguiente bloque de comandos, no necesitas cambiar ni posecionarte en algun directorio, el comando ya te coloca ahi. **Lo que si debe hacer** es editar el libro con `forms` y el nombre del libro nuevo.
 
 ```
 cd ~/books-label
@@ -421,7 +421,7 @@ gs -dBATCH -dNOPAUSE -dQUIET \
    -dColorConversionStrategy=/sRGB \
    -dProcessColorModel=/DeviceRGB \
    -sOutputFile=fase_2/libros/<cat_nuevo_rgb>.pdf \
-   fase_2/libros/<cat_blanco_negor>.pdf
+   fase_2/libros/<cat_blanco_negro>.pdf
 ```
 
 Antes de ejecutar, edita `<cat_nuevo_rgb>.pdf` por el nombre del nuevo catalogo, y `<cat_blanco_negro>.pdf` por el catalogo con el `forms` (el que se imprime en blanco y negro).
