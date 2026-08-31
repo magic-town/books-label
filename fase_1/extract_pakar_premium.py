@@ -137,7 +137,7 @@ INCREMENTOS_POR_RANGO = [
     RangoIncremento(1600, 1799, 0.028571, 0.071429, 0.214286),
     RangoIncremento(1800, 1999, 0.028571, 0.071429, 0.200000),
     RangoIncremento(2000, 2999, 0.028571, 0.071429, 0.185714),
-    RangoIncremento(3000, 5000, 0.028571, 0.071429, 0.178571),
+    RangoIncremento(3000, 6500, 0.028571, 0.071429, 0.178571),
 ]
 
 
