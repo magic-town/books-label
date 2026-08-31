@@ -188,6 +188,12 @@ python3 fase_1/extract_price_importados.py --config fase_1/config/config_price.j
 python3 fase_1/extract_pakar.py --config fase_1/config/config_pakar.json
 ```
 
+**🟡🇺🇲 Pakar PREMIUM**
+
+```bash
+python3 fase_1/extract_pakar_premium.py --config fase_1/config/config_pakar.json
+```
+
 > [!WARNING]
 > Si la ejecución de `extract_<proveedor>.py` se interrumpe o finaliza de forma parcial,
 > una ejecución posterior exitosa puede generar registros duplicados en
