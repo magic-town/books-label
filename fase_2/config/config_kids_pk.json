@@ -4,7 +4,7 @@
     
     "id_proveedor": "Pakar",
     
-    "paginas_prueba": false,
+    "paginas_prueba": 12,
     
     "ocr_rotacion_90":  false,
     "ocr_rotacion_270": false,
@@ -41,7 +41,7 @@
     "dpi": 200,
     "psm": 6,
     
-    "ocr_doble_pasada": true,
+    "ocr_doble_pasada": false,
     
     "contraste":     2.5,
     "nitidez":       2.0,
