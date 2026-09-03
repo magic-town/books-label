@@ -15,6 +15,7 @@ Dependencias Python (requirements.txt):
 """
 
 import os
+import time
 import sys
 import json
 import argparse
@@ -1119,6 +1120,9 @@ class EtiquetadorCatalogo:
                 del images
                 del img_base
                 gc.collect()
+                # Pausa mínima entre páginas: permite que el scheduler
+                # del SO atienda VSCode y la interfaz gráfica.
+                time.sleep(0.05)
 
         print(" " * 60, end="\r")
 
@@ -1245,6 +1249,11 @@ class EtiquetadorCatalogo:
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
+    # Baja la prioridad del proceso para no saturar la CPU del sistema.
+    # nice=10 cede CPU a VSCode y la interfaz cuando hay competencia;
+    # si nadie más necesita CPU, Tesseract sigue usando el 100%.
+    os.nice(10)
+
     args = parse_args()
     BASE = os.path.dirname(os.path.abspath(__file__))
 
