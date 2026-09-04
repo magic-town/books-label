@@ -4,10 +4,10 @@
 
     "proveedor":       "PS",
 
-    "marcar_importados": false,
-
     "catalogo":        "Confort",
     "temporada":       "Otoño-Invierno 2026",
+
+    "marcar_importados": false,
 
     "pdf_input":       "lista_cruda/lista_confort_oi26.pdf",
     "excel_output":    "precios/lista_confort_oi26.xlsx",

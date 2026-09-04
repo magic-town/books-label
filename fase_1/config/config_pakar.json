@@ -6,6 +6,8 @@
     "catalogo":        "MEN2",
     "temporada":       "OI26",
 
+    "marcar_premium":  false,
+
     "pdf_input":       "lista_cruda/men2_oi26.pdf",
     "excel_output":    "precios/lista_men2_oi26.xlsx",
 

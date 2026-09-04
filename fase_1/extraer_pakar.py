@@ -49,8 +49,13 @@ fase_1/salida/tabla_pakar.xlsx   (acumulativo, pestaña por config)
 
     contado_completo, contado_al_recibir y precio_en_pagos se
     calculan a partir de precio_base mediante búsqueda tipo VLOOKUP
-    (aproximada, por rango) sobre INCREMENTOS_POR_RANGO — ver más
-    abajo.
+    (aproximada, por rango) sobre una de las dos tablas de incremento
+    — ver más abajo.
+
+Selección de tabla de incrementos:
+    El config admite la clave booleana "marcar_premium".
+        false (o ausente) → TABLA_INCREMENTOS_ESTANDAR
+        true              → TABLA_INCREMENTOS_PREMIUM
 
 fase_2/precios/<excel_output>.xlsx
     ID | precio_venta   (mismo valor que precio_en_pagos)
@@ -125,7 +130,11 @@ RangoIncremento = namedtuple(
 # Porcentajes de incremento sobre precio_base, por rango de precio.
 # Búsqueda tipo VLOOKUP aproximada: se ubica el renglón cuyo rango
 # [desde, hasta] contiene a precio_base.
-INCREMENTOS_POR_RANGO = [
+#
+# Existen dos tablas — estándar y premium —; cuál se usa se decide en
+# tiempo de ejecución según la clave "marcar_premium" del config
+# (ver _seleccionar_tabla_incrementos).
+TABLA_INCREMENTOS_ESTANDAR = [
     RangoIncremento(0,    199,  0.01, 0.06, 0.18),
     RangoIncremento(200,  399,  0.01, 0.06, 0.18),
     RangoIncremento(400,  599,  0.01, 0.06, 0.18),
@@ -140,18 +149,41 @@ INCREMENTOS_POR_RANGO = [
     RangoIncremento(3000, 6500, 0.01, 0.07, 0.18),
 ]
 
+TABLA_INCREMENTOS_PREMIUM = [
+    RangoIncremento(0,    199,  0.021277, 0.063830, 0.18),
+    RangoIncremento(200,  399,  0.028571, 0.071429, 0.200000),
+    RangoIncremento(400,  599,  0.028571, 0.071429, 0.200000),
+    RangoIncremento(600,  799,  0.028571, 0.071429, 0.228571),
+    RangoIncremento(800,  999,  0.028571, 0.071429, 0.228571),
+    RangoIncremento(1000, 1199, 0.028571, 0.071429, 0.228571),
+    RangoIncremento(1200, 1399, 0.028571, 0.071429, 0.214286),
+    RangoIncremento(1400, 1599, 0.028571, 0.071429, 0.214286),
+    RangoIncremento(1600, 1799, 0.028571, 0.071429, 0.214286),
+    RangoIncremento(1800, 1999, 0.028571, 0.071429, 0.200000),
+    RangoIncremento(2000, 2999, 0.028571, 0.071429, 0.185714),
+    RangoIncremento(3000, 6500, 0.028571, 0.071429, 0.178571),
+]
 
-def _buscar_rango_incremento(precio_base: float) -> RangoIncremento | None:
+
+def _seleccionar_tabla_incrementos(config: dict) -> list:
+    """Elige la tabla de incrementos según config['marcar_premium']."""
+    if config.get("marcar_premium", False):
+        return TABLA_INCREMENTOS_PREMIUM
+    return TABLA_INCREMENTOS_ESTANDAR
+
+
+def _buscar_rango_incremento(precio_base: float, tabla: list) -> RangoIncremento | None:
     """VLOOKUP aproximado: ubica el rango [desde, hasta] que contiene pb."""
-    for rango in INCREMENTOS_POR_RANGO:
+    for rango in tabla:
         if rango.desde <= precio_base <= rango.hasta:
             return rango
     return None
 
 
-def _calcular_precios(precio_base) -> tuple:
+def _calcular_precios(precio_base, tabla: list) -> tuple:
     """
-    A partir de precio_base y su rango en INCREMENTOS_POR_RANGO calcula:
+    A partir de precio_base y su rango en la tabla de incrementos
+    seleccionada (estándar o premium) calcula:
         contado_completo    = pb * (1 + pct_contado_completo)
         contado_al_recibir  = pb * (1 + pct_contado_al_recibir)
         precio_en_pagos     = pb * (1 + pct_precio_en_pagos)
@@ -167,7 +199,7 @@ def _calcular_precios(precio_base) -> tuple:
     except (TypeError, ValueError):
         return None, None, None
 
-    rango = _buscar_rango_incremento(pb)
+    rango = _buscar_rango_incremento(pb, tabla)
     if rango is None:
         return None, None, None
 
@@ -531,6 +563,7 @@ def escribir_tabla_pakar(
 
     wb = _abrir_o_crear_xlsx(SALIDA_PAKAR_PATH)
     ws = _obtener_o_crear_pestaña(wb, proveedor, COLUMNAS_STD)
+    tabla_incrementos = _seleccionar_tabla_incrementos(config)
 
     nuevos = 0
     for record in df.itertuples(index=False):
@@ -540,7 +573,7 @@ def escribir_tabla_pakar(
             _precio_base = record.precio_base
 
         contado_completo, contado_al_recibir, precio_en_pagos = (
-            _calcular_precios(_precio_base) if isinstance(_precio_base, (int, float)) else (None, None, None)
+            _calcular_precios(_precio_base, tabla_incrementos) if isinstance(_precio_base, (int, float)) else (None, None, None)
         )
         _precio_socio = _extraer_precio_socio(getattr(record, "clave", None))  # privado, no se escribe
 
@@ -578,6 +611,9 @@ class ProcesadorPakar:
         self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
         self.logger.info(f"🛢️  Salida:          {SALIDA_PAKAR_PATH}")
         self.logger.info(f"📅 Temporada:       {config.get('temporada', '')}")
+        self.logger.info(
+            f"💲 Tabla incrementos: {'PREMIUM' if config.get('marcar_premium', False) else 'ESTÁNDAR'}"
+        )
 
     def ejecutar(self):
         if not os.path.isfile(self.pdf_path):
@@ -624,13 +660,17 @@ class ProcesadorPakar:
         ws2 = wb2.active
         ws2.title = "Precios"
 
+        tabla_incrementos = _seleccionar_tabla_incrementos(self.config)
+
         ws2.append(["ID", "precio_venta"])
         for record in df.itertuples(index=False):
             try:
                 pb = int(float(record.precio_base))
             except (TypeError, ValueError):
                 pb = record.precio_base
-            _, _, precio_en_pagos = _calcular_precios(pb) if isinstance(pb, (int, float)) else (None, None, None)
+            _, _, precio_en_pagos = (
+                _calcular_precios(pb, tabla_incrementos) if isinstance(pb, (int, float)) else (None, None, None)
+            )
             ws2.append([record.id, precio_en_pagos])
 
         wb2.save(fase2_path)
