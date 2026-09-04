@@ -741,21 +741,17 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
         </div>
-        <!-- Toggles de rotaciones OCR -->
         <div class="sec-divider" style="margin:0.25rem 0;"></div>
-        <div class="tog" id="tog-rot90" style="border-color:var(--amber-l);background:var(--amber-bg);">
-          <div class="tog-info">
-            <div class="tog-name" style="color:var(--amber);">↻ Activar <code style="font-size:11px;background:var(--amber-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_90</code></div>
-            <div class="tog-desc">Lee texto vertical rotado 90° en el catálogo</div>
+        <div class="slider-wrap">
+          <div class="slider-top"><span class="slider-name">📦 Páginas por lote</span>
+            <span class="spinbox amber" id="spn_lote">
+              <button class="spinbox-btn" onclick="sbStep('lote_paginas',-10)">−</button>
+              <input class="spinbox-input" id="si_lote" type="number" step="10" value="50" onchange="sbSet('lote_paginas',this.value)"/>
+              <button class="spinbox-btn" onclick="sbStep('lote_paginas',10)">+</button>
+            </span>
           </div>
-          <label class="sw amber"><input type="checkbox" id="ocr_rotacion_90" oninput="upd()"/><span class="sw-track"></span></label>
-        </div>
-        <div class="tog" id="tog-rot270" style="border-color:var(--amber-l);background:var(--amber-bg);">
-          <div class="tog-info">
-            <div class="tog-name" style="color:var(--amber);">↺ Activar <code style="font-size:11px;background:var(--amber-bg);padding:1px 5px;border-radius:4px;">ocr_rotacion_270</code></div>
-            <div class="tog-desc">Lee texto vertical rotado 270° en el catálogo</div>
-          </div>
-          <label class="sw amber"><input type="checkbox" id="ocr_rotacion_270" oninput="upd()"/><span class="sw-track"></span></label>
+          <input type="range" class="r-amber" id="lote_paginas" min="10" max="200" step="10" value="50" oninput="upd()"/>
+          <div class="slider-hint">Reduce consumo de RAM en catálogos grandes · Default: 50</div>
         </div>
       </div>
     </div>
@@ -1086,7 +1082,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         <span class="adv-icon">⚙️</span>
         <div>
           <div style="font-size:13px;">Configuración avanzada</div>
-          <div style="font-size:11px;font-weight:500;color:var(--ink-l);margin-top:1px;">contraste · nitidez · invertir · fuzzy · escala de grises · rango de dígitos</div>
+          <div style="font-size:11px;font-weight:500;color:var(--ink-l);margin-top:1px;">contraste · nitidez · invertir · escala de grises · rango de dígitos</div>
         </div>
       </div>
       <div class="adv-chevron">▼</div>
@@ -1140,32 +1136,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-head">
-          <div class="card-icon">🎯</div>
-          <div><div class="card-title">Corrección automática de IDs (Fuzzy)</div><div class="card-sub">Recupera IDs con pequeños errores de lectura</div></div>
-        </div>
-        <div class="card-body">
-          <div class="tog">
-            <div class="tog-info">
-              <div class="tog-name">Activar fuzzy</div>
-              <div class="tog-desc">⚠️ Un precio incorrecto es peor que uno faltante — revisar siempre el PDF si está activo</div>
-            </div>
-            <label class="sw"><input type="checkbox" id="fuzzy_activo" oninput="upd()"/><span class="sw-track"></span></label>
-          </div>
-          <div class="slider-wrap">
-            <div class="slider-top"><span class="slider-name">Tolerancia</span>
-              <span class="spinbox violet" id="spn_fuzzy">
-                <button class="spinbox-btn" onclick="sbStep('fuzzy_umbral',-1)">−</button>
-                <input class="spinbox-input" id="si_fuzzy" type="number" step="1" value="80" onchange="sbSet('fuzzy_umbral',this.value)"/>
-                <button class="spinbox-btn" onclick="sbStep('fuzzy_umbral',1)">+</button>
-              </span>
-            </div>
-            <input type="range" class="r-violet" id="fuzzy_umbral" min="60" max="99" step="1" value="80" oninput="upd()"/>
-            <div class="slider-hint">80–85% es seguro · más bajo = más recupera pero más riesgo</div>
-          </div>
-        </div>
-      </div>
+
       <div class="card">
         <div class="card-head">
           <div class="card-icon">🔢</div>
@@ -1317,11 +1288,10 @@ const DEFAULTS = {
   pdf_input_name:'catalogo_temp.pdf', excel_input_name:'lista_catalogo.xlsx', pdf_output_name:'catalogo_precios.pdf',
   dpi:200, psm:6, contraste:2.5, nitidez:2.0,
   ocr_grayscale:true, ocr_invertir:false, ocr_doble_pasada:false,
-  ocr_rotacion_90:false, ocr_rotacion_270:false,
-  id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8, fuzzy_activo:false, fuzzy_umbral:80,
+  id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8,
   etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
-  prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0,
+  prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0, lote_paginas:50,
   portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
@@ -1434,7 +1404,6 @@ function upd() {
   // dpi y psm son <select> — no necesitan sync
   sync('contraste',            'si_contra', 1);
   sync('nitidez',              'si_nitid',  1);
-  sync('fuzzy_umbral',         'si_fuzzy',  0);
   // paginas_prueba syncs handled in prueba block above
 
   // Color preview
@@ -1458,6 +1427,7 @@ function upd() {
   // Sync spinboxes <- sliders ya validados
   sync('paginas_prueba_ini', 'si_prueba_ini', 0);
   sync('paginas_prueba',     'si_prueba',     0);
+  sync('lote_paginas', 'si_lote', 0);
 
   // Toggle styling
   $('tog-prueba').className = 'tog' + (pruebaOn ? ' active-rose' : '');
@@ -1589,14 +1559,11 @@ function buildCfgStr() {
   const dpi     = parseInt(sv('dpi'));
   const psm     = parseInt(sv('psm'));
   const doble   = bv('ocr_doble_pasada');
-  const rot90   = bv('ocr_rotacion_90');
-  const rot270  = bv('ocr_rotacion_270');
+  const lote    = parseInt(fv('lote_paginas'));
   const contra  = +fv('contraste').toFixed(1);
   const nitid   = +fv('nitidez').toFixed(1);
   const gray    = bv('ocr_grayscale');
   const invert  = bv('ocr_invertir');
-  const fuz_a   = bv('fuzzy_activo');
-  const fuz_u   = parseInt(fv('fuzzy_umbral'));
 
   // paginas_prueba: si está activo, es número simple o rango según ini
   const paginasVal = pruebaOn
@@ -1610,9 +1577,7 @@ function buildCfgStr() {
     "id_proveedor": ${v(id_prov)},
     
     "paginas_prueba": ${typeof paginasVal === 'number' ? paginasVal : paginasVal === false ? 'false' : paginasVal},
-    
-    "ocr_rotacion_90":  ${rot90},
-    "ocr_rotacion_270": ${rot270},
+    "lote_paginas": ${lote},
     
     "pdf_input":   ${v(pdf_in)},
     "excel_input": ${v(xls_in)},
@@ -1652,9 +1617,7 @@ function buildCfgStr() {
     "nitidez":       ${nitid.toFixed(1)},
     
     "ocr_grayscale": ${gray},
-    "ocr_invertir":  ${invert},
-    "fuzzy_activo": ${fuz_a},
-    "fuzzy_umbral": ${fuz_u}
+    "ocr_invertir":  ${invert}
 }`;
 }
 
@@ -1677,13 +1640,12 @@ function resetear() {
   $('dpi').value=DEFAULTS.dpi;
   $('psm').value=DEFAULTS.psm;
   $('logo_filename').value=DEFAULTS.logo_filename;
-  ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','fuzzy_umbral',
+  ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','lote_paginas',
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba','paginas_prueba_ini',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
   ].forEach(id => $(id).value = DEFAULTS[id]);
   $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale; $('ocr_invertir').checked=DEFAULTS.ocr_invertir;
-  $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada; $('fuzzy_activo').checked=DEFAULTS.fuzzy_activo;
-  $('ocr_rotacion_90').checked=DEFAULTS.ocr_rotacion_90; $('ocr_rotacion_270').checked=DEFAULTS.ocr_rotacion_270;
+  $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada;
   $('logo_activo').checked=DEFAULTS.logo_activo; $('prueba_activa').checked=DEFAULTS.prueba_activa;
   if($('portadas_activas')){$('portadas_activas').checked=DEFAULTS.portadas_activas;[1,2,3,4,5].forEach(n=>{$('p'+n+'_activa').checked=DEFAULTS['p'+n+'_activa'];$('p'+n+'_pos').value=DEFAULTS['p'+n+'_pos'];$('si_p'+n).value=DEFAULTS['p'+n+'_pos'];});}
   upd();
