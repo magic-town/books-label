@@ -4,6 +4,8 @@
 
     "proveedor":       "PS",
 
+    "marcar_importados": false,
+
     "catalogo":        "Confort",
     "temporada":       "Otoño-Invierno 2026",
 

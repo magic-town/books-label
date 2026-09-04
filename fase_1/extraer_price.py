@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extraer_lista_price.py — Extractor de lista de precios: Price Shoes
+extraer_price.py — Extractor de lista de precios: Price Shoes
 Boutique Zepeda · books-label · Fase 1
+Soporta catálogo Nacional/Confort e Importados mediante el flag
+`marcar_importados` en el JSON de configuración (ver TABLA_INCREMENTOS
+y TABLA_INCREMENTOS_IMPORTADOS más abajo).
 
 Especificaciones OCR
 ─────────────────────────────────────────────────────────────────
@@ -46,6 +49,13 @@ Formato precio PS México:
 ─────────────────────────────────────────────────────────────────
 Uso:
     python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
+
+Selección de tabla de incrementos:
+    El JSON de configuración acepta la clave booleana
+    `marcar_importados`. Si es `true`, se usa TABLA_INCREMENTOS_IMPORTADOS;
+    si es `false` o no está presente, se usa TABLA_INCREMENTOS (catálogo
+    Nacional/Confort). Es la única diferencia funcional entre ambos
+    catálogos.
 
 Dependencias:
     pdfplumber, pandas, openpyxl
@@ -125,6 +135,8 @@ COLUMNAS_MULTILINEA = {"marca"}
 #   precio_venta    = round10(claves * (1 + pct_precio_venta))
 #
 # Cada tupla: (desde, hasta, pct_contado_completo, pct_contado_al_recibir, pct_precio_venta)
+#
+# Catálogo Nacional / Confort (default, marcar_importados=false)
 TABLA_INCREMENTOS = [
     (0,    199,  0.60, 0.64, 0.67),
     (200,  399,  0.60, 0.64, 0.67),
@@ -139,6 +151,32 @@ TABLA_INCREMENTOS = [
     (2000, 2999, 0.35, 0.45, 0.65),
     (3000, 6200, 0.35, 0.38, 0.65),
 ]
+
+# Catálogo Importados (marcar_importados=true)
+TABLA_INCREMENTOS_IMPORTADOS = [
+    (0,    199,  0.42, 0.50, 0.68),
+    (200,  399,  0.36, 0.42, 0.68),
+    (400,  599,  0.40, 0.46, 0.70),
+    (600,  799,  0.39, 0.46, 0.72),
+    (800,  999,  0.35, 0.44, 0.70),
+    (1000, 1199, 0.34, 0.44, 0.63),
+    (1200, 1399, 0.33, 0.44, 0.63),
+    (1400, 1599, 0.32, 0.42, 0.62),
+    (1600, 1799, 0.30, 0.45, 0.60),
+    (1800, 1999, 0.31, 0.45, 0.60),
+    (2000, 2199, 0.32, 0.44, 0.60),
+    (2200, 2399, 0.33, 0.42, 0.60),
+    (2400, 5700, 0.33, 0.42, 0.64),
+]
+
+
+def _seleccionar_tabla_incrementos(config: dict) -> list:
+    """Elige TABLA_INCREMENTOS o TABLA_INCREMENTOS_IMPORTADOS según el
+    flag booleano `marcar_importados` del JSON de configuración.
+    Default: False → catálogo Nacional/Confort."""
+    if config.get("marcar_importados", False):
+        return TABLA_INCREMENTOS_IMPORTADOS
+    return TABLA_INCREMENTOS
 
 
 def _round_excel(value: float, digits: int) -> float:
@@ -587,15 +625,19 @@ def _estilizar_encabezado(ws):
             cell.alignment = Alignment(horizontal="right")
 
 
-def _calcular_derivados(record) -> dict:
+def _calcular_derivados(record, tabla_incrementos: list = TABLA_INCREMENTOS) -> dict:
     """Calcula contado_antes, contado_despues y precio_venta a partir de
     `claves` (variable privada, no vive en el spreadsheet), buscando en
-    TABLA_INCREMENTOS el tramo [desde, hasta] que contiene a `claves` y
+    `tabla_incrementos` el tramo [desde, hasta] que contiene a `claves` y
     aplicando el porcentaje correspondiente:
 
         contado_antes   = round10(claves * (1 + %contado_completo))
         contado_despues = round10(claves * (1 + %contado_al_recibir))
         precio_venta    = round10(claves * (1 + %precio_venta))
+
+    `tabla_incrementos` se elige según `marcar_importados` en el config
+    (ver `_seleccionar_tabla_incrementos`): TABLA_INCREMENTOS (Nacional/
+    Confort) o TABLA_INCREMENTOS_IMPORTADOS.
 
     `precio_base` ya no existe: se eliminó del cálculo y del output.
     """
@@ -605,7 +647,7 @@ def _calcular_derivados(record) -> dict:
     except (TypeError, ValueError):
         return {"contado_antes": None, "contado_despues": None, "precio_venta": None}
 
-    fila_pct = _buscar_fila_incrementos(claves_num, TABLA_INCREMENTOS)
+    fila_pct = _buscar_fila_incrementos(claves_num, tabla_incrementos)
     if fila_pct is None:
         return {"contado_antes": None, "contado_despues": None, "precio_venta": None}
 
@@ -637,11 +679,13 @@ def escribir_tabla_price(
     wb = _abrir_o_crear_xlsx(SALIDA_PRICE_PATH)
     ws = _obtener_o_crear_pestaña(wb, proveedor, COLUMNAS_STD)
 
+    tabla_incrementos = _seleccionar_tabla_incrementos(config)
+
     nuevos = 0
     for record in df.itertuples(index=False):
         # `claves` es privada del programa: se usa como base de cálculo
         # pero NUNCA se escribe en tabla_price.xlsx (ni siquiera oculta).
-        d = _calcular_derivados(record)
+        d = _calcular_derivados(record, tabla_incrementos)
 
         ws.append([
             record.id, catalogo, temporada, record.pag,
@@ -680,6 +724,9 @@ class ProcesadorPrice:
         self.logger.info(f"📄 PDF de entrada:  {self.pdf_path}")
         self.logger.info(f"🛢️  Salida:          {SALIDA_PRICE_PATH}")
         self.logger.info(f"📅 Temporada:       {config.get('temporada', '')}")
+        self.logger.info(
+            f"📦 Catálogo:        {'Importados' if config.get('marcar_importados', False) else 'Nacional/Confort'}"
+        )
 
     def ejecutar(self):
         if not os.path.isfile(self.pdf_path):
@@ -744,9 +791,11 @@ class ProcesadorPrice:
         ws2 = wb2.active
         ws2.title = "Precios"
 
+        tabla_incrementos = _seleccionar_tabla_incrementos(self.config)
+
         ws2.append(["ID", "precio_venta"])
         for record in df.itertuples(index=False):
-            d = _calcular_derivados(record)
+            d = _calcular_derivados(record, tabla_incrementos)
             ws2.append([record.id, d["precio_venta"]])
 
         wb2.save(fase2_path)
