@@ -35,8 +35,8 @@
     "id_longitud_min": 4,
     "id_longitud_max": 8,
     
-    "dpi": 200,
-    "psm": 6,
+    "dpi": 250,
+    "psm": 4,
     
     "ocr_doble_pasada": false,
     
