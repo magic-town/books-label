@@ -96,51 +96,10 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Config JSON FASE 1
 
-Usamos un solo 🗒️ fichero `config_proveedor.json` por proveedor: `PS`, `Pakar`, `Cklass`.
+- [] Elege el fichero JSON correspondiete:`config_pakar.json`, `config_price.json`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/fase_1.png"
-     alt="Boutique Zepeda — Taller de Etiquetado"
-     width="85%"/>
-</div>
-
-**Uso del panel en el directorio (Opcional)**: 
-
-```
-~/books-label/fase_1/config/panel_extraer_campos.html
-```
-
-tu decides si usarlo.
-
-- [ ] Doble click 🖱️ para abrir en `panel_extraer_campos.html`
-
-<div align="center">
-<img src="../imagenes/asset_repo/panel_extractor.png"
-     alt="Boutique Zepeda — Taller de Etiquetado"
-     width="95%"/>
-</div>
-
-- [ ] LLenamos los campos:
-
-  + `Proveedor` : Price Shoes, Pakar, Cklass, Otro
-  + `Catalogo`: Ella, Kids, Urbano, Tomo_1, ...
-  + `Temporada` PV26. OI26, 2026, 26-27, Ofertas, ...
-  + `PDF Entrada`: <lista_catalogo_temp>.pdf
-  + `OUTPUT EXCEL`: <lista_catalogo_temp>.xlsx 
-  + `tolerancia_col_X`: Dejamos la que tiene por defecto
-  + `desviacion_alarma`: 0.5, 1.0, 1.5, 2.0
-
-- [ ] 🖱️ Damos click  en `COPY JSON`
-- [ ] Pegamos la configuración JSON en el fichero correspondiente: 
-
-     - `fase_1/config_price.json` 
-     - `fase_1/config_pakar.json`
-
-> En el caso de Cklass para la temporada OV26 se extrae manualmente 
-> desde los ficheros `xlsx`
-
-<div align="center">
-<img src="../imagenes/asset_repo/config_fase_1.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>

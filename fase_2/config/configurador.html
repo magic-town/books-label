@@ -200,9 +200,50 @@ header::after{
 .portada-pos-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#9B72B8;}
 .sw.violet input:checked + .sw-track{background:#9B72B8;}
 .tog.active-violet{background:#F7F0FC;border-color:#DFC8EC;}
+/* ── Selector de combo de portadas ── */
+.combo-selector{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.combo-btn{
+  font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;
+  letter-spacing:0.06em;text-transform:uppercase;
+  padding:0.55rem 0.5rem;border-radius:var(--r-sm);
+  border:2px solid transparent;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:all .18s;line-height:1.2;text-align:center;
+  background:var(--white);
+}
+.combo-btn .cb-name{font-size:12px;font-weight:800;}
+.combo-btn .cb-range{font-size:9px;font-weight:600;opacity:0.7;letter-spacing:0.04em;}
+.combo-btn.cb-price{border-color:#E8839A;color:#C45A74;}
+.combo-btn.cb-price:hover,.combo-btn.cb-price.cb-sel{background:linear-gradient(135deg,#FEF0F3,#F5C4CF);border-color:#C45A74;color:#8B2840;box-shadow:0 2px 8px rgba(232,131,154,0.25);}
+.combo-btn.cb-pakar{border-color:#5B9FBF;color:#2E6E8A;}
+.combo-btn.cb-pakar:hover,.combo-btn.cb-pakar.cb-sel{background:linear-gradient(135deg,#EEF6FB,#B8D8EA);border-color:#2E6E8A;color:#1A4A5E;box-shadow:0 2px 8px rgba(91,159,191,0.25);}
+.combo-btn.cb-cklass{border-color:#7BAF8A;color:#3A7A50;}
+.combo-btn.cb-cklass:hover,.combo-btn.cb-cklass.cb-sel{background:linear-gradient(135deg,#F0F7F2,#C2DBC9);border-color:#3A7A50;color:#1E5435;box-shadow:0 2px 8px rgba(123,175,138,0.25);}
+.combo-btn.cb-mixto{border-color:#D4A340;color:#8A6000;}
+.combo-btn.cb-mixto:hover,.combo-btn.cb-mixto.cb-sel{background:linear-gradient(135deg,#FEFBEE,#F0DCA0);border-color:#8A6000;color:#5A3D00;box-shadow:0 2px 8px rgba(212,163,64,0.25);}
+.combo-info{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.75rem;border-radius:8px;font-size:11px;font-weight:700;background:rgba(155,114,184,0.08);border:1px dashed #C8A8D8;color:#7B52A8;}
 .c-doble   .card-head{background:linear-gradient(135deg,#F2A0B4,#F5C4CF);border-bottom:2px solid #E8839A;}
 .c-doble   .card-icon{background:#E8839A;}
 .c-doble   .card-body{background:#FEF0F3;}
+
+/* ── Selector de tamaño de fuente (radio cards) ── */
+.fs-option-card{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.6rem 0.85rem;border-radius:var(--r-sm);
+  border:2px solid var(--terra-l);background:var(--white);
+  cursor:pointer;transition:all .18s;
+  color:var(--ink-m);
+}
+.fs-option-card:hover{background:var(--terra-bg);border-color:var(--terra);}
+.fs-option-card.fs-sel{background:var(--terra-bg);border-color:var(--terra);color:var(--terra);}
+.fs-radio-dot{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--terra-l);background:var(--white);
+  transition:all .18s;
+}
+.fs-option-card.fs-sel .fs-radio-dot{background:var(--terra);border-color:var(--terra);box-shadow:0 0 0 3px rgba(194,113,79,0.18);}
+.fs-option-name{font-size:12px;font-weight:800;line-height:1.2;}
+.fs-option-hint{font-size:10px;font-weight:600;opacity:0.65;margin-top:1px;}
 
 /* ══════════════════════════════════════════
    INPUTS DE TEXTO
@@ -757,12 +798,44 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <div class="tog-name">Activar páginas insertadas</div>
             <div class="tog-desc">Desactivado → todas se exportan como false en el JSON</div>
           </div>
-          <label class="sw violet"><input type="checkbox" id="portadas_activas" oninput="upd()"/><span class="sw-track"></span></label>
+          <label class="sw violet"><input type="checkbox" id="portadas_activas" oninput="upd()" checked/><span class="sw-track"></span></label>
         </div>
+
+        <!-- ── Selector de combo ── -->
+        <div id="portadas-combo-wrap">
+          <div style="margin-bottom:0.6rem;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#9B72B8;">Colección de portadas</div>
+            <div style="font-size:11px;font-weight:700;color:#C45A74;margin-top:3px;">⚠️ Confirma la publicidad del proveedor <em style="font-style:normal;font-weight:800;">(obligatorio)</em></div>
+          </div>
+          <div class="combo-selector">
+            <button type="button" class="combo-btn cb-price cb-sel" id="cb-price" onclick="selectCombo('price')">
+              <span class="cb-name">🌸 Price</span>
+              <span class="cb-range">portada_01 – portada_05</span>
+            </button>
+            <button type="button" class="combo-btn cb-pakar" id="cb-pakar" onclick="selectCombo('pakar')">
+              <span class="cb-name">💙 Pakar</span>
+              <span class="cb-range">portada_06 – portada_10</span>
+            </button>
+            <button type="button" class="combo-btn cb-cklass" id="cb-cklass" onclick="selectCombo('cklass')">
+              <span class="cb-name">🌿 Cklass</span>
+              <span class="cb-range">portada_11 – portada_15</span>
+            </button>
+            <button type="button" class="combo-btn cb-mixto" id="cb-mixto" onclick="selectCombo('mixto')">
+              <span class="cb-name">✨ Mixto</span>
+              <span class="cb-range">portada_16 – portada_20</span>
+            </button>
+          </div>
+          <div class="combo-info" id="combo-info-label" style="margin-top:0.5rem;">
+            <span>📂</span><span id="combo-info-txt">Combo Price — portadas 01 a 05</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#9B72B8;margin-top:0.75rem;opacity:0.85;">📍 Posición de las portadas <em style="font-style:normal;opacity:0.7;">(opcional)</em></div>
+        </div>
+
+        <!-- ── Filas de portadas (etiquetas y posiciones, dinámicas) ── -->
         <div id="portadas-body">
           <div class="portada-row row-inactive" id="row-p1">
-            <span class="portada-badge">01</span>
-            <span class="portada-label">portada_01.pdf</span>
+            <span class="portada-badge" id="badge-p1">01</span>
+            <span class="portada-label" id="label-p1">portada_01.pdf</span>
             <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p1_activa" oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
@@ -775,8 +848,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
           <div class="portada-row row-inactive" id="row-p2">
-            <span class="portada-badge">02</span>
-            <span class="portada-label">portada_02.pdf</span>
+            <span class="portada-badge" id="badge-p2">02</span>
+            <span class="portada-label" id="label-p2">portada_02.pdf</span>
             <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p2_activa" oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
@@ -789,8 +862,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
           <div class="portada-row row-inactive" id="row-p3">
-            <span class="portada-badge">03</span>
-            <span class="portada-label">portada_03.pdf</span>
+            <span class="portada-badge" id="badge-p3">03</span>
+            <span class="portada-label" id="label-p3">portada_03.pdf</span>
             <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p3_activa" oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
@@ -803,8 +876,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
           <div class="portada-row row-inactive" id="row-p4">
-            <span class="portada-badge">04</span>
-            <span class="portada-label">portada_04.pdf</span>
+            <span class="portada-badge" id="badge-p4">04</span>
+            <span class="portada-label" id="label-p4">portada_04.pdf</span>
             <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p4_activa" oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
@@ -817,8 +890,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
           <div class="portada-row row-inactive" id="row-p5">
-            <span class="portada-badge">05</span>
-            <span class="portada-label">portada_05.pdf</span>
+            <span class="portada-badge" id="badge-p5">05</span>
+            <span class="portada-label" id="label-p5">portada_05.pdf</span>
             <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p5_activa" oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
@@ -959,15 +1032,39 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             <option value="Times-BoldItalic">Times Bold Italic — elegante, serif cursiva</option>
           </select>
         </div>
-        <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">📐 Tamaño de fuente</span>
-            <span class="spinbox" id="spn_fs">
-              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',-1)">−</button>
-              <input class="spinbox-input" id="si_fs" type="number" step="1" value="12" onchange="sbSet('etiqueta_font_size',this.value)"/>
-              <button class="spinbox-btn" onclick="sbStep('etiqueta_font_size',1)">+</button>
+        <!-- ── Selector de tamaño de fuente ── -->
+        <div style="display:flex;flex-direction:column;gap:0.45rem;">
+          <div class="field-label">📐 Tamaño de fuente</div>
+          <!-- Opción: ID grandes -->
+          <label class="fs-option-card" id="fsc-grande" onclick="selFontSize('grande')">
+            <span class="fs-radio-dot" id="fsd-grande"></span>
+            <div style="flex:1;">
+              <div class="fs-option-name">ID grandes</div>
+              <div class="fs-option-hint">Catálogos con IDs visibles y espaciados</div>
+            </div>
+            <span class="spinbox" id="spn_fs_grande" onclick="event.stopPropagation()">
+              <button class="spinbox-btn" onclick="sbFontStep('grande',-1)">−</button>
+              <input class="spinbox-input" id="si_fs_grande" type="number" step="1" min="7" max="28" value="12" onchange="sbFontSet('grande',this.value)"/>
+              <button class="spinbox-btn" onclick="sbFontStep('grande',1)">+</button>
             </span>
-          </div>
-          <input type="range" class="r-terra" id="etiqueta_font_size" min="7" max="18" step="1" value="12" oninput="upd()"/>
+            <span style="font-size:10px;font-weight:700;color:inherit;opacity:0.6;">pt</span>
+          </label>
+          <!-- Opción: ID pequeños -->
+          <label class="fs-option-card" id="fsc-pequeno" onclick="selFontSize('pequeno')">
+            <span class="fs-radio-dot" id="fsd-pequeno"></span>
+            <div style="flex:1;">
+              <div class="fs-option-name">ID pequeños</div>
+              <div class="fs-option-hint">Catálogos con IDs compactos o apilados</div>
+            </div>
+            <span class="spinbox" id="spn_fs_pequeno" onclick="event.stopPropagation()">
+              <button class="spinbox-btn" onclick="sbFontStep('pequeno',-1)">−</button>
+              <input class="spinbox-input" id="si_fs_pequeno" type="number" step="1" min="7" max="28" value="8" onchange="sbFontSet('pequeno',this.value)"/>
+              <button class="spinbox-btn" onclick="sbFontStep('pequeno',1)">+</button>
+            </span>
+            <span style="font-size:10px;font-weight:700;color:inherit;opacity:0.6;">pt</span>
+          </label>
+          <!-- hidden que alimenta el resto del sistema -->
+          <input type="hidden" id="etiqueta_font_size" value="12"/>
         </div>
         <div class="sec-divider"></div>
         <div class="color-row">
@@ -1277,10 +1374,10 @@ const DEFAULTS = {
   dpi:200, psm:6, contraste:2.5, nitidez:2.0,
   ocr_grayscale:true, ocr_invertir:false, ocr_doble_pasada:false,
   id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8,
-  etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.00, cg:0.00, cb:1.00,
+  etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, fs_modo:'grande', fs_grande:12, fs_pequeno:8, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
   prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0,
-  portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
+  portadas_activas:true, combo_portadas:'price', p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
 };
@@ -1318,6 +1415,38 @@ function onProveedorChange() {
 
 
 // ── Portadas helpers ─────────────────────────────────────────────────────────
+
+// Mapa de combos: cada combo define los 5 archivos (numeración fija)
+const COMBOS = {
+  price:  { label:'Combo Price',  files:['portada_01','portada_02','portada_03','portada_04','portada_05'], nums:['01','02','03','04','05'] },
+  pakar:  { label:'Combo Pakar',  files:['portada_06','portada_07','portada_08','portada_09','portada_10'], nums:['06','07','08','09','10'] },
+  cklass: { label:'Combo Cklass', files:['portada_11','portada_12','portada_13','portada_14','portada_15'], nums:['11','12','13','14','15'] },
+  mixto:  { label:'Combo Mixto',  files:['portada_16','portada_17','portada_18','portada_19','portada_20'], nums:['16','17','18','19','20'] },
+};
+let activeCombo = 'price';
+
+function selectCombo(key) {
+  activeCombo = key;
+  // Actualizar botones
+  ['price','pakar','cklass','mixto'].forEach(k => {
+    const btn = $('cb-'+k);
+    if (btn) btn.classList.toggle('cb-sel', k === key);
+  });
+  // Actualizar etiquetas de filas
+  const combo = COMBOS[key];
+  [1,2,3,4,5].forEach((n,i) => {
+    const badge = $('badge-p'+n), label = $('label-p'+n);
+    if (badge) badge.textContent = combo.nums[i];
+    if (label) label.textContent = combo.files[i] + '.pdf';
+  });
+  // Actualizar info label
+  const infoTxt = $('combo-info-txt');
+  const ranges = { price:'01 a 05', pakar:'06 a 10', cklass:'11 a 15', mixto:'16 a 20' };
+  const names  = { price:'🌸 Price', pakar:'💙 Pakar', cklass:'🌿 Cklass', mixto:'✨ Mixto' };
+  if (infoTxt) infoTxt.textContent = (names[key]||key) + ' — portadas ' + (ranges[key]||'');
+  upd();
+}
+
 function sbStepP(hiddenId, delta) {
   const h = $(hiddenId); h.value = (parseInt(h.value)||1) + delta;
   const n = hiddenId.replace('_pos','').replace('p','');
@@ -1331,8 +1460,11 @@ function sbSetP(hiddenId, val) {
 function updPortadas() {
   const masterOn = bv('portadas_activas');
   $('tog-portadas').className = 'tog' + (masterOn ? ' active-violet' : '');
-  $('portadas-body').style.opacity = masterOn ? '1' : '0.35';
-  $('portadas-body').style.pointerEvents = masterOn ? 'auto' : 'none';
+  // El bloque de combo siempre visible (no depende del masterOn para la selección)
+  const portadasBody = $('portadas-body');
+  const comboWrap    = $('portadas-combo-wrap');
+  if (portadasBody) { portadasBody.style.opacity = masterOn ? '1' : '0.35'; portadasBody.style.pointerEvents = masterOn ? 'auto' : 'none'; }
+  if (comboWrap)    { comboWrap.style.opacity    = masterOn ? '1' : '0.35'; comboWrap.style.pointerEvents    = masterOn ? 'auto' : 'none'; }
   [1,2,3,4,5].forEach(n => {
     const on  = masterOn && bv('p'+n+'_activa');
     const row = $('row-p'+n), spn = $('spn_p'+n);
@@ -1368,6 +1500,41 @@ function sbSet(id, val) {
   upd();
 }
 
+// ── Font size radio helpers ─────────────────────────────────────────────
+let activeFsModo = 'grande'; // 'grande' | 'pequeno'
+
+function selFontSize(modo) {
+  activeFsModo = modo;
+  ['grande','pequeno'].forEach(m => {
+    const card = $('fsc-'+m);
+    const spn  = $('spn_fs_'+m);
+    const dot  = $('fsd-'+m);
+    if (!card) return;
+    const sel = (m === modo);
+    card.classList.toggle('fs-sel', sel);
+    // el spinbox de la opción NO activa queda semi-opaco
+    if (spn) { spn.style.opacity = sel ? '1' : '0.4'; spn.style.pointerEvents = sel ? 'auto' : 'none'; }
+  });
+  // actualizar el hidden que alimenta el JSON y el simulador
+  const siId = 'si_fs_' + modo;
+  const val = parseInt($( siId )?.value) || (modo==='grande' ? 12 : 8);
+  $('etiqueta_font_size').value = val;
+  upd();
+}
+function sbFontStep(modo, delta) {
+  const si = $('si_fs_'+modo);
+  if (!si) return;
+  const cur = parseInt(si.value) || (modo==='grande' ? 12 : 8);
+  si.value = Math.min(28, Math.max(7, cur + delta));
+  if (activeFsModo === modo) { $('etiqueta_font_size').value = si.value; upd(); }
+}
+function sbFontSet(modo, val) {
+  const si = $('si_fs_'+modo);
+  if (!si) return;
+  si.value = Math.min(28, Math.max(7, parseInt(val)||7));
+  if (activeFsModo === modo) { $('etiqueta_font_size').value = si.value; upd(); }
+}
+
 // ── Update ──────────────────────────────────────────────────────────────────
 function upd() {
   // Sincronizar spinbox inputs ← sliders (el slider es la fuente de verdad)
@@ -1378,7 +1545,7 @@ function upd() {
   };
   sync('etiqueta_offset_x_pt', 'si_ox',     2);
   sync('etiqueta_offset_y_pt', 'si_oy',     2);
-  sync('etiqueta_font_size',   'si_fs',     0);
+  // etiqueta_font_size lo gestiona selFontSize() — no tiene slider que sincronizar
   sync('cr',                   'si_cr',     2);
   sync('cg',                   'si_cg',     2);
   sync('cb',                   'si_cb',     2);
@@ -1569,11 +1736,11 @@ function buildCfgStr() {
     "pdf_output":  ${v(pdf_out)},
     
     "presentaciones": [
-        {"path": "../imagenes/logos/portada_01.pdf", "posicion": ${v(pPos(1))}},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": ${v(pPos(2))}},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": ${v(pPos(3))}},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": ${v(pPos(4))}},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": ${v(pPos(5))}}
+        {"path": "../imagenes/logos/${COMBOS[activeCombo].files[0]}.pdf", "posicion": ${v(pPos(1))}},
+        {"path": "../imagenes/logos/${COMBOS[activeCombo].files[1]}.pdf", "posicion": ${v(pPos(2))}},
+        {"path": "../imagenes/logos/${COMBOS[activeCombo].files[2]}.pdf", "posicion": ${v(pPos(3))}},
+        {"path": "../imagenes/logos/${COMBOS[activeCombo].files[3]}.pdf", "posicion": ${v(pPos(4))}},
+        {"path": "../imagenes/logos/${COMBOS[activeCombo].files[4]}.pdf", "posicion": ${v(pPos(5))}}
     ],
     
     "logo_activo":        ${logo_a},
@@ -1629,10 +1796,22 @@ function resetear() {
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba','paginas_prueba_ini',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
   ].forEach(id => $(id).value = DEFAULTS[id]);
+  // Resetear radio cards de tamaño de fuente
+  if ($('si_fs_grande'))  $('si_fs_grande').value  = DEFAULTS.fs_grande  || 12;
+  if ($('si_fs_pequeno')) $('si_fs_pequeno').value = DEFAULTS.fs_pequeno || 8;
+  selFontSize(DEFAULTS.fs_modo || 'grande');
   $('ocr_grayscale').checked=DEFAULTS.ocr_grayscale; $('ocr_invertir').checked=DEFAULTS.ocr_invertir;
   $('ocr_doble_pasada').checked=DEFAULTS.ocr_doble_pasada;
   $('logo_activo').checked=DEFAULTS.logo_activo; $('prueba_activa').checked=DEFAULTS.prueba_activa;
-  if($('portadas_activas')){$('portadas_activas').checked=DEFAULTS.portadas_activas;[1,2,3,4,5].forEach(n=>{$('p'+n+'_activa').checked=DEFAULTS['p'+n+'_activa'];$('p'+n+'_pos').value=DEFAULTS['p'+n+'_pos'];$('si_p'+n).value=DEFAULTS['p'+n+'_pos'];});}
+  if($('portadas_activas')){
+    $('portadas_activas').checked=DEFAULTS.portadas_activas;
+    [1,2,3,4,5].forEach(n=>{
+      $('p'+n+'_activa').checked=DEFAULTS['p'+n+'_activa'];
+      $('p'+n+'_pos').value=DEFAULTS['p'+n+'_pos'];
+      $('si_p'+n).value=DEFAULTS['p'+n+'_pos'];
+    });
+    selectCombo(DEFAULTS.combo_portadas||'price');
+  }
   upd();
 }
 
@@ -1646,6 +1825,8 @@ function copiar() {
 
 window.addEventListener('load',()=>{
   onProveedorChange();
+  selectCombo('price');   // inicializar combo y etiquetas de filas
+  selFontSize('grande');  // inicializar radio card de tamaño de fuente
   upd();
   setTimeout(()=>{ $('dragHint').style.opacity='0'; },4000);
   window.addEventListener('resize',updSim);

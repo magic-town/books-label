@@ -27,6 +27,7 @@ import pandas as pd
 import pytesseract
 import re
 import gc
+import shutil
 import subprocess
 
 from pdf2image import convert_from_path
@@ -100,6 +101,20 @@ class EtiquetadorCatalogo:
         # Otro   → alfanumérico (configurable por longitud)
         self.id_proveedor = config.get("id_proveedor", "PS").strip()
 
+        # Parámetros de normalización final (Ghostscript) — NO afectan el
+        # DPI del OCR (self.dpi más abajo), solo el re-render del PDF final.
+        # normalizar_calidad: "ebook" (150dpi, recomendado para Android/lectores
+        #   básicos con fotos de producto), "printer" (300dpi, más pesado),
+        #   "screen" (72dpi, mínima calidad) o "custom" (usa
+        #   normalizar_resolucion_dpi para fijar la resolución exacta).
+        self.normalizar_calidad       = config.get("normalizar_calidad", "ebook")
+        self.normalizar_resolucion_dpi = config.get("normalizar_resolucion_dpi", 150)
+        # Límite de memoria de bitmap para Ghostscript (MB). Fuerza a GS a
+        # procesar por bandas en vez de intentar cachear imágenes completas
+        # en RAM — baja el pico de memoria a costa de un poco de tiempo.
+        self.normalizar_max_bitmap_mb = config.get("normalizar_max_bitmap_mb", 256)
+        self.normalizar_timeout_s     = config.get("normalizar_timeout_s", 600)
+
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
         self.contraste      = config.get("contraste", 2.5)
@@ -134,6 +149,13 @@ class EtiquetadorCatalogo:
         # Páginas de presentación — lista de {path, posicion}
         # posicion: 1=primera, 2=segunda, -1=última, N=posición exacta
         # Se procesan todas en orden antes de guardar el PDF final.
+        #
+        # Combos disponibles (se eligen desde configurador.html → "Colección de portadas"):
+        #   Price  → portada_01.pdf … portada_05.pdf
+        #   Pakar  → portada_06.pdf … portada_10.pdf
+        #   Cklass → portada_11.pdf … portada_15.pdf
+        #   Mixto  → portada_16.pdf … portada_20.pdf
+        # Los archivos deben existir en imagenes/logos/ (tarea del operador).
         raw_pres = config.get("presentaciones", [])
         self.presentaciones = [
             {
@@ -169,28 +191,76 @@ class EtiquetadorCatalogo:
         PyPDF2 puede producir estructuras no estándar que Adobe tolera
         pero otros lectores rechazan. Ghostscript normaliza a PDF 1.4 limpio.
 
+        OPTIMIZACIÓN DE MEMORIA:
+        La versión anterior usaba -dPDFSETTINGS=/default, que NO reduce la
+        resolución de las imágenes — Ghostscript debe descomprimir y volver
+        a comprimir cada foto de producto del catálogo completo tal cual
+        viene incrustada en el PDF original (a veces muy por encima de lo
+        necesario para verse en un teléfono), lo que dispara el pico de RAM
+        justo al final del proceso, sobre el archivo ya ensamblado.
+
+        Aquí se fija explícitamente una resolución de downsampling para
+        imágenes (por defecto ~150dpi vía el preset "ebook", suficiente
+        para catálogos vistos en Android/lectores básicos) y un límite de
+        memoria de bitmap (-dMaxBitmap) que obliga a Ghostscript a procesar
+        por bandas en vez de intentar mantener imágenes completas en RAM.
+        Esto es independiente del self.dpi usado para el OCR (que sigue
+        funcionando igual, valor por defecto 300 vía JSON).
+
         Si Ghostscript no está disponible el PDF original se conserva intacto
         — el proceso no falla, solo avisa.
         """
         tmp = path + ".gs_tmp.pdf"
+
+        # -dMaxBitmap en bytes: por debajo de este umbral, GS intenta
+        # cachear la imagen completa; por encima, la banda automáticamente.
+        max_bitmap_bytes = int(self.normalizar_max_bitmap_mb) * 1024 * 1024
+
+        cmd = [
+            "gs",
+            "-dBATCH", "-dNOPAUSE", "-dQUIET",
+            "-sDEVICE=pdfwrite",
+            "-dCompatibilityLevel=1.4",
+            "-dEmbedAllFonts=true",
+            "-dSubsetFonts=true",
+            "-dDetectDuplicateImages=true",   # evita recomprimir el mismo logo/imagen repetida
+            f"-dMaxBitmap={max_bitmap_bytes}",
+        ]
+
+        if self.normalizar_calidad == "custom":
+            # Control fino: se fija la resolución exacta en vez de un preset.
+            res = int(self.normalizar_resolucion_dpi)
+            cmd += [
+                "-dPDFSETTINGS=/printer",   # base razonable, se sobreescribe abajo
+                "-dDownsampleColorImages=true",
+                "-dDownsampleGrayImages=true",
+                "-dDownsampleMonoImages=true",
+                "-dColorImageDownsampleType=/Bicubic",
+                "-dGrayImageDownsampleType=/Bicubic",
+                f"-dColorImageResolution={res}",
+                f"-dGrayImageResolution={res}",
+                f"-dMonoImageResolution={res}",
+            ]
+        else:
+            # Presets estándar de Ghostscript: screen(72) / ebook(150) / printer(300)
+            preset = self.normalizar_calidad if self.normalizar_calidad in (
+                "screen", "ebook", "printer", "prepress"
+            ) else "ebook"
+            cmd.append(f"-dPDFSETTINGS=/{preset}")
+
+        cmd += [f"-sOutputFile={tmp}", path]
+
         try:
             result = subprocess.run(
-                [
-                    "gs",
-                    "-dBATCH", "-dNOPAUSE", "-dQUIET",
-                    "-sDEVICE=pdfwrite",
-                    "-dCompatibilityLevel=1.4",
-                    "-dPDFSETTINGS=/default",
-                    "-dEmbedAllFonts=true",
-                    "-dSubsetFonts=true",
-                    f"-sOutputFile={tmp}",
-                    path
-                ],
-                capture_output=True, text=True, timeout=300
+                cmd,
+                capture_output=True, text=True, timeout=self.normalizar_timeout_s
             )
             if result.returncode == 0 and os.path.exists(tmp):
                 shutil.move(tmp, path)
-                self.logger.info("  ✅  PDF normalizado con Ghostscript — compatible con todos los dispositivos")
+                self.logger.info(
+                    f"  ✅  PDF normalizado con Ghostscript "
+                    f"(calidad={self.normalizar_calidad}) — compatible con todos los dispositivos"
+                )
             else:
                 if os.path.exists(tmp):
                     os.remove(tmp)
@@ -838,6 +908,7 @@ class EtiquetadorCatalogo:
                     "-sDEVICE=pdfwrite",
                     "-dCompatibilityLevel=1.4",
                     "-dPrinted=false",
+                    f"-dMaxBitmap={int(self.normalizar_max_bitmap_mb) * 1024 * 1024}",
                     f"-sOutputFile={tmp_path}",
                     pdf_path
                 ],

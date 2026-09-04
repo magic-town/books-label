@@ -4,18 +4,18 @@
     
     "id_proveedor": "Pakar",
     
-    "paginas_prueba": 21,
+    "paginas_prueba": false,
     
     "pdf_input":   "libros/men1_oi26_rgb.pdf",
     "excel_input": "precios/lista_men1_oi26.xlsx",
     "pdf_output":  "salidas/men1_oi26_precios.pdf",
     
     "presentaciones": [
-        {"path": "../imagenes/logos/portada_01.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
-        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+        {"path": "../imagenes/logos/portada_06.pdf", "posicion": 2},
+        {"path": "../imagenes/logos/portada_07.pdf", "posicion": 3},
+        {"path": "../imagenes/logos/portada_08.pdf", "posicion": 4},
+        {"path": "../imagenes/logos/portada_09.pdf", "posicion": 5},
+        {"path": "../imagenes/logos/portada_10.pdf", "posicion": -1}
     ],
     
     "logo_activo":        true,
@@ -37,8 +37,8 @@
     
     "dpi": 250,
     "psm": 4,
-    
-    "ocr_doble_pasada": false,
+
+    "ocr_doble_pasada": true,
     
     "contraste":     2.5,
     "nitidez":       2.0,
