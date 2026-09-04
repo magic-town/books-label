@@ -96,7 +96,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Config JSON FASE 1
 
-- [] Elege el fichero JSON correspondiete:`config_pakar.json`, `config_price.json`.
+- [ ] Elege el fichero JSON correspondiete:`config_pakar.json`, `config_price.json`.
 
 <div align="center">
 <img src="../imagenes/asset_repo/fase_1.png"
@@ -104,7 +104,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
      width="85%"/>
 </div>
 
-- [ ] Si quieres editar el fichero `fase_1/<config_proveedor>.json` directamente (sin el panel) sientente con la libertad de hacerlo, el panel es un auxiliar, no influye en el proceso. 
+- [ ] Captura los parámetros en `fase_1/<config_proveedor>.json`: `catalogo`, `temporada`, `input`, `output`
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
@@ -127,7 +127,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Ejecuta el programa de extracción de precios
 
-- [ ] Ejecuta el fichero 🐍 `extracter_<proveedor>.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
+- [ ] Corre el fichero 🐍 `extract_<proveedor>.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
 
 **🔵 Price Shoes**
 
