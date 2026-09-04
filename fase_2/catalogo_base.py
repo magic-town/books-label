@@ -28,8 +28,6 @@ import pytesseract
 import re
 import gc
 import subprocess
-import tempfile
-import shutil
 
 from pdf2image import convert_from_path
 from PyPDF2 import PdfReader, PdfWriter
@@ -132,7 +130,6 @@ class EtiquetadorCatalogo:
         self.logo_ancho         = config.get("logo_ancho_pt", 80.0)
         self.logo_alto          = config.get("logo_alto_pt", 40.0)
         self.logo_transparencia = config.get("logo_transparencia", 1.0)
-        self.lote_paginas       = config.get("lote_paginas", 50)
 
         # Páginas de presentación — lista de {path, posicion}
         # posicion: 1=primera, 2=segunda, -1=última, N=posición exacta
@@ -909,194 +906,145 @@ class EtiquetadorCatalogo:
         ids_detectados   = set()
         recorte_matches  = 0  # IDs recuperados por recorte por la derecha
 
+        writer    = PdfWriter()
         ancho_barra = 28
 
-        tmp_dir = tempfile.mkdtemp(prefix="catalogo_lotes_")
-        archivos_lote = []
+        for i in rango_paginas:
+            pct     = (i + 1) / total_paginas
+            bloques = int(pct * ancho_barra)
+            barra_p = "█" * bloques + "░" * (ancho_barra - bloques)
+            print(f"  [{barra_p}] pág {i+1}/{total_paginas}", end="\r", flush=True)
+
+            images = None
+            img_base = None
+
+            try:
+                images = convert_from_path(
+                    self.pdf_path,
+                    first_page=i + 1,
+                    last_page=i + 1,
+                    dpi=self.dpi,
+                    grayscale=True
+                )
+
+                img_base = images[0].convert("L")
+
+                # ── Pasada normal ──────────────────────────────────────────
+                img_normal  = self._mejorar_imagen(img_base.copy())
+                data_normal = self._ocr_tokens(img_normal)
+
+                # ── Pasada invertida (preprocesado suave para fondo oscuro) ──
+                if self.ocr_doble_pasada:
+                    img_inv  = self._mejorar_imagen_invertida(img_base.copy())
+                    data_inv = self._ocr_tokens(img_inv)
+                    data     = self._fusionar_tokens(data_normal, data_inv)
+                else:
+                    data = data_normal
+
+                # Reconstruir tokens fragmentados por Tesseract (aplica a todos los proveedores)
+                # Cubre: "ID"+"12345678" (PS/Otro) y "856"+"954" → "856-954" (Pakar/Cklass)
+                data = self._reconstruir_tokens(data)
+
+                p_orig       = reader_pdf.pages[i]
+                w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
+                w_img, h_img = img_normal.size
+                scale_x      = w_pdf / w_img
+                scale_y      = h_pdf / h_img
+
+                packet = BytesIO()
+                can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
+                can.setFont(self.etiqueta_font, self.etiqueta_font_size)
+                can.setFillColorRGB(*self.etiqueta_color)
+
+                ids_en_pagina       = set()   # candidatos OCR ya probados en esta página
+                catalogo_en_pagina  = set()   # IDs de catálogo ya estampados — evita doble etiqueta
+                                               # cuando la doble pasada lee el mismo ID con variantes distintas
+
+                for j in range(len(data["text"])):
+                    texto = data["text"][j]
+                    if not texto.strip():
+                        continue
+
+                    # Extracción general → particular según proveedor
+                    id_detectado = self._extraer_id_candidato(texto)
+                    if id_detectado is None:
+                        continue
+
+                    if id_detectado in ids_en_pagina:
+                        continue
+
+                    precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
+
+                    if precio and precio > 0:
+                        clave_catalogo = id_match if id_match else id_detectado
+                        if clave_catalogo in catalogo_en_pagina:
+                            # Mismo artículo ya etiquetado — típico cuando la doble
+                            # pasada OCR detecta el mismo ID con una variante distinta
+                            continue
+
+                        x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
+                        y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
+
+                        can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
+                        total_etiquetado += 1
+                        ids_en_pagina.add(id_detectado)
+                        catalogo_en_pagina.add(clave_catalogo)
+                        ids_detectados.add(clave_catalogo)
+                        if tipo_match == "recorte":
+                            recorte_matches += 1
+
+                can.save()
+                packet.seek(0)
+
+                if packet.getbuffer().nbytes > 0:
+                    p_orig.merge_page(PdfReader(packet).pages[0])
+
+                # Logo en portada
+                if i == 0 and self.logo_activo and self.logo_path and os.path.exists(self.logo_path):
+                    capa_logo = self._capa_logo(w_pdf, h_pdf)
+                    p_orig.merge_page(PdfReader(capa_logo).pages[0])
+
+                writer.add_page(p_orig)
+
+            except pytesseract.TesseractNotFoundError:
+                self.logger.error("❌ Tesseract no encontrado.")
+                raise
+            except Exception as e:
+                self.logger.error(f"\n❌ Error en página {i+1}: {e}")
+                writer.add_page(reader_pdf.pages[i])
+
+            finally:
+                del images
+                del img_base
+                gc.collect()
+                # Pausa mínima entre páginas: permite que el scheduler
+                # del SO atienda VSCode y la interfaz gráfica.
+                time.sleep(0.05)
+
+        print(" " * 60, end="\r")
+
+        # ── Insertar páginas de presentación ─────────────────────────────────────
+        if self.presentaciones:
+            self.logger.info("📎 Insertando páginas de presentación...")
+            total_real_pdf   = len(reader_pdf.pages)
+            paginas_catalogo = list(writer.pages)
+            paginas_final    = self._insertar_presentaciones(
+                                   paginas_catalogo, total_real_pdf)
+            writer_final = PdfWriter()
+            for p in paginas_final:
+                writer_final.add_page(p)
+            writer = writer_final
+
+        # Guardar PDF
+        self.logger.info("💾 Guardando PDF final...")
+        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
 
         try:
-            writer = PdfWriter()
-            paginas_en_lote = 0
-
-            for i in rango_paginas:
-                pct     = (i + 1) / total_paginas
-                bloques = int(pct * ancho_barra)
-                barra_p = "█" * bloques + "░" * (ancho_barra - bloques)
-                print(f"  [{barra_p}] pág {i+1}/{total_paginas}", end="\r", flush=True)
-
-                images = None
-                img_base = None
-
-                try:
-                    images = convert_from_path(
-                        self.pdf_path,
-                        first_page=i + 1,
-                        last_page=i + 1,
-                        dpi=self.dpi,
-                        grayscale=True
-                    )
-
-                    img_base = images[0].convert("L")
-
-                    # ── Pasada normal ──────────────────────────────────────────
-                    img_normal  = self._mejorar_imagen(img_base.copy())
-                    data_normal = self._ocr_tokens(img_normal)
-
-                    # ── Pasada invertida (preprocesado suave para fondo oscuro) ──
-                    if self.ocr_doble_pasada:
-                        img_inv  = self._mejorar_imagen_invertida(img_base.copy())
-                        data_inv = self._ocr_tokens(img_inv)
-                        data     = self._fusionar_tokens(data_normal, data_inv)
-                    else:
-                        data = data_normal
-
-                    # Reconstruir tokens fragmentados por Tesseract (aplica a todos los proveedores)
-                    # Cubre: "ID"+"12345678" (PS/Otro) y "856"+"954" → "856-954" (Pakar/Cklass)
-                    data = self._reconstruir_tokens(data)
-
-                    p_orig       = reader_pdf.pages[i]
-                    w_pdf, h_pdf = float(p_orig.mediabox.width), float(p_orig.mediabox.height)
-                    w_img, h_img = img_normal.size
-                    scale_x      = w_pdf / w_img
-                    scale_y      = h_pdf / h_img
-
-                    packet = BytesIO()
-                    can    = canvas.Canvas(packet, pagesize=(w_pdf, h_pdf))
-                    can.setFont(self.etiqueta_font, self.etiqueta_font_size)
-                    can.setFillColorRGB(*self.etiqueta_color)
-
-                    ids_en_pagina       = set()   # candidatos OCR ya probados en esta página
-                    catalogo_en_pagina  = set()   # IDs de catálogo ya estampados — evita doble etiqueta
-                                                   # cuando la doble pasada lee el mismo ID con variantes distintas
-
-                    for j in range(len(data["text"])):
-                        texto = data["text"][j]
-                        if not texto.strip():
-                            continue
-
-                        # Extracción general → particular según proveedor
-                        id_detectado = self._extraer_id_candidato(texto)
-                        if id_detectado is None:
-                            continue
-
-                        if id_detectado in ids_en_pagina:
-                            continue
-
-                        precio, tipo_match, id_match, score = self._buscar_id(id_detectado)
-
-                        if precio and precio > 0:
-                            clave_catalogo = id_match if id_match else id_detectado
-                            if clave_catalogo in catalogo_en_pagina:
-                                # Mismo artículo ya etiquetado — típico cuando la doble
-                                # pasada OCR detecta el mismo ID con una variante distinta
-                                continue
-
-                            x_pdf = (data["left"][j] * scale_x) + self.etiqueta_offset_x
-                            y_pdf = h_pdf - (data["top"][j] * scale_y) + self.etiqueta_offset_y
-
-                            can.drawString(x_pdf, y_pdf, f"${precio:,.0f}")
-                            total_etiquetado += 1
-                            ids_en_pagina.add(id_detectado)
-                            catalogo_en_pagina.add(clave_catalogo)
-                            ids_detectados.add(clave_catalogo)
-                            if tipo_match == "recorte":
-                                recorte_matches += 1
-
-                    can.save()
-                    packet.seek(0)
-
-                    if packet.getbuffer().nbytes > 0:
-                        p_orig.merge_page(PdfReader(packet).pages[0])
-
-                    # Logo en portada
-                    if i == 0 and self.logo_activo and self.logo_path and os.path.exists(self.logo_path):
-                        capa_logo = self._capa_logo(w_pdf, h_pdf)
-                        p_orig.merge_page(PdfReader(capa_logo).pages[0])
-
-                    writer.add_page(p_orig)
-
-                except pytesseract.TesseractNotFoundError:
-                    self.logger.error("❌ Tesseract no encontrado.")
-                    raise
-                except Exception as e:
-                    self.logger.error(f"\n❌ Error en página {i+1}: {e}")
-                    writer.add_page(reader_pdf.pages[i])
-
-                finally:
-                    del images
-                    del img_base
-                    gc.collect()
-                    # Pausa mínima entre páginas: permite que el scheduler
-                    # del SO atienda VSCode y la interfaz gráfica.
-                    time.sleep(0.05)
-
-                # ── Escribir lote a disco cuando se llena ──────────────────
-                paginas_en_lote += 1
-                if paginas_en_lote >= self.lote_paginas:
-                    lote_path = os.path.join(tmp_dir, f"lote_{len(archivos_lote):04d}.pdf")
-                    with open(lote_path, "wb") as f:
-                        writer.write(f)
-                    archivos_lote.append(lote_path)
-                    self.logger.info(
-                        f"  💾  Lote {len(archivos_lote)} escrito "
-                        f"({paginas_en_lote} págs.) — liberando memoria"
-                    )
-                    del writer
-                    gc.collect()
-                    writer = PdfWriter()
-                    paginas_en_lote = 0
-
-            # ── Escribir último lote parcial ───────────────────────────────
-            if paginas_en_lote > 0:
-                lote_path = os.path.join(tmp_dir, f"lote_{len(archivos_lote):04d}.pdf")
-                with open(lote_path, "wb") as f:
-                    writer.write(f)
-                archivos_lote.append(lote_path)
-                del writer
-                gc.collect()
-
-            print(" " * 60, end="\r")
-
-            # ── Fusionar lotes ─────────────────────────────────────────────
-            self.logger.info(f"  📦  {len(archivos_lote)} lote(s) escritos — fusionando...")
-            paginas_catalogo = []
-            lote_readers = []  # keep references alive
-            for lote_file in archivos_lote:
-                lr = PdfReader(lote_file)
-                lote_readers.append(lr)
-                paginas_catalogo.extend(lr.pages)
-
-            # ── Insertar páginas de presentación ──────────────────────────
-            if self.presentaciones:
-                self.logger.info("📎 Insertando páginas de presentación...")
-                total_real_pdf   = len(reader_pdf.pages)
-                paginas_final    = self._insertar_presentaciones(
-                                       paginas_catalogo, total_real_pdf)
-            else:
-                paginas_final = paginas_catalogo
-
-            # ── Guardar PDF final ──────────────────────────────────────────
-            self.logger.info("💾 Guardando PDF final...")
-            os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
-            try:
-                writer_final = PdfWriter()
-                for p in paginas_final:
-                    writer_final.add_page(p)
-                with open(self.output_path, "wb") as f:
-                    writer_final.write(f)
-                del writer_final
-                gc.collect()
-            except Exception as e:
-                self.logger.error(f"❌ Error al guardar PDF: {e}")
-                raise
-
-            del lote_readers
-            del paginas_catalogo
-            gc.collect()
-
-        finally:
-            # Limpiar archivos temporales de lotes — siempre, incluso si falla
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+            with open(self.output_path, "wb") as f:
+                writer.write(f)
+        except Exception as e:
+            self.logger.error(f"❌ Error al guardar PDF: {e}")
+            raise
 
         # ── Normalizar PDF — compatibilidad universal ──────────────────────────────
         self._normalizar_pdf(self.output_path)

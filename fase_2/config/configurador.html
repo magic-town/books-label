@@ -741,18 +741,6 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
             </div>
           </div>
         </div>
-        <div class="sec-divider" style="margin:0.25rem 0;"></div>
-        <div class="slider-wrap">
-          <div class="slider-top"><span class="slider-name">📦 Páginas por lote</span>
-            <span class="spinbox amber" id="spn_lote">
-              <button class="spinbox-btn" onclick="sbStep('lote_paginas',-10)">−</button>
-              <input class="spinbox-input" id="si_lote" type="number" step="10" value="50" onchange="sbSet('lote_paginas',this.value)"/>
-              <button class="spinbox-btn" onclick="sbStep('lote_paginas',10)">+</button>
-            </span>
-          </div>
-          <input type="range" class="r-amber" id="lote_paginas" min="10" max="200" step="10" value="50" oninput="upd()"/>
-          <div class="slider-hint">Reduce consumo de RAM en catálogos grandes · Default: 50</div>
-        </div>
       </div>
     </div>
 
@@ -1291,7 +1279,7 @@ const DEFAULTS = {
   id_proveedor:'PS', id_longitud_min:4, id_longitud_max:8,
   etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
-  prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0, lote_paginas:50,
+  prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0,
   portadas_activas:false, p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
@@ -1427,7 +1415,6 @@ function upd() {
   // Sync spinboxes <- sliders ya validados
   sync('paginas_prueba_ini', 'si_prueba_ini', 0);
   sync('paginas_prueba',     'si_prueba',     0);
-  sync('lote_paginas', 'si_lote', 0);
 
   // Toggle styling
   $('tog-prueba').className = 'tog' + (pruebaOn ? ' active-rose' : '');
@@ -1559,7 +1546,6 @@ function buildCfgStr() {
   const dpi     = parseInt(sv('dpi'));
   const psm     = parseInt(sv('psm'));
   const doble   = bv('ocr_doble_pasada');
-  const lote    = parseInt(fv('lote_paginas'));
   const contra  = +fv('contraste').toFixed(1);
   const nitid   = +fv('nitidez').toFixed(1);
   const gray    = bv('ocr_grayscale');
@@ -1577,7 +1563,6 @@ function buildCfgStr() {
     "id_proveedor": ${v(id_prov)},
     
     "paginas_prueba": ${typeof paginasVal === 'number' ? paginasVal : paginasVal === false ? 'false' : paginasVal},
-    "lote_paginas": ${lote},
     
     "pdf_input":   ${v(pdf_in)},
     "excel_input": ${v(xls_in)},
@@ -1640,7 +1625,7 @@ function resetear() {
   $('dpi').value=DEFAULTS.dpi;
   $('psm').value=DEFAULTS.psm;
   $('logo_filename').value=DEFAULTS.logo_filename;
-  ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max','lote_paginas',
+  ['dpi','psm','contraste','nitidez','id_longitud_min','id_longitud_max',
    'etiqueta_font_size','cr','cg','cb','etiqueta_offset_x_pt','etiqueta_offset_y_pt','paginas_prueba','paginas_prueba_ini',
    'logo_x_pt','logo_y_pt','logo_ancho_pt','logo_alto_pt','logo_transparencia'
   ].forEach(id => $(id).value = DEFAULTS[id]);

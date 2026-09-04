@@ -6,9 +6,6 @@
     
     "paginas_prueba": 21,
     
-    "ocr_rotacion_90":  false,
-    "ocr_rotacion_270": false,
-    
     "pdf_input":   "libros/catalogo_temp.pdf",
     "excel_input": "precios/lista_catalogo.xlsx",
     "pdf_output":  "salidas/catalogo_precios.pdf",
@@ -44,10 +41,8 @@
     "ocr_doble_pasada": false,
     
     "contraste":     2.5,
-    "nitidez":       2,
+    "nitidez":       2.0,
     
     "ocr_grayscale": true,
-    "ocr_invertir":  false,
-    "fuzzy_activo": false,
-    "fuzzy_umbral": 80
+    "ocr_invertir":  false
 }

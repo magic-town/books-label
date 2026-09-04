@@ -1,0 +1,48 @@
+{
+    "_comentario": "Configuración para Catalogo — Boutique Zepeda",
+    "_uso": "python3 fase_2/catalogo_base.py --config fase_2/config/<config_catalogo_temp.json>",
+    
+    "id_proveedor": "Pakar",
+    
+    "paginas_prueba": 21,
+    
+    "pdf_input":   "libros/men1_oi26_rgb.pdf",
+    "excel_input": "precios/lista_men1_oi26.xlsx",
+    "pdf_output":  "salidas/men1_oi26_precios.pdf",
+    
+    "presentaciones": [
+        {"path": "../imagenes/logos/portada_01.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_02.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_03.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_04.pdf", "posicion": false},
+        {"path": "../imagenes/logos/portada_05.pdf", "posicion": false}
+    ],
+    
+    "logo_activo":        true,
+    "logo_path":          "../imagenes/logos/logo_bz.png",
+    "logo_x_pt":          423,
+    "logo_y_pt":          670,
+    "logo_ancho_pt":      80,
+    "logo_alto_pt":       80,
+    "logo_transparencia": 0.85,
+    
+    "etiqueta_font":        "Helvetica-BoldOblique",
+    "etiqueta_font_size":   7,
+    "etiqueta_color_rgb":   [0, 0, 1],
+    "etiqueta_offset_x_pt": -23,
+    "etiqueta_offset_y_pt": -14,
+    
+    "id_longitud_min": 4,
+    "id_longitud_max": 8,
+    
+    "dpi": 200,
+    "psm": 6,
+    
+    "ocr_doble_pasada": false,
+    
+    "contraste":     2.5,
+    "nitidez":       2.0,
+    
+    "ocr_grayscale": true,
+    "ocr_invertir":  false
+}
