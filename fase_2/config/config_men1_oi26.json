@@ -6,7 +6,7 @@
     
     "paginas_prueba": false,
     
-    "pdf_input":   "libros/men1_oi26_rgb.pdf",
+    "pdf_input":   "libros/men1_oi26.pdf",
     "excel_input": "precios/lista_men1_oi26.xlsx",
     "pdf_output":  "salidas/men1_oi26_precios.pdf",
     
