@@ -114,14 +114,6 @@ class EtiquetadorCatalogo:
         # en RAM — baja el pico de memoria a costa de un poco de tiempo.
         self.normalizar_max_bitmap_mb = config.get("normalizar_max_bitmap_mb", 256)
         self.normalizar_timeout_s     = config.get("normalizar_timeout_s", 600)
-        # Fuerza conversión a sRGB/DeviceRGB en la normalización final.
-        # Necesario para proveedores que entregan PDFs con CMYK o
-        # separaciones de tinta (/Separation, /DeviceN) — sin esto, muchas
-        # impresoras domésticas/de oficina no interpretan esos canales y
-        # el catálogo sale en blanco y negro al imprimir aunque en pantalla
-        # se vea a color. Se aplica junto con el downsampling (no aparte)
-        # para no reprocesar imágenes a resolución completa.
-        self.normalizar_forzar_rgb    = config.get("normalizar_forzar_rgb", True)
 
         # Parámetros OCR
         self.dpi            = config.get("dpi", 200)
@@ -234,12 +226,6 @@ class EtiquetadorCatalogo:
             "-dDetectDuplicateImages=true",   # evita recomprimir el mismo logo/imagen repetida
             f"-dMaxBitmap={max_bitmap_bytes}",
         ]
-
-        if self.normalizar_forzar_rgb:
-            cmd += [
-                "-dColorConversionStrategy=/sRGB",
-                "-dProcessColorModel=/DeviceRGB",
-            ]
 
         if self.normalizar_calidad == "custom":
             # Control fino: se fija la resolución exacta en vez de un preset.
@@ -885,6 +871,7 @@ class EtiquetadorCatalogo:
         return packet
 
     # ── Aplanado de formularios AcroForm ─────────────────────────────────────
+
 
     def _aplanar_pdf(self, pdf_path: str) -> str:
         """
