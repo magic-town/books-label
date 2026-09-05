@@ -146,7 +146,7 @@ TABLA_INCREMENTOS_ESTANDAR = [
     RangoIncremento(1600, 1799, 0.01, 0.07, 0.20),
     RangoIncremento(1800, 1999, 0.01, 0.07, 0.19),
     RangoIncremento(2000, 2999, 0.01, 0.07, 0.18),
-    RangoIncremento(3000, 6500, 0.01, 0.07, 0.18),
+    RangoIncremento(3000, 6500, 0.01, 0.07, 0.19),
 ]
 
 TABLA_INCREMENTOS_PREMIUM = [
@@ -161,7 +161,7 @@ TABLA_INCREMENTOS_PREMIUM = [
     RangoIncremento(1600, 1799, 0.028571, 0.071429, 0.214286),
     RangoIncremento(1800, 1999, 0.028571, 0.071429, 0.200000),
     RangoIncremento(2000, 2999, 0.028571, 0.071429, 0.185714),
-    RangoIncremento(3000, 6500, 0.028571, 0.071429, 0.178571),
+    RangoIncremento(3000, 6500, 0.028571, 0.071429, 0.192857),
 ]
 
 

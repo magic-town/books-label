@@ -4,13 +4,13 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Confort",
-    "temporada":       "Otoño-Invierno 2026",
+    "catalogo":        "Vestir_Casual",
+    "temporada":       "OI26",
 
     "marcar_importados": false,
 
-    "pdf_input":       "lista_cruda/lista_confort_oi26.pdf",
-    "excel_output":    "precios/lista_confort_oi26.xlsx",
+    "pdf_input":       "lista_cruda/lista_vestir_casual_oi26.pdf",
+    "excel_output":    "precios/lista_vestir_casual_oi26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
