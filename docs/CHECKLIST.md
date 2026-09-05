@@ -104,7 +104,7 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
      width="85%"/>
 </div>
 
-- [ ] Captura los parámetros en `fase_1/<config_proveedor>.json`: `catalogo`, `temporada`, `input`, `output`
+- [ ] Captura los parámetros en `fase_1/<config_proveedor>.json`: `catalogo`, `temporada`, `input`, `output`. Nuevo parámetro booleano `true` or `false` para 
 
 <div align="center">
 <img src="../imagenes/asset_repo/fichero_json.png"
