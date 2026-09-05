@@ -836,7 +836,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1);}
           <div class="portada-row row-inactive" id="row-p1">
             <span class="portada-badge" id="badge-p1">01</span>
             <span class="portada-label" id="label-p1">portada_01.pdf</span>
-            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p1_activa" oninput="upd()"/><span class="sw-track"></span></label>
+            <label class="sw violet" style="transform:scale(0.85)"><input type="checkbox" id="p1_activa" checked oninput="upd()"/><span class="sw-track"></span></label>
             <div class="portada-pos-wrap">
               <span class="portada-pos-label">pág</span>
               <span class="spinbox violet" id="spn_p1" style="opacity:0.4;pointer-events:none">
@@ -1377,7 +1377,7 @@ const DEFAULTS = {
   etiqueta_font:'Helvetica-BoldOblique', etiqueta_font_size:12, fs_modo:'grande', fs_grande:12, fs_pequeno:8, cr:0.00, cg:0.00, cb:1.00,
   etiqueta_offset_x_pt:0.0, etiqueta_offset_y_pt:0.0,
   prueba_activa:true, paginas_prueba:21, paginas_prueba_ini:0,
-  portadas_activas:true, combo_portadas:'price', p1_activa:false, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
+  portadas_activas:true, combo_portadas:'price', p1_activa:true, p1_pos:2, p2_activa:false, p2_pos:10, p3_activa:false, p3_pos:20, p4_activa:false, p4_pos:1, p5_activa:false, p5_pos:-1,
   logo_activo:true, logo_filename:'logo_bz.png',
   logo_x_pt:415, logo_y_pt:705, logo_ancho_pt:82, logo_alto_pt:82, logo_transparencia:0.85
 };
