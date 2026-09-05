@@ -127,30 +127,18 @@ El proyeecto se ha vuelto algo robusto, por lo que te sugiero que uses un módul
 
 #### Ejecuta el programa de extracción de precios
 
-- [ ] Corre el fichero 🐍 `extract_<proveedor>.py` con su configuración conrrespondiente para este módulo. Obtendrás un par de tablas:
+- [ ] Corre el fichero 🐍 `extraer_<proveedor>.py` con su configuración conrrespondiente para este módulo. Se obtienen un par de tablas como output: `fase_1/salida/tabla_<proveedor>.xlsx`, `fase_2/libros/*.xlsx`"
 
 **🔵 Price Shoes**
 
 ```bash
-python3 fase_1/extract_price.py --config fase_1/config/config_price.json
-```
-
-**🔵🇺🇲 Price Shoes Impotados**
-
-```bash
-python3 fase_1/extract_price_importados.py --config fase_1/config/config_price.json
+python3 fase_1/extraer_price.py --config fase_1/config/config_price.json
 ```
 
 **🟡 Pakar**
 
 ```bash
-python3 fase_1/extract_pakar.py --config fase_1/config/config_pakar.json
-```
-
-**🟡🇺🇲 Pakar PREMIUM**
-
-```bash
-python3 fase_1/extract_pakar_premium.py --config fase_1/config/config_pakar.json
+python3 fase_1/extraer_pakar.py --config fase_1/config/config_pakar.json
 ```
 
 > [!WARNING]
@@ -297,7 +285,7 @@ VSC > File > Open Folder > books-label > Open > fase_2
 
 - [ ] Crear una copia de `../fase_2/config/config_base.json`. Desde el panel de directorios de **VSC** o desde **Dolphin**, al hacer: `Ctrl+C` $\to$ `Ctrl+V` en cualquiera de los dos, la copia se genera en automático.
 - [ ] Renombrar la copia con `F2`:
-  `config_<proveedor>_<temporada>.json`
+  `<config_catalogo_temp>.json`
 - [ ] Abrir el configurador haciendo doble clic 🖱️:
 
   ```
@@ -320,27 +308,15 @@ VSC > File > Open Folder > books-label > Open > fase_2
      width="85%"/>
 </div>
 
-#### Catálogos con ID/Código verticales (para los que aplica).
-
-Para los catálogos que tienen `Códigos` verticales, pueden suceder un par de cosas:
-
-1. Al imprimir el catalógo la página queda identica, y verificamos si se coloco la etiqueta.
-2. La página rotó (giro) y ahora se ve horzontalmente. Esto pasa con los `libros` que se convierte a formato `catalogo_rgb.pdf`
-
-Para solucionar lo anteior, aplicamos la funcionalidad `ocr_rotacion_X°` junto con la funcionalidad `paginas_prueba`
+- [ ] Instertar publicidad en los catálogos. Elige la publicidad del proveedor correspondiente con el panel de botones.
 
 <div align="center">
-<img src="../imagenes/asset_repo/rotacion.png"
+<img src="../imagenes/asset_repo/publicidad.png"
      alt="Boutique Zepeda — Taller de Etiquetado"
      width="85%"/>
 </div>
 
-- [ ] Selecciona el rango de páginas donde se encuentran los `Códigos` verticales y aplica una rotación a la vez para saber cual es la que funciona.
-
-> [!IMPORTANT]
-> Las rotaciones duplican el tiempo de procesamiento por lo que debes usarlas
-> solo para catálogos con códigos verticales.
-
+- [ ] Puedes editar parametros como: `tmaño_logo`, `transparencia_logo`, `tamaño_fuente`, etc.
 - [ ] Hacer `COPY JSON` del configurador y pegarlo en tu archivo de configuración en VSC.
 
 ---
