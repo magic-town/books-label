@@ -65,7 +65,7 @@ Crea una publicación con la imagen que te comparto y el siguiente schema JSON:
 ```
 
 > [!NOTE]
-> Si no quieres incluir la marca, puedes dejar el espacio en blanco de la siguinte manera:
+> Si no quieres incluir la marca, puedes dejar el espacio en blanco de la siguinte manera:   
 > "marca": "",
 
 ## Caballero
