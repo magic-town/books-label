@@ -16,11 +16,18 @@ Una vez que tengas la foto de la prenda con sus respectivo:
 - talla
 - precio
 
-Guarda la imagen en:
+**Guarda la imagen original en**:
 
 ```
 ~/boutique_zepeda/pto_montaje/social_media/estados_piso_venta/<categoria>/originales/
 ```
+
+**Guarda la imagen editada en**:
+
+```
+~/boutique_zepeda/pto_montaje/social_media/estados_piso_venta/<categoria>/editadas/
+```
+
 
 Elige el prompt según el público al que esté dirigido el producto:
 
