@@ -4,13 +4,13 @@
 
     "proveedor":       "PS",
 
-    "catalogo":        "Kids todo en 1",
+    "catalogo":        "Importados Winter",
     "temporada":       "OI26",
 
-    "marcar_importados": false,
+    "marcar_importados": true,
 
-    "pdf_input":       "lista_cruda/lista_kids_todo_en1_oi26.pdf",
-    "excel_output":    "precios/lista_kids_todo_en1_oi26.xlsx",
+    "pdf_input":       "lista_cruda/lista_imp_winter26.pdf",
+    "excel_output":    "precios/lista_imp_winter26.xlsx",
 
     "encoding_offset": 29,
     "tolerancia_x":    15,
